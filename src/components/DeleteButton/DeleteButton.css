@@ -1,0 +1,16 @@
+@reference "../../styles/main.css";
+
+.delete-button {
+    @apply flex items-center justify-center p-2.5 rounded-full cursor-pointer transition-colors outline-none;
+    @apply hover:bg-red-500/10;
+    color: var(--color-text-muted);
+}
+
+.delete-button:hover {
+    color: var(--color-error-main);
+}
+
+.delete-button .delete-icon {
+    @apply w-5 h-5 shrink-0;
+    aspect-ratio: 1 / 1;
+}

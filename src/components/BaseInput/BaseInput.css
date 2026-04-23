@@ -1,0 +1,53 @@
+@reference "../../styles/main.css";
+
+.base-input-wrapper {
+    @apply flex flex-col gap-1.5 w-full;
+}
+
+.base-input-label {
+    @apply text-[11px] font-bold uppercase tracking-wider ml-1 opacity-60;
+    color: var(--color-text-main);
+}
+
+.base-input-container {
+    @apply relative flex items-center;
+}
+
+.base-input-prefix {
+    @apply absolute left-4 flex items-center justify-center pointer-events-none;
+    color: var(--color-text-muted);
+}
+
+.base-input-field {
+    @apply w-full px-4 py-3 rounded-xl transition-all text-sm font-medium border outline-none;
+    background-color: var(--color-input-bg);
+    border-color: var(--color-input-border);
+    color: var(--color-text-input);
+}
+
+.base-input-field.has-prefix {
+    @apply pl-11;
+}
+
+.base-input-field:focus {
+    @apply ring-2 border-brand-primary/50;
+    --tw-ring-color: color-mix(in srgb, var(--color-brand-primary), transparent 80%);
+}
+
+.base-input-container:focus-within .base-input-prefix {
+    color: var(--color-brand-primary);
+}
+
+.base-input-field::placeholder {
+    color: var(--color-text-input-ph);
+    opacity: 1;
+}
+
+.base-input-icon {
+    @apply absolute right-4 cursor-pointer transition-colors w-4 h-4;
+    color: var(--color-text-muted);
+}
+
+.base-input-icon:hover {
+    color: var(--color-brand-primary);
+}

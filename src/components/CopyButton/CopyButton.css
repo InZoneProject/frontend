@@ -1,0 +1,13 @@
+@reference "../../styles/main.css";
+
+.copy-button {
+    @apply flex items-center justify-center p-2.5 rounded-full cursor-pointer transition-colors outline-none;
+    @apply hover:bg-black/5 dark:hover:bg-white/5;
+    color: var(--color-text-main);
+}
+
+.copy-button .copy-icon {
+    @apply w-5 h-5 shrink-0;
+    aspect-ratio: 1 / 1;
+    color: var(--color-text-main);
+}

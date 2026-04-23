@@ -1,0 +1,72 @@
+@reference "../../../../styles/main.css";
+
+.verification-form-container {
+    @apply flex flex-col w-full;
+}
+
+.verification-header {
+    @apply text-center mb-2 w-full flex flex-col items-center;
+}
+
+.verification-logo-img {
+    @apply w-20 h-20 mb-4 object-contain transition-all duration-400;
+    filter: drop-shadow(0 8px 16px var(--color-logo-shadow));
+}
+
+.verification-title {
+    @apply text-4xl font-black tracking-tight mb-6 uppercase;
+    color: var(--color-text-main);
+}
+
+.verification-error-area {
+    @apply w-full mb-6 min-h-[54px] flex items-center transition-all duration-300;
+}
+
+.verification-error-area:empty {
+    @apply mb-0 min-h-0;
+}
+
+.verification-info-block {
+    @apply mb-6 py-4 px-5 rounded-2xl border border-solid transition-colors duration-400 min-h-[80px] flex items-center justify-center;
+    background-color: rgba(79, 70, 229, 0.06);
+    border-color: rgba(79, 70, 229, 0.2);
+}
+
+:root.dark .verification-info-block {
+    background-color: rgba(251, 191, 36, 0.04);
+    border-color: rgba(251, 191, 36, 0.15);
+}
+
+.verification-info-text {
+    @apply text-[13px] font-medium leading-relaxed;
+    color: var(--color-text-main);
+}
+
+.verification-status-area {
+    @apply w-full flex items-center justify-center transition-all duration-300;
+}
+
+.verification-status-area:not(:has(.base-timer)) {
+    @apply h-0 mb-0 overflow-hidden;
+}
+
+.verification-status-area:has(.base-timer) {
+    @apply h-12 mb-8;
+}
+
+.verification-content {
+    @apply flex justify-center mb-10 transition-all duration-300;
+}
+
+.input-error :deep(.code-digit-input) {
+    @apply border-error-main;
+    color: var(--color-error-main);
+}
+
+.verification-footer {
+    @apply flex flex-col w-full;
+}
+
+.verification-footer :deep(.base-button:disabled) {
+    @apply opacity-70 cursor-not-allowed;
+}

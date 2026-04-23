@@ -1,0 +1,65 @@
+@reference "../../styles/main.css";
+
+.base-button {
+    @apply relative w-full py-4 rounded-2xl font-black text-sm transition-all flex items-center justify-center overflow-hidden border-none outline-none;
+    cursor: pointer;
+}
+
+.variant-primary {
+    background-color: var(--color-brand-primary);
+    color: white;
+}
+
+:root.dark .variant-primary {
+    color: #000;
+}
+
+.variant-secondary {
+    @apply border border-solid backdrop-blur-md;
+    background-color: transparent;
+    border-color: var(--color-card-border);
+    color: var(--color-text-main);
+}
+
+.base-button:hover:not(:disabled) {
+    @apply scale-[1.02] brightness-110;
+}
+
+.variant-primary:hover:not(:disabled) {
+    box-shadow: 0 10px 25px -5px var(--color-brand-shadow);
+}
+
+.variant-secondary:hover:not(:disabled) {
+    background-color: color-mix(in srgb, var(--color-brand-primary), transparent 95%);
+    border-color: color-mix(in srgb, var(--color-brand-primary), transparent 50%);
+}
+
+.base-button:active:not(:disabled) {
+    @apply scale-[0.98];
+}
+
+.base-button:disabled {
+    @apply opacity-50 grayscale-[0.5];
+    cursor: not-allowed;
+}
+
+.base-button-spinner {
+    @apply absolute w-5 h-5 animate-spin;
+    color: currentColor;
+}
+
+.base-button-spinner circle {
+    @apply opacity-25;
+}
+
+.base-button-spinner path {
+    @apply opacity-75;
+}
+
+.base-button-text {
+    @apply transition-opacity duration-200;
+}
+
+.base-button.is-loading .base-button-text {
+    @apply opacity-0;
+}

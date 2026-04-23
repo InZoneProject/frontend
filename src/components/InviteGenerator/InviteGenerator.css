@@ -1,0 +1,108 @@
+@reference "../../styles/main.css";
+
+.invite-generator-card {
+    @apply flex items-center justify-between gap-8 p-10 rounded-[3rem] border border-solid transition-all duration-400 backdrop-blur-3xl;
+    @apply min-h-[144px];
+    background-color: var(--color-card-bg);
+    border-color: var(--color-card-border);
+    box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.1);
+}
+
+.invite-generator-card.is-loading {
+    @apply opacity-60;
+}
+
+.invite-skeleton {
+    @apply flex items-center gap-6 w-full animate-pulse;
+}
+
+.skeleton-icon {
+    @apply w-14 h-14 rounded-full bg-black/5 dark:bg-white/5;
+}
+
+.skeleton-text {
+    @apply flex flex-col gap-2 flex-1;
+}
+
+.skeleton-title {
+    @apply w-32 h-5 bg-black/5 dark:bg-white/5 rounded-lg;
+}
+
+.skeleton-desc {
+    @apply w-64 h-3 bg-black/5 dark:bg-white/5 rounded-md;
+}
+
+.invite-left-side {
+    @apply flex items-center gap-6 min-w-0 flex-1;
+}
+
+.invite-status-icon {
+    @apply w-14 h-14 rounded-full flex items-center justify-center shrink-0 border border-solid transition-all duration-500;
+    border-color: var(--color-brand-primary);
+    color: var(--color-brand-primary);
+    background-color: color-mix(in srgb, var(--color-brand-primary), transparent 97%);
+}
+
+.invite-status-icon.is-active {
+    border-color: var(--color-brand-primary);
+    color: var(--color-brand-primary);
+    background-color: color-mix(in srgb, var(--color-brand-primary), transparent 92%);
+    box-shadow: 0 0 20px -5px var(--color-brand-shadow);
+}
+
+.invite-header-text {
+    @apply min-w-0 flex-1;
+}
+
+.invite-header-text h3 {
+    @apply text-xl font-black tracking-tight leading-none mb-2 truncate;
+    color: var(--color-text-main);
+}
+
+.invite-description {
+    @apply text-[13px] font-medium opacity-50 leading-relaxed;
+    @apply max-w-[380px];
+    color: var(--color-text-main);
+}
+
+@media (max-width: 1280px) {
+    .invite-description {
+        @apply truncate;
+    }
+}
+
+.invite-right-side {
+    @apply flex items-center justify-end min-w-0 max-w-[60%];
+}
+
+.main-generate-btn {
+    @apply h-12 !px-8 rounded-2xl font-bold transition-colors active:scale-95;
+    @apply shadow-lg shadow-brand-shadow/10;
+}
+
+.invite-active-layout {
+    @apply flex items-center gap-4 min-w-0;
+    animation: slideInRight 0.4s ease-out;
+}
+
+.link-capsule {
+    @apply flex items-center h-12 px-1 py-1 rounded-2xl border border-solid min-w-0 max-w-md;
+    background-color: var(--color-input-bg);
+    border-color: var(--color-input-border);
+}
+
+.link-url {
+    @apply px-5 font-mono text-sm font-bold tracking-tight truncate;
+    color: var(--color-brand-primary);
+}
+
+@keyframes slideInRight {
+    from {
+        opacity: 0;
+        transform: translateX(20px);
+    }
+    to {
+        opacity: 1;
+        transform: translateX(0);
+    }
+}

@@ -1,0 +1,54 @@
+@import "tailwindcss";
+@import "./theme.css";
+
+@layer base {
+    *, *::before, *::after {
+        transition-property: background-color, border-color, color, fill, stroke, box-shadow, opacity;
+        transition-duration: 400ms;
+        transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
+    }
+
+    body {
+        @apply font-base antialiased min-h-screen m-0 p-0;
+        background-color: var(--color-main-bg);
+        color: var(--color-text-main);
+    }
+}
+
+.is-toggling * {
+    transition: none !important;
+}
+
+.app-background {
+    @apply fixed inset-0 -z-50 overflow-hidden;
+    background: radial-gradient(circle at center, #cbd5e1 0%, #94a3b8 100%);
+}
+
+.app-background::before {
+    content: '';
+    @apply absolute inset-0 -z-10 opacity-100;
+    background: radial-gradient(circle at center, #1e293b 0%, #030712 100%);
+    clip-path: circle(0% at 50% 50%);
+    transition: clip-path 1200ms cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+:root.dark .app-background::before {
+    clip-path: circle(150% at 50% 50%);
+}
+
+.global-network-overlay {
+    @apply absolute inset-0 opacity-40 pointer-events-none z-0;
+    background-image: url('data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNDAiIGhlaWdodD0iNDAiIHZpZXdCb3g9IjAgMCA0MCA0MCIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj48ZyBmaWxsPSJub25lIiBmaWxsLXJ1bGU9ImV2ZW5vZGQiPjxnIHN0cm9rZT0iIzQ3NTVmNSIgc3Ryb2tlLXdpZHRoPSIxLjUiPjxwYXRoIGQ9Ik0xMCAxMGgyMHYyMEgxMHoiLz48cGF0aCBkPSJNMCAyMGgxME0zMCAyMGgxME0yMCAwaDEwTTIwIDMwaDEwIi8+PC9nPjwvZz48L3N2Zz4=');
+    mask-image: radial-gradient(circle, black 40%, transparent 100%);
+    animation: network-move 80s linear infinite;
+}
+
+:root.dark .global-network-overlay {
+    @apply opacity-20;
+    filter: invert(1) brightness(1.5) sepia(1) saturate(5);
+}
+
+@keyframes network-move {
+    from { background-position: 0 0; }
+    to { background-position: 1000px 1000px; }
+}

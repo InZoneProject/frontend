@@ -1,0 +1,40 @@
+<svg width="100%" viewBox="0 0 680 680" role="img" xmlns="http://www.w3.org/2000/svg">
+  <title>InZone lock icon Dark (Final Correct)</title>
+  <desc>Amber badge with dark lock, lines, and waves</desc>
+
+  <defs>
+    <linearGradient id="bg-dark-final" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#fbbf24"/>
+      <stop offset="100%" stop-color="#d97706"/>
+    </linearGradient>
+    <linearGradient id="lbody-dark-final" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" stop-color="#451a03"/>
+      <stop offset="100%" stop-color="#2d1a0a"/>
+    </linearGradient>
+    <linearGradient id="lface-dark-final" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" stop-color="#78350f"/>
+      <stop offset="100%" stop-color="#451a03"/>
+    </linearGradient>
+  </defs>
+
+  <rect x="90" y="90" width="500" height="500" rx="110" fill="url(#bg-dark-final)"/>
+  <rect x="108" y="108" width="464" height="464" rx="95" fill="none" stroke="#2d1a0a" stroke-width="1.5" opacity="0.3"/>
+
+  <g transform="translate(340, 345)">
+    <circle cx="0" cy="0" r="78" fill="none" stroke="#2d1a0a" stroke-width="5" opacity="0.55"/>
+    <circle cx="0" cy="0" r="116" fill="none" stroke="#2d1a0a" stroke-width="4.5" opacity="0.38"/>
+    <circle cx="0" cy="0" r="154" fill="none" stroke="#2d1a0a" stroke-width="4" opacity="0.24"/>
+    <circle cx="0" cy="0" r="192" fill="none" stroke="#2d1a0a" stroke-width="3" opacity="0.14"/>
+
+    <line x1="-54" y1="-15" x2="-54" y2="-110" stroke="#2d1a0a" stroke-width="22" stroke-linecap="round"/>
+    <line x1="54" y1="-15" x2="54" y2="-110" stroke="#2d1a0a" stroke-width="22" stroke-linecap="round"/>
+    <path d="M-54 -110 C-54 -162 54 -162 54 -110" fill="none" stroke="#2d1a0a" stroke-width="22" stroke-linecap="round"/>
+
+    <rect x="-109" y="-7" width="220" height="172" rx="30" fill="#2d1a0a" opacity="0.4"/>
+    <rect x="-113" y="-15" width="220" height="172" rx="30" fill="url(#lbody-dark-final)"/>
+    <rect x="-97" y="-1" width="188" height="142" rx="20" fill="url(#lface-dark-final)" opacity="0.6"/>
+
+    <circle cx="0" cy="58" r="20" fill="#fbbf24" opacity="0.9"/>
+    <rect x="-8" y="71" width="16" height="22" rx="5" fill="#fbbf24" opacity="0.9"/>
+  </g>
+</svg>

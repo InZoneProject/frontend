@@ -1,0 +1,65 @@
+@reference "../../../../styles/main.css";
+
+.login-form-container {
+    @apply flex flex-col w-full;
+}
+
+.login-header {
+    @apply text-center mb-2 w-full;
+}
+
+.login-logo-img {
+    @apply w-20 h-20 mx-auto mb-4 object-contain transition-all duration-400;
+    filter: drop-shadow(0 8px 16px var(--color-logo-shadow));
+}
+
+.is-toggling .login-logo-img {
+    transition: none !important;
+}
+
+.login-title {
+    @apply text-4xl font-black tracking-tight mb-6;
+    color: var(--color-text-main);
+}
+
+.login-error-wrapper {
+    @apply mb-6 flex items-center justify-center w-full;
+}
+
+.role-description-block {
+    @apply mt-4 mb-6 py-3 px-4 rounded-xl border border-solid transition-colors duration-400;
+    background-color: rgba(79, 70, 229, 0.04);
+    border-color: rgba(79, 70, 229, 0.15);
+}
+
+:root.dark .role-description-block {
+    background-color: rgba(251, 191, 36, 0.03);
+    border-color: rgba(251, 191, 36, 0.1);
+}
+
+.role-description-text {
+    @apply text-[13px] font-medium leading-snug;
+    color: var(--color-text-main);
+    @apply opacity-80;
+}
+
+.login-form-fields {
+    @apply flex flex-col gap-4;
+}
+
+.login-form-actions {
+    @apply mt-6 flex flex-col gap-2;
+}
+
+.login-footer {
+    @apply mt-8 flex items-center justify-between px-2;
+}
+
+.login-link {
+    @apply text-xs font-semibold cursor-pointer transition-colors;
+    color: var(--color-text-muted);
+}
+
+.login-link:hover {
+    @apply text-brand-primary;
+}

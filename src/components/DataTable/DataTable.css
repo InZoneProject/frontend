@@ -1,0 +1,147 @@
+@reference "../../styles/main.css";
+
+.data-table-container {
+    @apply flex flex-col gap-6 w-full flex-1 overflow-hidden;
+}
+
+.table-controls {
+    @apply w-full shrink-0;
+}
+
+.table-wrapper {
+    @apply overflow-x-hidden overflow-y-auto rounded-[2.5rem] border border-solid transition-all flex-1 relative;
+    background-color: color-mix(in srgb, var(--color-card-bg), transparent 30%);
+    border-color: var(--color-card-border);
+    backdrop-filter: blur(20px);
+}
+
+.main-table {
+    @apply w-full border-separate border-spacing-0 table-fixed;
+}
+
+.main-table thead {
+    @apply sticky top-0 z-20;
+}
+
+.main-table th {
+    @apply px-8 py-6 text-[11px] font-black uppercase tracking-[0.2em] text-left border-r border-b border-solid last:border-r-0;
+    color: var(--color-brand-primary);
+    background-color: var(--color-main-bg);
+    border-bottom-color: var(--color-card-border);
+    border-right-color: color-mix(in srgb, var(--color-card-border), transparent 50%);
+    outline: 1px solid var(--color-main-bg);
+    outline-offset: -1px;
+}
+
+.main-table td {
+    @apply px-8 py-5 border-b border-r border-solid transition-all last:border-r-0;
+    border-bottom-color: var(--color-input-border);
+    border-right-color: color-mix(in srgb, var(--color-input-border), transparent 60%);
+    vertical-align: middle;
+}
+
+.main-table tbody tr:hover td {
+    background-color: color-mix(in srgb, var(--color-brand-primary), transparent 98%);
+}
+
+.td-name {
+    @apply flex items-center gap-4 py-1;
+}
+
+.user-avatar-wrapper {
+    @apply w-12 h-12 rounded-full overflow-hidden shrink-0 border border-solid flex items-center justify-center transition-transform;
+    background: linear-gradient(135deg, var(--color-brand-primary), color-mix(in srgb, var(--color-brand-primary), black 15%));
+    border-color: color-mix(in srgb, var(--color-brand-primary), white 10%);
+    box-shadow: 0 4px 12px var(--color-brand-shadow);
+}
+
+.user-avatar-img {
+    @apply w-full h-full object-cover;
+}
+
+.default-avatar-icon {
+    @apply w-6 h-6 text-white;
+}
+
+:root.dark .default-avatar-icon {
+    @apply text-black;
+}
+
+.user-info-text {
+    @apply flex flex-col gap-1 min-w-0;
+}
+
+.user-name {
+    @apply text-[16px] font-bold tracking-tight leading-none truncate;
+    color: var(--color-text-main);
+}
+
+.user-email,
+.td-phone,
+.td-date {
+    @apply text-[13px] font-medium leading-none truncate;
+    color: var(--color-text-main);
+}
+
+.user-email {
+    @apply text-[12px] mt-1 opacity-50;
+}
+
+.td-phone {
+    @apply text-[14px] opacity-80;
+}
+
+.td-phone.is-empty {
+    @apply opacity-20;
+}
+
+.org-badge {
+    @apply inline-flex items-center justify-center min-w-[36px] h-9 px-4 rounded-xl border border-solid text-[14px] font-black;
+    background-color: color-mix(in srgb, var(--color-brand-primary), transparent 90%);
+    border-color: color-mix(in srgb, var(--color-brand-primary), transparent 75%);
+    color: var(--color-brand-primary);
+}
+
+.td-date {
+    @apply text-[14px] font-mono opacity-80;
+}
+
+.td-actions {
+    @apply flex justify-start items-center;
+    color: var(--color-text-main);
+}
+
+.td-status {
+    @apply py-32 px-8 text-center;
+}
+
+.status-content {
+    @apply flex flex-col items-center justify-center gap-6;
+}
+
+.status-text {
+    @apply text-xl font-black tracking-tight uppercase opacity-40;
+    color: var(--color-text-main);
+}
+
+.loader {
+    @apply w-10 h-10 border-4 border-solid rounded-full animate-spin;
+    border-color: var(--color-brand-primary) transparent var(--color-brand-primary) transparent;
+}
+
+.table-wrapper::-webkit-scrollbar {
+    @apply w-1.5;
+}
+
+.table-wrapper::-webkit-scrollbar-track {
+    @apply bg-transparent;
+}
+
+.table-wrapper::-webkit-scrollbar-thumb {
+    @apply rounded-full;
+    background-color: var(--color-card-border);
+}
+
+.table-wrapper::-webkit-scrollbar-thumb:hover {
+    background-color: var(--color-brand-primary);
+}

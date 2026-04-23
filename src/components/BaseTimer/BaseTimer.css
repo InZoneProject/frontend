@@ -1,0 +1,52 @@
+@reference "../../styles/main.css";
+
+.base-timer {
+    @apply flex items-center justify-center gap-3 h-12 px-5 rounded-2xl border border-solid transition-all duration-300 shrink-0;
+    background-color: rgba(79, 70, 229, 0.08);
+    border-color: rgba(79, 70, 229, 0.2);
+    min-width: 220px;
+}
+
+:root.dark .base-timer {
+    background-color: rgba(245, 158, 11, 0.05);
+    border-color: rgba(245, 158, 11, 0.2);
+}
+
+.timer-icon {
+    @apply w-5 h-5;
+    color: var(--color-brand-primary);
+    flex-shrink: 0;
+}
+
+:root.dark .timer-icon {
+    color: #f59e0b;
+}
+
+.timer-texts {
+    @apply flex flex-col justify-center items-center text-center;
+    min-width: 0;
+}
+
+.timer-label {
+    @apply text-[9px] font-black uppercase tracking-widest leading-none mb-1;
+    color: var(--color-brand-primary);
+    opacity: 0.6;
+}
+
+:root.dark .timer-label {
+    color: #f59e0b;
+}
+
+.timer-value {
+    @apply text-[14px] font-black font-mono leading-none tracking-wider;
+    color: var(--color-brand-primary);
+}
+
+:root.dark .timer-value {
+    color: #f59e0b;
+}
+
+.timer-spacer {
+    @apply w-5 h-5;
+    flex-shrink: 0;
+}

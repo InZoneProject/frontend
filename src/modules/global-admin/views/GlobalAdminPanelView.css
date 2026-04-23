@@ -1,0 +1,20 @@
+@reference "../../../styles/main.css";
+
+.admin-page {
+    @apply h-screen overflow-hidden relative pt-12 pb-8 px-6 flex flex-col;
+}
+
+.admin-view-content {
+    @apply max-w-7xl mx-auto flex flex-col gap-8 w-full flex-1 overflow-hidden;
+}
+
+.content-card {
+    @apply border border-solid transition-all duration-400 flex flex-col flex-1 overflow-hidden;
+    background-color: var(--color-card-bg);
+    border-color: var(--color-card-border);
+    @apply rounded-[3rem] p-8 shadow-xl backdrop-blur-3xl;
+}
+
+.tab-content {
+    @apply mt-6 flex-1 overflow-hidden flex flex-col;
+}

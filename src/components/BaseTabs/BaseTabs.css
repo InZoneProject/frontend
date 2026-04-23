@@ -1,0 +1,30 @@
+@reference "../../styles/main.css";
+
+.base-tabs {
+    @apply flex p-1 rounded-xl mb-4;
+    background-color: rgba(0, 0, 0, 0.08);
+}
+
+:root.dark .base-tabs {
+    background-color: rgba(255, 255, 255, 0.05);
+}
+
+.base-tab-item {
+    @apply flex-1 py-2 text-[12px] font-bold rounded-lg transition-all cursor-pointer border outline-none;
+    border-color: transparent;
+    color: var(--color-text-muted);
+}
+
+.base-tab-item.active {
+    color: var(--color-text-main);
+}
+
+:root:not(.dark) .base-tab-item.active {
+    @apply bg-white shadow-md;
+    border-color: rgba(0, 0, 0, 0.05);
+}
+
+:root.dark .base-tab-item.active {
+    @apply bg-white/10 shadow-sm;
+    border-color: rgba(255, 255, 255, 0.1);
+}

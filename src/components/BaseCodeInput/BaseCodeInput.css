@@ -1,0 +1,48 @@
+@reference "../../styles/main.css";
+
+.code-input-container {
+    @apply flex gap-3 justify-center items-center;
+}
+
+.code-digit-input {
+    @apply w-12 h-14 text-center text-2xl font-black rounded-xl border-2 border-solid transition-all outline-none;
+    background-color: var(--color-input-bg);
+    border-color: var(--color-input-border);
+    color: var(--color-text-main);
+}
+
+:root:not(.dark) .code-digit-input {
+    background-color: #ffffff;
+    border-color: rgba(0, 0, 0, 0.2);
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+}
+
+:root.dark .code-digit-input {
+    background-color: rgba(255, 255, 255, 0.03);
+    border-color: rgba(255, 255, 255, 0.3);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+}
+
+.code-digit-input:focus {
+    @apply border-brand-primary;
+    box-shadow: 0 0 0 4px var(--color-brand-shadow);
+}
+
+:root.dark .code-digit-input:focus {
+    background-color: rgba(255, 255, 255, 0.07);
+    border-color: var(--color-brand-primary);
+}
+
+.code-digit-input:disabled {
+    @apply opacity-50;
+}
+
+:root:not(.dark) .code-digit-input:disabled {
+    background-color: rgba(0, 0, 0, 0.03);
+    border-color: rgba(0, 0, 0, 0.1);
+}
+
+:root.dark .code-digit-input:disabled {
+    background-color: rgba(255, 255, 255, 0.01);
+    border-color: rgba(255, 255, 255, 0.1);
+}
