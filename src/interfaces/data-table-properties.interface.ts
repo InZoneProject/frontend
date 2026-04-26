@@ -2,5 +2,7 @@ export interface DataTableProperties<T> {
     items: T[]
     searchQuery: string
     placeholder: string
-    loading?: boolean
+    maxHeight: string
+    interactiveRows: boolean
+    loading: boolean
 }

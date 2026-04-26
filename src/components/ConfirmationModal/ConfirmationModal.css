@@ -2,7 +2,7 @@
 
 .modal-overlay {
     @apply fixed inset-0 z-100 flex items-center justify-center p-6;
-    background-color: rgba(0, 0, 0, 0.4);
+    background-color: color-mix(in srgb, var(--color-main-bg), transparent 35%);
     backdrop-filter: blur(8px);
 }
 
@@ -53,6 +53,33 @@
 
 .modal-fade-enter-active .modal-card {
     animation: modal-pop 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+/* Light theme refinements for modal readability */
+:root:not(.dark) .modal-overlay {
+    background-color: color-mix(in srgb, var(--color-main-bg), transparent 28%);
+}
+
+:root:not(.dark) .modal-card {
+    background-color: color-mix(in srgb, var(--color-main-bg), var(--color-card-bg) 60%);
+    border-color: color-mix(in srgb, var(--color-card-border), var(--color-text-muted) 35%);
+    box-shadow: 0 25px 55px -20px color-mix(in srgb, var(--color-text-main), transparent 78%);
+}
+
+:root:not(.dark) .modal-brand-icon {
+    background-color: color-mix(in srgb, var(--color-brand-primary), transparent 88%);
+    color: var(--color-brand-primary);
+}
+
+:root:not(.dark) .modal-card .variant-secondary {
+    background-color: color-mix(in srgb, var(--color-main-bg), var(--color-card-bg) 45%);
+    border-color: color-mix(in srgb, var(--color-card-border), var(--color-text-muted) 35%);
+    color: var(--color-text-main);
+}
+
+:root:not(.dark) .modal-card .variant-primary {
+    background-color: var(--color-brand-primary);
+    color: var(--color-main-bg);
 }
 
 @keyframes modal-pop {

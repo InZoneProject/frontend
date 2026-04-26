@@ -55,6 +55,8 @@ const {
           type="password"
           :placeholder="properties.commonTranslations.passwordPlaceholder"
           :max-length="LENGTH.MAX_PASSWORD_LENGTH"
+          :is-expandable="false"
+          :disabled="isSubmitting"
       />
 
       <BaseInput
@@ -63,6 +65,8 @@ const {
           type="password"
           :placeholder="properties.commonTranslations.passwordPlaceholder"
           :max-length="LENGTH.MAX_PASSWORD_LENGTH"
+          :is-expandable="false"
+          :disabled="isSubmitting"
       />
     </div>
 

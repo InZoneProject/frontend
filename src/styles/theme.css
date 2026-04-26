@@ -1,41 +1,56 @@
 :root {
     --main-bg: #cbd5e1;
-    --card-bg: rgba(255, 255, 255, 0.4);
-    --card-border: rgba(255, 255, 255, 0.5);
-    --input-bg: rgba(255, 255, 255, 0.3);
-    --input-border: rgba(0, 0, 0, 0.08);
+    --card-bg: #f8fafc;
+    --card-border: #d9e2ec;
+    --input-bg: #ffffff;
+    --input-border: #cbd5e1;
     --text-main: #0f172a;
     --text-muted: #475569;
     --text-input: #0f172a;
     --text-input-ph: #475569;
     --btn-primary: #4f46e5;
+    --btn-primary-text: #ffffff;
+    --btn-danger: #dc2626;
+    --btn-danger-text: #ffffff;
     --btn-shadow: rgba(79, 70, 229, 0.4);
     --logo-shadow: rgba(79, 70, 229, 0.15);
     --error-main: #ef4444;
     --error-bg: rgba(239, 68, 68, 0.1);
     --error-border: rgba(239, 68, 68, 0.2);
+    --success-main: #16a34a;
+    --success-bg: rgba(22, 163, 74, 0.1);
+    --success-border: rgba(22, 163, 74, 0.2);
 }
 
 :root.dark {
     --main-bg: #030712;
-    --card-bg: rgba(15, 23, 42, 0.4);
-    --card-border: rgba(255, 255, 255, 0.1);
-    --input-bg: rgba(0, 0, 0, 0.2);
-    --input-border: rgba(255, 255, 255, 0.05);
+    --card-bg: #0f172a;
+    --card-border: #1f2b42;
+    --input-bg: #101a2f;
+    --input-border: #2a3650;
     --text-main: #ffffff;
     --text-muted: #94a3b8;
     --text-input: #ffffff;
     --text-input-ph: rgba(255, 255, 255, 0.5);
     --btn-primary: #fbbf24;
+    --btn-primary-text: #030712;
+    --btn-danger: #f87171;
+    --btn-danger-text: #030712;
     --btn-shadow: rgba(251, 191, 36, 0.3);
     --logo-shadow: rgba(251, 191, 36, 0.2);
     --error-main: #f87171;
     --error-bg: rgba(248, 113, 113, 0.1);
     --error-border: rgba(248, 113, 113, 0.2);
+    --success-main: #4ade80;
+    --success-bg: rgba(74, 222, 128, 0.12);
+    --success-border: rgba(74, 222, 128, 0.25);
 }
 
 @theme {
     --color-brand-primary: var(--btn-primary);
+    --color-brand-primary-text: var(--btn-primary-text);
+    --color-brand-danger: var(--btn-danger);
+    --color-brand-danger-text: var(--btn-danger-text);
     --color-brand-shadow: var(--btn-shadow);
     --color-logo-shadow: var(--logo-shadow);
     --color-main-bg: var(--main-bg);
@@ -50,5 +65,8 @@
     --color-error-main: var(--error-main);
     --color-error-bg: var(--error-bg);
     --color-error-border: var(--error-border);
+    --color-success-main: var(--success-main);
+    --color-success-bg: var(--success-bg);
+    --color-success-border: var(--success-border);
     --font-base: "Inter", system-ui, sans-serif;
 }

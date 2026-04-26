@@ -1,0 +1,57 @@
+@reference "../../styles/main.css";
+
+.organization-info-form {
+    @apply flex flex-col gap-4;
+}
+
+.organization-info-form-head {
+    @apply flex items-start gap-4;
+}
+
+.organization-info-form-title-wrap {
+    @apply flex flex-col gap-2 min-w-0 flex-1;
+}
+
+.organization-info-form-row {
+    @apply flex flex-col gap-2;
+}
+
+.organization-info-form-label {
+    @apply text-[11px] font-black uppercase tracking-[0.2em];
+    color: var(--color-brand-primary);
+}
+
+.organization-info-form-value {
+    @apply text-sm leading-relaxed;
+    color: var(--color-text-main);
+}
+
+.organization-info-form-title {
+    @apply text-2xl font-black tracking-tight min-w-0 flex-1;
+    overflow-wrap: anywhere;
+    word-break: break-word;
+}
+
+.organization-info-form-description {
+    @apply opacity-90 text-base;
+    white-space: pre-wrap;
+    overflow-wrap: anywhere;
+    word-break: break-word;
+}
+
+.organization-info-form-description.is-empty {
+    @apply opacity-60;
+}
+
+.organization-info-form-date {
+    @apply text-sm font-mono;
+    color: var(--color-text-muted);
+}
+
+.organization-info-form-actions {
+    @apply flex items-center gap-2 shrink-0;
+}
+
+.organization-info-form-footer {
+    @apply flex items-center justify-between gap-4;
+}

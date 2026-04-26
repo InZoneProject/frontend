@@ -17,15 +17,14 @@ export class BaseRepository {
 
         this.axiosInstance.interceptors.request.use((config) => {
             const authStore = useAuthStore()
-            let token: string | null;
+            let token: string | null
+            const repositoryBaseUrl = this.axiosInstance.defaults.baseURL || ''
 
-            const fullPath = (config.baseURL || '') + (config.url || '')
-
-            if (fullPath.includes('/global-admin')) {
+            if (repositoryBaseUrl.includes('/global-admin')) {
                 token = authStore.globalToken
-            } else if (fullPath.includes('/organization-admin')) {
+            } else if (repositoryBaseUrl.includes('/organizations') || repositoryBaseUrl.includes('/organization-admin')) {
                 token = authStore.orgToken
-            } else if (fullPath.includes('/tag-admin')) {
+            } else if (repositoryBaseUrl.includes('/tag-admin')) {
                 token = authStore.tagToken
             } else {
                 token = authStore.orgToken || authStore.tagToken || authStore.globalToken
@@ -34,6 +33,7 @@ export class BaseRepository {
             if (token) {
                 config.headers.Authorization = `Bearer ${token}`
             }
+
             return config
         })
 
@@ -45,7 +45,7 @@ export class BaseRepository {
                     authStore.clearTokens()
 
                     const isGlobalPath = window.location.pathname.includes('global-admin')
-                    const routeName = isGlobalPath ? 'GlobalAdminLogin' : 'Login'
+                    const routeName = isGlobalPath ? 'LoginGlobalAdmin' : 'Login'
 
                     await router.push({ name: routeName })
                 }
@@ -64,6 +64,10 @@ export class BaseRepository {
 
     protected async put<T>(url: string, data?: unknown, config?: AxiosRequestConfig): Promise<AxiosResponse<T>> {
         return this.axiosInstance.put<T>(url, data, config)
+    }
+
+    protected async patch<T>(url: string, data?: unknown, config?: AxiosRequestConfig): Promise<AxiosResponse<T>> {
+        return this.axiosInstance.patch<T>(url, data, config)
     }
 
     protected async delete<T>(url: string, config?: AxiosRequestConfig): Promise<AxiosResponse<T>> {

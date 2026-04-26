@@ -1,0 +1,85 @@
+@reference "../../styles/main.css";
+
+.profile-modal-overlay {
+    @apply fixed inset-0 z-100 flex items-center justify-center p-6;
+    background-color: color-mix(in srgb, var(--color-main-bg), transparent 35%);
+    backdrop-filter: blur(8px);
+}
+
+.profile-modal-card {
+    @apply relative p-8 rounded-[2.5rem] shadow-2xl max-w-xl w-full border border-solid transition-all;
+    background-color: var(--color-card-bg);
+    border-color: var(--color-card-border);
+    backdrop-filter: blur(20px);
+}
+
+.profile-modal-error {
+    @apply mb-5;
+}
+
+.profile-photo-section {
+    @apply flex flex-col items-center gap-3 mb-8;
+}
+
+.profile-photo-button {
+    @apply w-[9.5rem] h-[9.5rem] rounded-full flex items-center justify-center overflow-hidden transition-colors shrink-0;
+    background-color: var(--color-input-bg);
+}
+
+.profile-photo-button:hover:not(:disabled) {
+    box-shadow: none;
+}
+
+.profile-photo-button:disabled {
+    @apply cursor-not-allowed opacity-70;
+}
+
+.profile-photo-image {
+    @apply w-full h-full object-cover;
+}
+
+.profile-photo-fallback {
+    @apply w-16 h-16;
+    color: var(--color-text-muted);
+}
+
+.profile-photo-caption {
+    @apply flex flex-col items-center;
+}
+
+.profile-photo-hint {
+    @apply text-sm font-medium;
+    color: var(--color-text-muted);
+}
+
+.profile-photo-input {
+    @apply hidden;
+}
+
+.profile-fields {
+    @apply flex flex-col gap-4;
+}
+
+.profile-form-success {
+    @apply mb-1;
+}
+
+.profile-phone-error {
+    @apply mb-1;
+}
+
+.profile-modal-actions {
+    @apply mt-8 flex flex-col gap-3;
+}
+
+.profile-loading-overlay {
+    @apply absolute inset-0 rounded-[2.5rem] flex items-center justify-center;
+    background-color: color-mix(in srgb, var(--color-main-bg), transparent 40%);
+    backdrop-filter: blur(2px);
+}
+
+.profile-loading-spinner {
+    @apply w-9 h-9 rounded-full border-4 border-solid border-transparent animate-spin;
+    border-top-color: var(--color-brand-primary);
+    border-right-color: color-mix(in srgb, var(--color-brand-primary), transparent 35%);
+}

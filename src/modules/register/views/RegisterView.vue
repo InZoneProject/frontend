@@ -23,7 +23,7 @@ const onRegisterSubmit = (payload: any) => {
 
 <template>
   <div class="register-page">
-    <ControlPanel :show-logout="false" />
+    <ControlPanel :show-logout="false" :show-notifications="false" :show-profile="false" />
 
     <div class="register-card">
       <RegisterForm

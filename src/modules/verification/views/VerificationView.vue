@@ -9,7 +9,7 @@ const { translations } = useLanguageSwitcher()
 
 <template>
   <div class="verification-page">
-    <ControlPanel :show-logout="true" />
+    <ControlPanel :show-logout="true" :show-notifications="false" :show-profile="false" />
 
     <div class="verification-card">
       <VerificationForm

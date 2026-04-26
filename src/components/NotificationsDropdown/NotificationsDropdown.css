@@ -1,0 +1,52 @@
+@reference "../../styles/main.css";
+
+.notifications-dropdown {
+    @apply absolute top-[calc(100%+12px)] right-0 w-[420px] rounded-2xl border border-solid p-4 shadow-2xl;
+    background-color: var(--color-main-bg);
+    border-color: var(--color-card-border);
+}
+
+.notifications-dropdown-header {
+    @apply flex items-center justify-between gap-3 mb-3;
+}
+
+.notifications-dropdown-title {
+    @apply text-sm font-black uppercase tracking-wider;
+    color: var(--color-text-main);
+}
+
+.notifications-dropdown-content {
+    @apply max-h-[380px] overflow-y-auto pr-1;
+}
+
+.notifications-dropdown-list {
+    @apply flex flex-col gap-2;
+}
+
+.notifications-dropdown-state {
+    @apply text-sm py-4 text-center;
+    color: var(--color-text-muted);
+}
+
+.notifications-dropdown-content::-webkit-scrollbar {
+    @apply w-1.5;
+}
+
+.notifications-dropdown-content::-webkit-scrollbar-track {
+    @apply bg-transparent;
+}
+
+.notifications-dropdown-content::-webkit-scrollbar-thumb {
+    @apply rounded-full;
+    background-color: var(--color-card-border);
+}
+
+.notifications-dropdown-fade-enter-active,
+.notifications-dropdown-fade-leave-active {
+    @apply transition-all duration-200;
+}
+
+.notifications-dropdown-fade-enter-from,
+.notifications-dropdown-fade-leave-to {
+    @apply opacity-0 translate-y-1;
+}

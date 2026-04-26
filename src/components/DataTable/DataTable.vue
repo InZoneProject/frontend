@@ -1,4 +1,5 @@
 <script setup lang="ts" generic="T">
+import { computed } from 'vue'
 import BaseInput from '@/components/BaseInput/BaseInput.vue'
 import { Events } from '@/enums/events.enum'
 import { useLanguageSwitcher } from '@/composables/useLanguageSwitcher'
@@ -7,23 +8,28 @@ import type { DataTableEmits } from '@/interfaces/data-table-emits.interface'
 import './DataTable.css'
 import {LENGTH} from "@/constants/length.constants";
 
-defineProps<DataTableProperties<T>>()
+const props = defineProps<DataTableProperties<T>>()
 defineEmits<DataTableEmits>()
 
 const { translations } = useLanguageSwitcher()
+
+const tableWrapperStyle = computed(() => ({
+  '--table-max-height': props.maxHeight
+}))
 </script>
 
 <template>
   <div class="data-table-container">
     <div class="table-controls">
       <BaseInput
-          :model-value="searchQuery"
+          :model-value="props.searchQuery"
           @update:model-value="$emit(Events.UPDATE_SEARCH_QUERY, $event)"
           label=""
           type="text"
-          :placeholder="placeholder"
+          :placeholder="props.placeholder"
           :max-length="LENGTH.MAX_SEARCH_LENGTH"
-          :disabled="loading"
+          :is-expandable="false"
+          :disabled="false"
           class="table-search"
       >
         <template #prefix>
@@ -34,24 +40,28 @@ const { translations } = useLanguageSwitcher()
       </BaseInput>
     </div>
 
-    <div class="table-wrapper">
+    <div
+        class="table-wrapper"
+        :class="{ 'data-table-interactive-rows': props.interactiveRows }"
+        :style="tableWrapperStyle"
+    >
       <table class="main-table">
         <thead>
         <slot name="header"></slot>
         </thead>
         <tbody>
-        <tr v-if="loading || items.length === 0">
+        <tr v-if="props.loading || props.items.length === 0">
           <td colspan="100" class="td-status">
             <div class="status-content">
-              <div v-if="loading" class="loader"></div>
+              <div v-if="props.loading" class="loader"></div>
               <span class="status-text">
-                  {{ loading ? translations.globalAdmin.table.loading : translations.globalAdmin.table.empty }}
+                  {{ props.loading ? translations.globalAdmin.table.loading : translations.globalAdmin.table.empty }}
                 </span>
             </div>
           </td>
         </tr>
         <template v-else>
-          <slot v-for="(item, index) in items" :key="index" :item="item"></slot>
+          <slot v-for="(item, index) in props.items" :key="index" :item="item"></slot>
         </template>
         </tbody>
       </table>

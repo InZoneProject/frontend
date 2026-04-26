@@ -8,6 +8,7 @@ export interface GlobalAdminPanelTranslations {
         linkActive: string;
         expiresIn: string;
         copyBtn: string;
+        copySuccess: string;
         deleteBtn: string;
     };
     tabs: {

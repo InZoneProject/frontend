@@ -1,0 +1,51 @@
+@reference "../../styles/main.css";
+
+.modal-card-position-upsert {
+    @apply max-w-xl;
+}
+
+.position-upsert-fields {
+    @apply flex flex-col gap-4 mb-8;
+}
+
+.position-upsert-brand-icon {
+    @apply w-12 h-12 flex items-center justify-center rounded-2xl mb-2;
+    background-color: color-mix(in srgb, var(--color-brand-primary), transparent 90%);
+    color: var(--color-brand-primary);
+}
+
+.position-upsert-brand-icon svg {
+    @apply w-6 h-6;
+}
+
+:root:not(.dark) .modal-card-position-upsert {
+    background-color: color-mix(in srgb, var(--color-main-bg), var(--color-card-bg) 60%);
+    border-color: color-mix(in srgb, var(--color-card-border), var(--color-text-muted) 35%);
+}
+
+:root:not(.dark) .modal-card-position-upsert .base-input-label {
+    color: var(--color-text-muted);
+    opacity: 0.9;
+}
+
+:root:not(.dark) .modal-card-position-upsert .base-input-field {
+    background-color: color-mix(in srgb, var(--color-main-bg), var(--color-input-bg) 65%);
+    border-color: color-mix(in srgb, var(--color-input-border), var(--color-text-muted) 30%);
+    color: var(--color-text-main);
+}
+
+:root:not(.dark) .modal-card-position-upsert .base-input-field:focus {
+    border-color: var(--color-text-main);
+    --tw-ring-color: color-mix(in srgb, var(--color-text-main), transparent 86%);
+}
+
+:root:not(.dark) .modal-card-position-upsert .variant-secondary {
+    background-color: color-mix(in srgb, var(--color-main-bg), var(--color-card-bg) 45%);
+    border-color: color-mix(in srgb, var(--color-card-border), var(--color-text-muted) 35%);
+    color: var(--color-text-main);
+}
+
+:root:not(.dark) .modal-card-position-upsert .variant-primary {
+    background-color: var(--color-brand-primary);
+    color: var(--color-main-bg);
+}

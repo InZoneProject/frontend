@@ -1,0 +1,111 @@
+@reference "../../styles/main.css";
+
+.organization-member-positions-modal {
+    @apply relative;
+    width: min(92vw, 760px);
+    max-width: none;
+    padding: 1.5rem;
+    border-radius: 2rem;
+}
+
+.organization-member-positions-modal.is-edit-mode {
+    width: min(96vw, 1420px);
+}
+
+.organization-member-positions-actions {
+    @apply flex items-center justify-between gap-3 mb-4;
+}
+
+.organization-member-positions-grid {
+    @apply grid grid-cols-1 gap-4;
+}
+
+.organization-member-positions-grid.is-edit-mode {
+    @apply grid-cols-2;
+}
+
+.organization-member-positions-column {
+    @apply flex flex-col gap-3 min-h-[460px];
+}
+
+.organization-member-positions-column-title {
+    @apply text-xs font-black uppercase tracking-[0.18em] px-1;
+    color: var(--color-brand-primary);
+}
+
+.organization-member-positions-drop-zone {
+    @apply rounded-2xl border border-solid p-2 flex-1 min-h-[320px];
+    background-color: color-mix(in srgb, var(--color-card-bg), transparent 22%);
+    border-color: var(--color-card-border);
+}
+
+.organization-member-positions-drop-zone.is-drag-over {
+    border-color: color-mix(in srgb, var(--color-brand-primary), transparent 40%);
+    background-color: color-mix(in srgb, var(--color-brand-primary), transparent 94%);
+}
+
+.organization-member-positions-row[draggable="true"] {
+    cursor: grab;
+}
+
+.organization-member-positions-item-title {
+    @apply text-[14px] font-black block;
+    color: var(--color-text-main);
+    overflow-wrap: anywhere;
+    word-break: break-word;
+}
+
+.organization-member-positions-item-description {
+    @apply text-[13px] leading-snug block;
+    color: var(--color-text-muted);
+    overflow-wrap: anywhere;
+    word-break: break-word;
+}
+
+.organization-member-positions-item-date {
+    @apply text-xs font-mono block;
+    color: color-mix(in srgb, var(--color-text-muted), transparent 12%);
+}
+
+.organization-member-positions-item-actions {
+    @apply flex items-center gap-1 justify-start min-w-0;
+}
+
+.organization-member-positions-drop-zone .data-table-container {
+    @apply gap-3 h-full;
+}
+
+.organization-member-positions-drop-zone .table-wrapper {
+    @apply rounded-xl;
+    min-height: 250px;
+}
+
+.organization-member-positions-modal .organization-member-positions-item-actions .edit-button,
+.organization-member-positions-modal .organization-member-positions-item-actions .delete-button {
+    padding: 0.3rem;
+}
+
+.organization-member-positions-modal .organization-member-positions-item-actions .edit-icon,
+.organization-member-positions-modal .organization-member-positions-item-actions .delete-icon {
+    width: 1rem;
+    height: 1rem;
+}
+
+@media (max-width: 1024px) {
+    .organization-member-positions-modal {
+        width: min(96vw, 760px);
+        padding: 1rem;
+    }
+
+    .organization-member-positions-modal.is-edit-mode {
+        width: min(97vw, 980px);
+    }
+
+    .organization-member-positions-grid.is-edit-mode {
+        @apply grid-cols-1;
+    }
+
+    .organization-member-positions-actions {
+        @apply pr-0;
+    }
+}

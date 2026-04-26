@@ -1,0 +1,15 @@
+import type { OrganizationPositionItem } from '@/modules/organization/interfaces/organization-position-item.interface'
+import type { OrganizationsTranslations } from '@/modules/organizations/interfaces/organizations-translations.interface'
+
+export interface OrganizationMemberPositionsProperties {
+    isOpen: boolean
+    isEditMode: boolean
+    loadingAssigned: boolean
+    loadingAvailable: boolean
+    assignedPositions: OrganizationPositionItem[]
+    availablePositions: OrganizationPositionItem[]
+    assignedSearchValue: string
+    availableSearchValue: string
+    formatDate: (value: string) => string
+    translations: OrganizationsTranslations['page']['memberPositions']
+}

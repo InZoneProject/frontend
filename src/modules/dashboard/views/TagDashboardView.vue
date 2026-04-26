@@ -4,7 +4,7 @@ import ControlPanel from '@/components/ControlPanel/ControlPanel.vue'
 
 <template>
   <div class="min-h-screen bg-(--color-bg-main) p-8">
-    <ControlPanel :show-logout="true" />
+    <ControlPanel :show-logout="true" :show-notifications="false" :show-profile="false" />
 
     <div class="flex flex-col items-center justify-center mt-32 text-center">
       <h1 class="text-5xl font-black uppercase tracking-tighter text-(--color-text-main) mb-4">

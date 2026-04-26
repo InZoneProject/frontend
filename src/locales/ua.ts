@@ -19,6 +19,7 @@ export const ua = {
         },
         errors: {
             invalidEmail: 'Некоректний формат пошти',
+            invalidPhone: 'Некоректний формат номера телефону',
             shortPassword: 'Пароль має бути не менше 6 символів',
             unauthorized: 'Невірний логін або пароль',
             invalidToken: 'Некоректний або відсутній токен запрошення',
@@ -44,6 +45,7 @@ export const ua = {
             linkActive: 'Посилання активне:',
             expiresIn: 'Спливає через:',
             copyBtn: 'Копіювати',
+            copySuccess: 'Посилання успішно скопійовано',
             deleteBtn: 'Видалити посилання'
         },
         tabs: {
@@ -73,6 +75,177 @@ export const ua = {
                 message: 'Ви впевнені, що хочете видалити цього адміністратора? Цю дію неможливо скасувати.',
                 confirm: 'Видалити',
                 cancel: 'Скасувати'
+            }
+        }
+    },
+    organizationAdmin: {
+        actions: {
+            createOrganization: 'Створити організацію',
+            createOrganizationHint: 'Створіть нову організацію та керуйте нею зі списку нижче.'
+        },
+        table: {
+            searchPlaceholder: 'Пошук організацій...',
+            headers: {
+                title: 'Назва',
+                description: 'Опис',
+                createdAt: 'Створено',
+                actions: 'Дії'
+            }
+        },
+        modals: {
+            organizationForm: {
+                createTitle: 'Створення організації',
+                editTitle: 'Редагування організації',
+                nameLabel: 'Назва організації',
+                namePlaceholder: 'Введіть назву організації',
+                descriptionLabel: 'Опис',
+                descriptionPlaceholder: 'Введіть опис організації',
+                createConfirm: 'Створити',
+                editConfirm: 'Зберегти',
+                cancel: 'Скасувати'
+            },
+            deleteOrganization: {
+                title: 'Видалення організації',
+                message: 'Ви впевнені, що хочете видалити цю організацію? Цю дію неможливо скасувати.',
+                confirm: 'Видалити',
+                cancel: 'Скасувати'
+            }
+        },
+        page: {
+            backToList: 'Повернутися до списку організацій',
+            infoTitle: 'Інформація про організацію',
+            infoDescriptionFallback: 'Опис відсутній',
+            listsTitle: 'Дані організації',
+            tabs: {
+                employeesInvite: 'Запрошення співробітника',
+                tagAdminInvite: 'Запрошення тег-адміна',
+                buildings: 'Будівлі',
+                members: 'Співробітники',
+                tags: 'RFID теги'
+            },
+            inviteSection: {
+                title: 'Генерація запрошення',
+                activeTitle: 'Запрошення готове',
+                description: 'Згенеруйте та надішліть запрошення для цієї організації.',
+                activeDescription: 'Скопіюйте посилання та надішліть користувачу. Воно має обмежений час дії.',
+                generateBtn: 'Згенерувати посилання',
+                linkActive: 'Посилання активне:',
+                expiresIn: 'Спливає через:',
+                copyBtn: 'Копіювати',
+                copySuccess: 'Посилання успішно скопійовано',
+                deleteBtn: 'Видалити посилання'
+            },
+            infoForm: {
+                nameLabel: 'Назва організації',
+                descriptionLabel: 'Опис',
+                createdAtLabel: 'Створено',
+                editButton: 'Редагувати',
+                deleteButton: 'Видалити'
+            },
+            table: {
+                searchPlaceholder: 'Пошук будівель або тегів...',
+                membersSearchPlaceholder: 'Пошук співробітників...',
+                addBuilding: 'Додати будівлю',
+                addBuildingHint: 'Створюйте нові будівлі та керуйте ними у списку нижче.',
+                addTag: 'Додати тег',
+                addTagHint: 'Створюйте RFID теги та редагуйте їх назви у таблиці нижче.',
+                headers: {
+                    name: 'Назва',
+                    role: 'Роль',
+                    email: 'Електронна пошта',
+                    createdAt: 'Створено',
+                    address: 'Адреса',
+                    tagUid: 'UID тега',
+                    actions: 'Дії'
+                },
+                roleLabels: {
+                    organizationAdmin: 'Адмін організації',
+                    tagAdmin: 'Адмін тегів',
+                    employee: 'Співробітник'
+                },
+                showUid: 'Показати',
+                hideUid: 'Сховати',
+                hiddenUid: 'Приховано'
+            },
+            memberInfo: {
+                title: 'Інформація про учасника',
+                empty: 'Оберіть учасника в таблиці, щоб переглянути деталі.',
+                email: 'Електронна пошта',
+                phone: 'Телефон',
+                createdAt: 'Створено',
+                viewPositions: 'Переглянути позиції'
+            },
+            memberPositions: {
+                backToInfo: 'До особистої інформації',
+                editPositions: 'Редагувати позиції',
+                finish: 'Завершити',
+                addPosition: 'Додати позицію',
+                assignedTitle: 'Призначені позиції',
+                availableTitle: 'Доступні позиції',
+                assignedSearchPlaceholder: 'Пошук призначених позицій...',
+                availableSearchPlaceholder: 'Пошук доступних позицій...',
+                emptyAssigned: 'У співробітника ще немає позицій.',
+                emptyAvailable: 'Немає доступних позицій для призначення.'
+            },
+            modals: {
+                expelMember: {
+                    title: 'Вигнання учасника',
+                    messageEmployee: 'Ви впевнені, що хочете вигнати співробітника',
+                    messageTagAdmin: 'Ви впевнені, що хочете вигнати адміна тегів',
+                    confirm: 'Вигнати',
+                    cancel: 'Скасувати'
+                },
+                buildingForm: {
+                    createTitle: 'Створити будівлю',
+                    editTitle: 'Редагувати будівлю',
+                    nameLabel: 'Назва будівлі',
+                    namePlaceholder: 'Введіть назву будівлі',
+                    addressLabel: 'Адреса',
+                    addressPlaceholder: 'Введіть адресу',
+                    createConfirm: 'Створити',
+                    editConfirm: 'Зберегти',
+                    cancel: 'Скасувати'
+                },
+                deleteBuilding: {
+                    title: 'Видалення будівлі',
+                    message: 'Ви впевнені, що хочете видалити цю будівлю? Цю дію неможливо скасувати.',
+                    confirm: 'Видалити',
+                    cancel: 'Скасувати'
+                },
+                tagForm: {
+                    createTitle: 'Створити RFID тег',
+                    editTitle: 'Редагувати RFID тег',
+                    nameLabel: 'Назва тега',
+                    namePlaceholder: 'Введіть назву тега',
+                    tagUidLabel: 'UID тега',
+                    tagUidPlaceholder: 'Введіть UID тега',
+                    createConfirm: 'Створити',
+                    editConfirm: 'Зберегти',
+                    cancel: 'Скасувати'
+                },
+                deleteTag: {
+                    title: 'Видалення RFID тега',
+                    message: 'Ви впевнені, що хочете видалити цей RFID тег? Цю дію неможливо скасувати.',
+                    confirm: 'Видалити',
+                    cancel: 'Скасувати'
+                },
+                positionForm: {
+                    createTitle: 'Створити позицію',
+                    editTitle: 'Редагувати позицію',
+                    roleLabel: 'Назва позиції',
+                    rolePlaceholder: 'Введіть назву позиції',
+                    descriptionLabel: 'Опис',
+                    descriptionPlaceholder: 'Введіть опис позиції',
+                    createConfirm: 'Створити',
+                    editConfirm: 'Зберегти',
+                    cancel: 'Скасувати'
+                },
+                deletePosition: {
+                    title: 'Видалення позиції',
+                    message: 'Ви впевнені, що хочете видалити цю позицію? Цю дію неможливо скасувати.',
+                    confirm: 'Видалити',
+                    cancel: 'Скасувати'
+                }
             }
         }
     },
@@ -109,6 +282,36 @@ export const ua = {
         errors: {
             invalidToken: 'Некоректний або прострочений токен скидання пароля',
             unexpected: 'Сталася непередбачувана помилка'
+        }
+    },
+    notifications: {
+        title: 'Сповіщення',
+        markAllRead: 'Позначити всі як прочитані',
+        empty: 'Поки що немає сповіщень'
+    },
+    profile: {
+        photoHint: 'Фото профілю',
+        nameLabel: "Ім'я",
+        namePlaceholder: "Введіть ваше ім'я",
+        emailLabel: 'Електронна пошта',
+        phoneLabel: 'Номер телефону',
+        phonePlaceholder: 'Введіть номер телефону',
+        save: 'Зберегти',
+        cancel: 'Скасувати',
+        deleteAccount: 'Видалити акаунт',
+        deleteConfirmTitle: 'Видалення акаунту',
+        deleteConfirmMessage: 'Ви впевнені, що хочете видалити свій акаунт? Цю дію неможливо скасувати.',
+        deleteConfirm: 'Видалити',
+        deleteCancel: 'Скасувати',
+        errors: {
+            invalidPhone: 'Некоректний формат номера телефону',
+            loadFailed: 'Не вдалося завантажити дані профілю',
+            saveFailed: 'Не вдалося зберегти зміни профілю',
+            uploadFailed: 'Не вдалося завантажити фото',
+            deleteFailed: 'Не вдалося видалити акаунт'
+        },
+        success: {
+            saved: 'Профіль успішно оновлено'
         }
     }
 }

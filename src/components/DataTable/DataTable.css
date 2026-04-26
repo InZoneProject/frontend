@@ -10,9 +10,11 @@
 
 .table-wrapper {
     @apply overflow-x-hidden overflow-y-auto rounded-[2.5rem] border border-solid transition-all flex-1 relative;
+    --table-max-height: 34rem;
     background-color: color-mix(in srgb, var(--color-card-bg), transparent 30%);
     border-color: var(--color-card-border);
     backdrop-filter: blur(20px);
+    max-height: var(--table-max-height);
 }
 
 .main-table {
@@ -20,28 +22,46 @@
 }
 
 .main-table thead {
-    @apply sticky top-0 z-20;
+    position: sticky;
+    top: 0;
+    z-index: 20;
+}
+
+.main-table thead tr {
+    position: sticky;
+    top: 0;
 }
 
 .main-table th {
-    @apply px-8 py-6 text-[11px] font-black uppercase tracking-[0.2em] text-left border-r border-b border-solid last:border-r-0;
+    @apply py-6 text-[11px] font-black uppercase tracking-[0.2em] text-left border-r border-b border-solid last:border-r-0;
+    position: sticky;
+    top: 0;
+    z-index: 25;
+    transform: translateZ(0);
+    backface-visibility: hidden;
     color: var(--color-brand-primary);
     background-color: var(--color-main-bg);
     border-bottom-color: var(--color-card-border);
     border-right-color: color-mix(in srgb, var(--color-card-border), transparent 50%);
     outline: 1px solid var(--color-main-bg);
     outline-offset: -1px;
+    padding-left: clamp(0.75rem, 1.4vw, 2rem);
+    padding-right: clamp(0.75rem, 1.4vw, 2rem);
+    min-width: 0;
 }
 
 .main-table td {
-    @apply px-8 py-5 border-b border-r border-solid transition-all last:border-r-0;
+    @apply py-5 border-b border-r border-solid transition-all last:border-r-0;
     border-bottom-color: var(--color-input-border);
     border-right-color: color-mix(in srgb, var(--color-input-border), transparent 60%);
     vertical-align: middle;
+    padding-left: clamp(0.75rem, 1.4vw, 2rem);
+    padding-right: clamp(0.75rem, 1.4vw, 2rem);
+    min-width: 0;
 }
 
-.main-table tbody tr:hover td {
-    background-color: color-mix(in srgb, var(--color-brand-primary), transparent 98%);
+.data-table-interactive-rows .main-table tbody tr:hover td:not(.td-status) {
+    background-color: color-mix(in srgb, var(--color-brand-primary), transparent 94%);
 }
 
 .td-name {
@@ -49,9 +69,8 @@
 }
 
 .user-avatar-wrapper {
-    @apply w-12 h-12 rounded-full overflow-hidden shrink-0 border border-solid flex items-center justify-center transition-transform;
+    @apply w-12 h-12 rounded-full overflow-hidden shrink-0 flex items-center justify-center transition-transform;
     background: linear-gradient(135deg, var(--color-brand-primary), color-mix(in srgb, var(--color-brand-primary), black 15%));
-    border-color: color-mix(in srgb, var(--color-brand-primary), white 10%);
     box-shadow: 0 4px 12px var(--color-brand-shadow);
 }
 
@@ -60,11 +79,8 @@
 }
 
 .default-avatar-icon {
-    @apply w-6 h-6 text-white;
-}
-
-:root.dark .default-avatar-icon {
-    @apply text-black;
+    @apply w-6 h-6;
+    color: var(--color-brand-primary-text);
 }
 
 .user-info-text {
@@ -111,8 +127,11 @@
     color: var(--color-text-main);
 }
 
-.td-status {
+.main-table td.td-status {
     @apply py-32 px-8 text-center;
+    border-bottom: none;
+    border-right: none;
+    background-color: transparent;
 }
 
 .status-content {
@@ -120,8 +139,9 @@
 }
 
 .status-text {
-    @apply text-xl font-black tracking-tight uppercase opacity-40;
+    @apply text-base font-semibold tracking-normal;
     color: var(--color-text-main);
+    opacity: 0.55;
 }
 
 .loader {

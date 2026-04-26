@@ -43,6 +43,11 @@
     opacity: 1;
 }
 
+.base-input-field:disabled {
+    @apply cursor-not-allowed;
+    opacity: 0.65;
+}
+
 .base-input-icon {
     @apply absolute right-4 cursor-pointer transition-colors w-4 h-4;
     color: var(--color-text-muted);
@@ -50,4 +55,8 @@
 
 .base-input-icon:hover {
     color: var(--color-brand-primary);
+}
+
+.base-input-field--expandable {
+    @apply resize-y leading-relaxed min-h-[116px];
 }

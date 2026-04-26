@@ -1,0 +1,156 @@
+@reference "../../../styles/main.css";
+
+.organization-page-content {
+    @apply flex flex-col gap-6;
+}
+
+.organization-page-main-grid {
+    @apply flex-1;
+}
+
+.organization-page-main-column {
+    @apply flex flex-col gap-6;
+}
+
+.organization-page-block {
+    @apply border border-solid rounded-[2.2rem] p-6 flex flex-col gap-5;
+    background-color: var(--color-card-bg);
+    border-color: var(--color-card-border);
+}
+
+.organization-page-block-grow {
+    @apply flex-1;
+}
+
+.organization-page-block-title {
+    @apply text-xl font-black tracking-tight;
+    color: var(--color-text-main);
+}
+
+.organization-loading-line {
+    @apply h-1 rounded-full;
+    background-color: color-mix(in srgb, var(--color-brand-primary), transparent 30%);
+}
+
+.organization-page-table-area {
+    @apply flex-1 flex flex-col gap-4;
+}
+
+.organization-page-table-toolbar {
+    @apply flex items-center justify-between gap-4;
+}
+
+.organization-page-building-intro-chip {
+    @apply flex items-center gap-3 rounded-2xl px-4 py-3 border border-solid max-w-[680px];
+    background-color: color-mix(in srgb, var(--color-brand-primary), transparent 94%);
+    border-color: color-mix(in srgb, var(--color-brand-primary), transparent 75%);
+}
+
+.organization-page-building-intro-icon {
+    @apply w-9 h-9 rounded-xl flex items-center justify-center shrink-0;
+    background-color: color-mix(in srgb, var(--color-brand-primary), transparent 88%);
+    color: var(--color-brand-primary);
+}
+
+.organization-page-building-intro-icon svg {
+    @apply w-5 h-5;
+}
+
+.organization-page-building-intro-text {
+    @apply text-sm font-semibold leading-relaxed;
+    color: var(--color-text-muted);
+}
+
+.organization-page-add-building-button {
+    @apply w-auto min-w-[220px] px-6 py-3;
+}
+
+.organization-page-member-row {
+    cursor: pointer;
+}
+
+.organization-page-content .table-wrapper {
+    overflow-x: auto;
+    overflow-y: auto;
+}
+
+.organization-page-table-area .main-table {
+    min-width: 980px;
+}
+
+.organization-page-content .main-table td {
+    vertical-align: top;
+}
+
+.organization-page-cell-title {
+    @apply text-sm font-bold block;
+    color: var(--color-text-main);
+    word-break: break-word;
+}
+
+.organization-page-cell-muted {
+    @apply text-sm block;
+    color: var(--color-text-muted);
+    overflow-wrap: anywhere;
+    word-break: break-word;
+}
+
+.organization-page-cell-date {
+    @apply text-sm font-mono;
+    color: var(--color-text-muted);
+}
+
+.organization-page-role-badge {
+    @apply inline-flex items-center min-h-8 px-3 py-1 rounded-xl border border-solid text-[12px] font-black;
+    border-color: color-mix(in srgb, var(--color-brand-primary), transparent 70%);
+    background-color: color-mix(in srgb, var(--color-brand-primary), transparent 90%);
+    color: var(--color-brand-primary);
+    white-space: normal;
+    overflow-wrap: anywhere;
+    word-break: break-word;
+    line-height: 1.15;
+    max-width: 180px;
+}
+
+.organization-page-uid-cell {
+    @apply flex items-center gap-2;
+}
+
+.organization-page-uid-toggle {
+    @apply inline-flex items-center justify-center w-4 h-4 cursor-pointer transition-colors shrink-0;
+    color: var(--color-text-muted);
+}
+
+.organization-page-uid-icon {
+    @apply w-4 h-4;
+}
+
+.organization-page-uid-toggle:hover {
+    color: var(--color-brand-primary);
+}
+
+.organization-page-content .data-table-container {
+    @apply gap-4;
+}
+
+.organization-page-content .invite-generator-card {
+    @apply rounded-[2rem] p-6 min-h-[120px];
+}
+
+@media (max-width: 1024px) {
+    .organization-page-block {
+        @apply p-4 rounded-3xl;
+    }
+
+    .organization-page-table-toolbar {
+        @apply flex-col items-stretch;
+    }
+
+    .organization-page-building-intro-chip {
+        @apply max-w-none;
+    }
+
+    .organization-page-content .invite-generator-card {
+        @apply flex-col items-start;
+    }
+}

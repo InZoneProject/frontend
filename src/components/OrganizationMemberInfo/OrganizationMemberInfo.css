@@ -1,0 +1,123 @@
+@reference "../../styles/main.css";
+
+.organization-member-info {
+    @apply flex flex-col gap-4 items-center text-center;
+}
+
+.organization-member-info-modal {
+    @apply relative;
+    width: min(92vw, 400px);
+    max-width: none;
+    padding: 1.75rem 1.75rem 1.5rem;
+    border-radius: 2rem;
+}
+
+.organization-member-info-close {
+    @apply absolute right-4 top-4 w-9 h-9 rounded-full flex items-center justify-center text-base cursor-pointer transition-colors;
+    color: var(--color-text-muted);
+    background-color: color-mix(in srgb, var(--color-input-bg), transparent 10%);
+    border: 1px solid var(--color-input-border);
+}
+
+.organization-member-info-close:hover {
+    color: var(--color-text-main);
+}
+
+.organization-member-info-loader {
+    @apply h-1 rounded-full;
+    background-color: color-mix(in srgb, var(--color-brand-primary), transparent 35%);
+}
+
+.organization-member-info-empty {
+    @apply text-sm;
+    color: var(--color-text-muted);
+}
+
+.organization-member-info-content {
+    @apply flex flex-col gap-5 items-center w-full;
+}
+
+.organization-member-info-head {
+    @apply flex flex-col items-center gap-3;
+}
+
+.organization-member-avatar-wrapper {
+    @apply w-40 h-40 rounded-full overflow-hidden shrink-0 flex items-center justify-center;
+    background: linear-gradient(135deg, var(--color-brand-primary), color-mix(in srgb, var(--color-brand-primary), black 12%));
+}
+
+.organization-member-avatar-image {
+    @apply w-full h-full object-cover;
+    transform: scale(1.02);
+}
+
+.organization-member-avatar-fallback {
+    @apply w-full h-full flex items-center justify-center;
+    color: var(--color-brand-primary-text);
+}
+
+.organization-member-avatar-fallback svg {
+    width: 64px;
+    height: 64px;
+}
+
+.organization-member-main-text {
+    @apply flex flex-col gap-1 items-center min-w-0;
+}
+
+.organization-member-full-name {
+    @apply text-[42px] font-black leading-none;
+    color: var(--color-text-main);
+    overflow-wrap: anywhere;
+    word-break: break-word;
+}
+
+.organization-member-role {
+    @apply text-[20px] font-black;
+    color: var(--color-brand-primary);
+}
+
+.organization-member-info-grid {
+    @apply grid grid-cols-1 gap-3 mt-2 w-full;
+}
+
+.organization-member-info-item {
+    @apply flex flex-col gap-1 text-left rounded-2xl px-4 py-3 border border-solid;
+    background-color: color-mix(in srgb, var(--color-input-bg), transparent 18%);
+    border-color: color-mix(in srgb, var(--color-input-border), transparent 35%);
+}
+
+.organization-member-info-item-label {
+    @apply text-[11px] font-black uppercase tracking-[0.14em];
+    color: var(--color-text-muted);
+}
+
+.organization-member-info-item-value {
+    @apply text-[18px] leading-tight;
+    color: var(--color-text-main);
+    overflow-wrap: anywhere;
+    word-break: break-word;
+}
+
+.organization-member-view-positions-button {
+    @apply w-full mt-1;
+}
+
+@media (max-width: 640px) {
+    .organization-member-info-modal {
+        width: min(95vw, 560px);
+        padding: 1.1rem 1.1rem 1rem;
+    }
+
+    .organization-member-avatar-wrapper {
+        @apply w-32 h-32;
+    }
+
+    .organization-member-full-name {
+        @apply text-4xl;
+    }
+
+    .organization-member-role {
+        @apply text-xl;
+    }
+}

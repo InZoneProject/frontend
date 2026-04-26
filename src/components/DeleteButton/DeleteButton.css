@@ -2,12 +2,16 @@
 
 .delete-button {
     @apply flex items-center justify-center p-2.5 rounded-full cursor-pointer transition-colors outline-none;
-    @apply hover:bg-red-500/10;
     color: var(--color-text-muted);
 }
 
 .delete-button:hover {
+    background-color: color-mix(in srgb, var(--color-error-main), transparent 82%);
     color: var(--color-error-main);
+}
+
+:root:not(.dark) .delete-button:hover {
+    box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--color-error-main), transparent 58%);
 }
 
 .delete-button .delete-icon {

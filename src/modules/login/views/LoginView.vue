@@ -9,7 +9,7 @@ const { translations } = useLanguageSwitcher()
 
 <template>
   <div class="login-page">
-    <ControlPanel :show-logout="false" />
+    <ControlPanel :show-logout="false" :show-notifications="false" :show-profile="false" />
 
     <div class="login-card">
       <LoginForm

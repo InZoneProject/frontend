@@ -67,6 +67,8 @@ const {
           type="text"
           :placeholder="commonTranslations.userNamePlaceholder"
           :max-length="LENGTH.MAX_NAME_LENGTH"
+          :is-expandable="false"
+          :disabled="isSubmitting"
       />
 
       <BaseInput
@@ -75,6 +77,8 @@ const {
           type="email"
           :placeholder="commonTranslations.emailPlaceholder"
           :max-length="LENGTH.MAX_EMAIL_LENGTH"
+          :is-expandable="false"
+          :disabled="isSubmitting"
       />
 
       <BaseInput
@@ -83,6 +87,8 @@ const {
           type="password"
           :placeholder="commonTranslations.passwordPlaceholder"
           :max-length="LENGTH.MAX_PASSWORD_LENGTH"
+          :is-expandable="false"
+          :disabled="isSubmitting"
       />
 
       <BaseInput
@@ -91,6 +97,8 @@ const {
           type="password"
           :placeholder="commonTranslations.passwordPlaceholder"
           :max-length="LENGTH.MAX_PASSWORD_LENGTH"
+          :is-expandable="false"
+          :disabled="isSubmitting"
       />
     </div>
 

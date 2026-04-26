@@ -1,5 +1,6 @@
 import { BaseRepository } from '@/api/base.repository'
 import type { InviteResponse } from '@/interfaces/invite-response.interface'
+import type { OrganizationListParams } from '@/interfaces/organization-list-params.interface'
 import type { OrganizationAdmin } from '@/interfaces/organization-admin.interface'
 import type { PaginatedResponse } from '@/interfaces/paginated-response.interface'
 import type { InviteHistory } from '../interfaces/invite-history.interface'
@@ -17,11 +18,11 @@ class GlobalAdminRepository extends BaseRepository {
         return this.post<InviteResponse>('/invites')
     }
 
-    getOrganizationAdmins(params: { search: string; offset: number; limit: number }) {
+    getOrganizationAdmins(params: OrganizationListParams) {
         return this.get<PaginatedResponse<OrganizationAdmin>>('/organization-admins', { params })
     }
 
-    getInviteHistory(params: { search: string; offset: number; limit: number }) {
+    getInviteHistory(params: OrganizationListParams) {
         return this.get<PaginatedResponse<InviteHistory>>('/invites/history', { params })
     }
 

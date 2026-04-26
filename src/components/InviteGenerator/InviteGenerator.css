@@ -85,6 +85,10 @@
     animation: slideInRight 0.4s ease-out;
 }
 
+.invite-link-column {
+    @apply flex flex-col gap-2 items-stretch min-w-0;
+}
+
 .link-capsule {
     @apply flex items-center h-12 px-1 py-1 rounded-2xl border border-solid min-w-0 max-w-md;
     background-color: var(--color-input-bg);
@@ -94,6 +98,16 @@
 .link-url {
     @apply px-5 font-mono text-sm font-bold tracking-tight truncate;
     color: var(--color-brand-primary);
+    user-select: none;
+    -webkit-user-select: none;
+}
+
+.invite-link-column .success-message-container {
+    @apply w-full;
+}
+
+.invite-link-column .success-message-content {
+    @apply py-2.5 px-4;
 }
 
 @keyframes slideInRight {

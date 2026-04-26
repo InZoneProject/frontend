@@ -75,13 +75,17 @@ const routes: RouteRecordRaw[] = [
         }
     },
     {
-        path: '/organization-dashboard',
-        name: 'OrganizationDashboard',
-        component: () => import('@/modules/dashboard/views/OrganizationDashboardView.vue'),
+        path: '/organizations/:organizationId?',
+        name: 'Organizations',
+        component: () => import('@/modules/organizations/views/OrganizationsView.vue'),
         meta: {
             requiresAuth: true,
             role: UserRole.ORGANIZATION_ADMIN
         }
+    },
+    {
+        path: '/organization-dashboard',
+        redirect: '/organizations'
     },
     {
         path: '/tag-dashboard',
@@ -117,7 +121,7 @@ router.beforeEach((to, _from, next) => {
 
     if (isAuthenticated) {
         if (to.meta.guestOnly) {
-            if (hasOrgToken) return next({ name: isVerified ? 'OrganizationDashboard' : 'Verification' })
+            if (hasOrgToken) return next({ name: isVerified ? 'Organizations' : 'Verification' })
             if (hasTagToken) return next({ name: isVerified ? 'TagDashboard' : 'Verification' })
         }
 
@@ -129,8 +133,8 @@ router.beforeEach((to, _from, next) => {
         }
 
         if (isVerified) {
-            if (hasOrgToken && to.name !== 'OrganizationDashboard') {
-                return next({ name: 'OrganizationDashboard' })
+            if (hasOrgToken && to.name !== 'Organizations') {
+                return next({ name: 'Organizations' })
             }
             if (hasTagToken && to.name !== 'TagDashboard') {
                 return next({ name: 'TagDashboard' })

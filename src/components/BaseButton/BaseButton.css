@@ -7,11 +7,7 @@
 
 .variant-primary {
     background-color: var(--color-brand-primary);
-    color: white;
-}
-
-:root.dark .variant-primary {
-    color: #000;
+    color: var(--color-brand-primary-text);
 }
 
 .variant-secondary {
@@ -19,6 +15,11 @@
     background-color: transparent;
     border-color: var(--color-card-border);
     color: var(--color-text-main);
+}
+
+.variant-danger {
+    background-color: var(--color-brand-danger);
+    color: var(--color-brand-danger-text);
 }
 
 .base-button:hover:not(:disabled) {
@@ -32,6 +33,10 @@
 .variant-secondary:hover:not(:disabled) {
     background-color: color-mix(in srgb, var(--color-brand-primary), transparent 95%);
     border-color: color-mix(in srgb, var(--color-brand-primary), transparent 50%);
+}
+
+.variant-danger:hover:not(:disabled) {
+    box-shadow: 0 10px 25px -5px color-mix(in srgb, var(--color-brand-danger), transparent 65%);
 }
 
 .base-button:active:not(:disabled) {

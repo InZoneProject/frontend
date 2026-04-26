@@ -2,6 +2,7 @@
 import BaseButton from '@/components/BaseButton/BaseButton.vue'
 import BaseTimer from '@/components/BaseTimer/BaseTimer.vue'
 import CopyButton from '@/components/CopyButton/CopyButton.vue'
+import SuccessMessage from '@/components/SuccessMessage/SuccessMessage.vue'
 import { Events } from '@/enums/events.enum'
 import type { InviteGeneratorProperties } from '@/interfaces/invite-generator-properties.interface'
 import type { InviteGeneratorEmits } from '@/interfaces/invite-generator-emits.interface'
@@ -57,9 +58,16 @@ const emit = defineEmits<InviteGeneratorEmits>()
         </BaseButton>
 
         <div v-else class="invite-active-layout">
-          <div class="link-capsule">
-            <span class="link-url">{{ properties.inviteLink }}</span>
-            <CopyButton @click="emit(Events.COPY)" />
+          <div class="invite-link-column">
+            <SuccessMessage
+                :message="properties.successMessage"
+                @clear="emit(Events.CLEAR_SUCCESS)"
+            />
+
+            <div class="link-capsule" @copy.prevent @cut.prevent>
+              <span class="link-url" @copy.prevent @cut.prevent>{{ properties.inviteLink }}</span>
+              <CopyButton @click="emit(Events.COPY_LINK)" />
+            </div>
           </div>
 
           <BaseTimer

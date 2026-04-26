@@ -4,6 +4,7 @@ export interface InviteGeneratorProperties {
     translations: GlobalAdminPanelTranslations['inviteSection']
     inviteLink: string
     expiresAt: string
+    successMessage: string
     loading: boolean
     initialLoading: boolean
 }

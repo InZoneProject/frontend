@@ -18,6 +18,7 @@ export interface CommonTranslations {
     };
     errors: {
         invalidEmail: string;
+        invalidPhone: string;
         shortPassword: string;
         unauthorized: string;
         invalidToken: string;

@@ -1,4 +1,5 @@
 import { ref, computed, onMounted, watch, type Ref } from 'vue'
+import type { OrganizationListParams } from '@/interfaces/organization-list-params.interface'
 import { globalAdminRepository } from '../repositories/global-admin.repository'
 import { useDateFormatter } from '@/composables/useDateFormatter'
 import type { OrganizationAdmin } from '@/interfaces/organization-admin.interface'
@@ -15,6 +16,7 @@ export const useGlobalAdminPanelView = (translations: Ref<GlobalAdminPanelTransl
 
     const inviteLink = ref<string | null>(null)
     const expiresAt = ref<string | null>(null)
+    const inviteCopySuccessMessage = ref('')
     const isGenerating = ref(false)
     const isInitialLoading = ref(true)
 
@@ -55,11 +57,12 @@ export const useGlobalAdminPanelView = (translations: Ref<GlobalAdminPanelTransl
     const fetchAdmins = async () => {
         isLoadingData.value = true
         try {
-            const response = await globalAdminRepository.getOrganizationAdmins({
+            const requestParams: OrganizationListParams = {
                 search: searchQuery.value,
                 offset: 0,
                 limit: 20
-            })
+            }
+            const response = await globalAdminRepository.getOrganizationAdmins(requestParams)
             admins.value = response.data.items
         } finally {
             isLoadingData.value = false
@@ -69,11 +72,12 @@ export const useGlobalAdminPanelView = (translations: Ref<GlobalAdminPanelTransl
     const fetchHistory = async () => {
         isLoadingData.value = true
         try {
-            const response = await globalAdminRepository.getInviteHistory({
+            const requestParams: OrganizationListParams = {
                 search: searchQuery.value,
                 offset: 0,
                 limit: 20
-            })
+            }
+            const response = await globalAdminRepository.getInviteHistory(requestParams)
             history.value = response.data.items
         } finally {
             isLoadingData.value = false
@@ -94,6 +98,7 @@ export const useGlobalAdminPanelView = (translations: Ref<GlobalAdminPanelTransl
             const response = await globalAdminRepository.generateInvite()
             inviteLink.value = response.data.invite_url
             expiresAt.value = response.data.expires_at
+            inviteCopySuccessMessage.value = ''
             if (activeTab.value === 'history') void fetchHistory()
         } finally {
             isGenerating.value = false
@@ -103,7 +108,18 @@ export const useGlobalAdminPanelView = (translations: Ref<GlobalAdminPanelTransl
     const copyToClipboard = async () => {
         if (inviteLink.value) {
             await navigator.clipboard.writeText(inviteLink.value)
+            inviteCopySuccessMessage.value = translations.value.inviteSection.copySuccess
         }
+    }
+
+    const clearInvite = () => {
+        inviteLink.value = null
+        expiresAt.value = null
+        inviteCopySuccessMessage.value = ''
+    }
+
+    const clearInviteCopySuccessMessage = () => {
+        inviteCopySuccessMessage.value = ''
     }
 
     const openDeleteModal = (id: number) => {
@@ -135,6 +151,10 @@ export const useGlobalAdminPanelView = (translations: Ref<GlobalAdminPanelTransl
         loadTabData()
     })
 
+    watch(activeTab, () => {
+        inviteCopySuccessMessage.value = ''
+    })
+
     watch([activeTab, searchQuery], () => {
         loadTabData()
     })
@@ -145,6 +165,7 @@ export const useGlobalAdminPanelView = (translations: Ref<GlobalAdminPanelTransl
         isDeleteModalOpen,
         inviteLink,
         expiresAt,
+        inviteCopySuccessMessage,
         isGenerating,
         isInitialLoading,
         tabs,
@@ -156,6 +177,8 @@ export const useGlobalAdminPanelView = (translations: Ref<GlobalAdminPanelTransl
         formatRange,
         generateLink,
         copyToClipboard,
+        clearInvite,
+        clearInviteCopySuccessMessage,
         openDeleteModal,
         confirmDelete,
         closeDeleteModal

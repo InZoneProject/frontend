@@ -19,6 +19,7 @@ export const en = {
         },
         errors: {
             invalidEmail: 'Invalid email format',
+            invalidPhone: 'Invalid phone number format',
             shortPassword: 'Password must be at least 6 characters',
             unauthorized: 'Invalid email or password',
             invalidToken: 'Invalid or missing invitation token',
@@ -44,6 +45,7 @@ export const en = {
             linkActive: 'Active link:',
             expiresIn: 'Expires in:',
             copyBtn: 'Copy',
+            copySuccess: 'Link copied successfully',
             deleteBtn: 'Delete link'
         },
         tabs: {
@@ -73,6 +75,177 @@ export const en = {
                 message: 'Are you sure you want to delete this administrator? This action is permanent and cannot be undone.',
                 confirm: 'Delete',
                 cancel: 'Cancel'
+            }
+        }
+    },
+    organizationAdmin: {
+        actions: {
+            createOrganization: 'Create organization',
+            createOrganizationHint: 'Create a new organization and manage it from this list.'
+        },
+        table: {
+            searchPlaceholder: 'Search organizations...',
+            headers: {
+                title: 'Name',
+                description: 'Description',
+                createdAt: 'Created At',
+                actions: 'Actions'
+            }
+        },
+        modals: {
+            organizationForm: {
+                createTitle: 'Create Organization',
+                editTitle: 'Edit Organization',
+                nameLabel: 'Organization name',
+                namePlaceholder: 'Enter organization name',
+                descriptionLabel: 'Description',
+                descriptionPlaceholder: 'Enter organization description',
+                createConfirm: 'Create',
+                editConfirm: 'Save',
+                cancel: 'Cancel'
+            },
+            deleteOrganization: {
+                title: 'Delete Organization',
+                message: 'Are you sure you want to delete this organization? This action is permanent and cannot be undone.',
+                confirm: 'Delete',
+                cancel: 'Cancel'
+            }
+        },
+        page: {
+            backToList: 'Back to organizations',
+            infoTitle: 'Organization information',
+            infoDescriptionFallback: 'No description',
+            listsTitle: 'Organization data',
+            tabs: {
+                employeesInvite: 'Employee invite',
+                tagAdminInvite: 'Tag admin invite',
+                buildings: 'Buildings',
+                members: 'Members',
+                tags: 'RFID tags'
+            },
+            inviteSection: {
+                title: 'Invite generation',
+                activeTitle: 'Invite is ready',
+                description: 'Generate and share invitation links for this organization.',
+                activeDescription: 'Copy the link and send it to a user. It is valid for a limited time.',
+                generateBtn: 'Generate link',
+                linkActive: 'Active link:',
+                expiresIn: 'Expires in:',
+                copyBtn: 'Copy',
+                copySuccess: 'Link copied successfully',
+                deleteBtn: 'Delete link'
+            },
+            infoForm: {
+                nameLabel: 'Organization name',
+                descriptionLabel: 'Description',
+                createdAtLabel: 'Created at',
+                editButton: 'Edit',
+                deleteButton: 'Delete'
+            },
+            table: {
+                searchPlaceholder: 'Search buildings or tags...',
+                membersSearchPlaceholder: 'Search members...',
+                addBuilding: 'Add building',
+                addBuildingHint: 'Create new buildings and manage them in the list below.',
+                addTag: 'Add tag',
+                addTagHint: 'Create RFID tags and edit their names in the table below.',
+                headers: {
+                    name: 'Name',
+                    role: 'Role',
+                    email: 'Email',
+                    createdAt: 'Created At',
+                    address: 'Address',
+                    tagUid: 'Tag UID',
+                    actions: 'Actions'
+                },
+                roleLabels: {
+                    organizationAdmin: 'Organization Admin',
+                    tagAdmin: 'Tag Admin',
+                    employee: 'Employee'
+                },
+                showUid: 'Show',
+                hideUid: 'Hide',
+                hiddenUid: 'Hidden'
+            },
+            memberInfo: {
+                title: 'Member information',
+                empty: 'Select a member in the table to view details.',
+                email: 'Email',
+                phone: 'Phone',
+                createdAt: 'Created at',
+                viewPositions: 'View positions'
+            },
+            memberPositions: {
+                backToInfo: 'Back to personal info',
+                editPositions: 'Edit positions',
+                finish: 'Finish',
+                addPosition: 'Add position',
+                assignedTitle: 'Assigned positions',
+                availableTitle: 'Available positions',
+                assignedSearchPlaceholder: 'Search assigned positions...',
+                availableSearchPlaceholder: 'Search available positions...',
+                emptyAssigned: 'This employee has no assigned positions yet.',
+                emptyAvailable: 'No available positions to assign.'
+            },
+            modals: {
+                expelMember: {
+                    title: 'Expel member',
+                    messageEmployee: 'Are you sure you want to expel employee',
+                    messageTagAdmin: 'Are you sure you want to expel tag admin',
+                    confirm: 'Expel',
+                    cancel: 'Cancel'
+                },
+                buildingForm: {
+                    createTitle: 'Create building',
+                    editTitle: 'Edit building',
+                    nameLabel: 'Building name',
+                    namePlaceholder: 'Enter building name',
+                    addressLabel: 'Address',
+                    addressPlaceholder: 'Enter address',
+                    createConfirm: 'Create',
+                    editConfirm: 'Save',
+                    cancel: 'Cancel'
+                },
+                deleteBuilding: {
+                    title: 'Delete building',
+                    message: 'Are you sure you want to delete this building? This action is permanent and cannot be undone.',
+                    confirm: 'Delete',
+                    cancel: 'Cancel'
+                },
+                tagForm: {
+                    createTitle: 'Create RFID tag',
+                    editTitle: 'Edit RFID tag',
+                    nameLabel: 'Tag name',
+                    namePlaceholder: 'Enter tag name',
+                    tagUidLabel: 'Tag UID',
+                    tagUidPlaceholder: 'Enter tag UID',
+                    createConfirm: 'Create',
+                    editConfirm: 'Save',
+                    cancel: 'Cancel'
+                },
+                deleteTag: {
+                    title: 'Delete RFID tag',
+                    message: 'Are you sure you want to delete this RFID tag? This action is permanent and cannot be undone.',
+                    confirm: 'Delete',
+                    cancel: 'Cancel'
+                },
+                positionForm: {
+                    createTitle: 'Create position',
+                    editTitle: 'Edit position',
+                    roleLabel: 'Position name',
+                    rolePlaceholder: 'Enter position name',
+                    descriptionLabel: 'Description',
+                    descriptionPlaceholder: 'Enter position description',
+                    createConfirm: 'Create',
+                    editConfirm: 'Save',
+                    cancel: 'Cancel'
+                },
+                deletePosition: {
+                    title: 'Delete position',
+                    message: 'Are you sure you want to delete this position? This action is permanent and cannot be undone.',
+                    confirm: 'Delete',
+                    cancel: 'Cancel'
+                }
             }
         }
     },
@@ -109,6 +282,36 @@ export const en = {
         errors: {
             invalidToken: 'Invalid or expired password reset token',
             unexpected: 'An unexpected error occurred'
+        }
+    },
+    notifications: {
+        title: 'Notifications',
+        markAllRead: 'Mark all read',
+        empty: 'No notifications yet'
+    },
+    profile: {
+        photoHint: 'Profile photo',
+        nameLabel: 'Name',
+        namePlaceholder: 'Enter your name',
+        emailLabel: 'Email address',
+        phoneLabel: 'Phone number',
+        phonePlaceholder: 'Enter your phone number',
+        save: 'Save',
+        cancel: 'Cancel',
+        deleteAccount: 'Delete account',
+        deleteConfirmTitle: 'Delete Account',
+        deleteConfirmMessage: 'Are you sure you want to delete your account? This action is permanent and cannot be undone.',
+        deleteConfirm: 'Delete',
+        deleteCancel: 'Cancel',
+        errors: {
+            invalidPhone: 'Invalid phone number format',
+            loadFailed: 'Failed to load profile data',
+            saveFailed: 'Failed to save profile changes',
+            uploadFailed: 'Failed to upload photo',
+            deleteFailed: 'Failed to delete account'
+        },
+        success: {
+            saved: 'Profile updated successfully'
         }
     }
 }

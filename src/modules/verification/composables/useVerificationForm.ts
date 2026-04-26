@@ -45,7 +45,7 @@ export function useVerificationForm(
 
     const redirectToDashboard = () => {
         if (authStore.orgToken) {
-            void router.push({ name: 'OrganizationDashboard' })
+            void router.push({ name: 'Organizations' })
         } else if (authStore.tagToken) {
             void router.push({ name: 'TagDashboard' })
         }

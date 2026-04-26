@@ -1,0 +1,104 @@
+@reference "../../../styles/main.css";
+
+.organizations-page {
+    @apply min-h-screen overflow-y-auto overflow-x-hidden relative pt-12 pb-8 px-6 flex flex-col;
+}
+
+.organizations-view-content {
+    @apply max-w-7xl mx-auto w-full flex-1;
+}
+
+.organizations-content-card {
+    @apply border border-solid rounded-[3rem] p-8 shadow-xl backdrop-blur-3xl flex flex-col gap-6;
+    background-color: var(--color-card-bg);
+    border-color: var(--color-card-border);
+}
+
+.organizations-actions {
+    @apply flex justify-between items-center gap-6;
+}
+
+.organizations-intro-chip {
+    @apply flex items-center gap-3 rounded-2xl px-4 py-3 border border-solid max-w-[640px];
+    background-color: color-mix(in srgb, var(--color-brand-primary), transparent 94%);
+    border-color: color-mix(in srgb, var(--color-brand-primary), transparent 75%);
+}
+
+.organizations-intro-icon {
+    @apply w-9 h-9 rounded-xl flex items-center justify-center shrink-0;
+    background-color: color-mix(in srgb, var(--color-brand-primary), transparent 88%);
+    color: var(--color-brand-primary);
+}
+
+.organizations-intro-icon svg {
+    @apply w-5 h-5;
+}
+
+.organizations-actions-hint {
+    @apply text-sm font-semibold leading-relaxed;
+    color: var(--color-text-muted);
+}
+
+.organizations-create-button-wrapper {
+    @apply w-auto;
+}
+
+.organizations-create-button {
+    @apply !w-auto !py-3 px-8 min-w-[250px];
+}
+
+.organizations-table-area {
+    @apply flex-1;
+}
+
+.organizations-page .main-table td {
+    vertical-align: top;
+}
+
+.organizations-page .main-table .td-actions {
+    align-items: flex-start;
+    padding-top: 0.125rem;
+}
+
+@media (max-width: 1024px) {
+    .organizations-actions {
+        @apply flex-col items-stretch;
+    }
+
+    .organizations-intro-chip {
+        @apply max-w-none;
+    }
+}
+
+.org-title {
+    @apply text-sm font-bold leading-relaxed block;
+    color: var(--color-text-main);
+    white-space: normal;
+    overflow-wrap: anywhere;
+    word-break: break-word;
+}
+
+.org-row-clickable {
+    cursor: pointer;
+}
+
+.org-row-clickable td:last-child {
+    cursor: default;
+}
+
+.org-description {
+    @apply text-sm leading-relaxed block;
+    color: var(--color-text-muted);
+    white-space: normal;
+    overflow-wrap: anywhere;
+    word-break: break-word;
+}
+
+.org-description.is-empty {
+    @apply opacity-60;
+}
+
+.org-date {
+    @apply text-sm font-medium;
+    color: var(--color-text-muted);
+}

@@ -9,7 +9,7 @@ const { translations } = useLanguageSwitcher()
 
 <template>
   <div class="forgot-password-page">
-    <ControlPanel :show-logout="false" />
+    <ControlPanel :show-logout="false" :show-notifications="false" :show-profile="false" />
 
     <div class="forgot-password-card">
       <ForgotPasswordForm

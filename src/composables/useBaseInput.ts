@@ -8,6 +8,21 @@ export function isValidEmailInputValue(value: string): boolean {
     return VALIDATION.EMAIL_PATTERN.test(value.trim())
 }
 
+export function isValidPhoneInputValue(value: string): boolean {
+    const normalizedValue = value.trim()
+    if (normalizedValue.length === 0) {
+        return true
+    }
+    return VALIDATION.PHONE_PATTERN.test(normalizedValue)
+}
+
+function normalizePhoneInputValue(value: string): string {
+    const cleanedValue = value.replace(VALIDATION.PHONE_ALLOWED, '')
+    const startsWithPlus = cleanedValue.startsWith('+')
+    const digitsOnly = cleanedValue.replace(/\+/g, '')
+    return startsWithPlus ? `+${digitsOnly}` : digitsOnly
+}
+
 export function useBaseInput(
     props: BaseInputProperties,
     emit: BaseInputEmits
@@ -24,8 +39,11 @@ export function useBaseInput(
     }
 
     const handleInput = (event: Event) => {
-        const target = event.target as HTMLInputElement
-        const limitedValue = target.value.slice(0, props.maxLength)
+        const target = event.target as HTMLInputElement | HTMLTextAreaElement
+        const normalizedValue = props.type === 'tel'
+            ? normalizePhoneInputValue(target.value)
+            : target.value
+        const limitedValue = normalizedValue.slice(0, props.maxLength)
         if (target.value !== limitedValue) {
             target.value = limitedValue
         }

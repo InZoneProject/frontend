@@ -23,6 +23,7 @@ const {
   isDeleteModalOpen,
   inviteLink,
   expiresAt,
+  inviteCopySuccessMessage,
   isGenerating,
   isInitialLoading,
   tabs,
@@ -34,6 +35,8 @@ const {
   formatRange,
   generateLink,
   copyToClipboard,
+  clearInvite,
+  clearInviteCopySuccessMessage,
   openDeleteModal,
   confirmDelete,
   closeDeleteModal
@@ -42,18 +45,20 @@ const {
 
 <template>
   <div class="admin-page">
-    <ControlPanel :show-logout="true" />
+    <ControlPanel :show-logout="true" :show-notifications="false" :show-profile="false" />
 
     <div class="admin-view-content">
       <InviteGenerator
           :translations="globalAdminTranslations.inviteSection"
           :invite-link="inviteLink || ''"
           :expires-at="expiresAt || ''"
+          :success-message="inviteCopySuccessMessage"
           :loading="isGenerating"
           :initial-loading="isInitialLoading"
           @generate="generateLink"
-          @copy="copyToClipboard"
-          @clear="inviteLink = null; expiresAt = null"
+          @copy-link="copyToClipboard"
+          @clear="clearInvite"
+          @clear-success="clearInviteCopySuccessMessage"
       />
 
       <div class="content-card">
@@ -69,6 +74,8 @@ const {
               :items="tableItems"
               :loading="isLoadingData"
               :placeholder="currentPlaceholder"
+              :interactive-rows="false"
+              max-height="32rem"
           >
             <template #header>
               <tr v-if="activeTab === 'admins'">

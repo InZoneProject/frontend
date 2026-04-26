@@ -86,6 +86,8 @@ const {
           type="email"
           :placeholder="properties.commonTranslations.emailPlaceholder"
           :max-length="LENGTH.MAX_EMAIL_LENGTH"
+          :is-expandable="false"
+          :disabled="isSubmitting"
       />
     </div>
 

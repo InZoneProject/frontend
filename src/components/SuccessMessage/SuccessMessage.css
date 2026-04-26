@@ -1,0 +1,21 @@
+@reference "../../styles/main.css";
+
+.success-message-container {
+    @apply w-full;
+}
+
+.success-message-content {
+    @apply flex items-center gap-3 px-4 py-3.5 border rounded-xl w-full backdrop-blur-md text-left;
+    background-color: var(--success-bg);
+    border-color: var(--success-border);
+}
+
+.success-message-icon {
+    @apply w-[18px] h-[18px] flex-shrink-0;
+    color: var(--success-main);
+}
+
+.success-message-text {
+    @apply text-[14px] font-medium leading-snug flex-1;
+    color: var(--success-main);
+}
