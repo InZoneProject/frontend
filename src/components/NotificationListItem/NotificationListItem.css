@@ -2,13 +2,13 @@
 
 .notification-list-item {
     @apply p-3 rounded-xl border border-solid;
-    border-color: color-mix(in srgb, var(--color-card-border), var(--color-text-muted) 20%);
-    background-color: color-mix(in srgb, var(--color-main-bg), var(--color-card-bg) 35%);
+    border-color: var(--color-card-border);
+    background-color: var(--color-input-bg);
 }
 
 .notification-list-item.is-unread {
-    border-color: color-mix(in srgb, var(--color-brand-primary), transparent 65%);
-    background-color: color-mix(in srgb, var(--color-main-bg), var(--color-brand-primary) 12%);
+    border-color: color-mix(in srgb, var(--color-brand-primary), transparent 58%);
+    background-color: color-mix(in srgb, var(--color-brand-primary), transparent 92%);
 }
 
 .notification-list-item-header {

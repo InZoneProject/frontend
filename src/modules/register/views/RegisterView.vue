@@ -16,9 +16,7 @@ const initialRole = computed(() => {
       : UserRole.ORGANIZATION_ADMIN
 })
 
-const onRegisterSubmit = (payload: any) => {
-  console.log('Payload:', payload)
-}
+const onRegisterSubmit = () => {}
 </script>
 
 <template>

@@ -1,6 +1,7 @@
 import { createRouter, createWebHistory, type RouteRecordRaw } from 'vue-router'
 import { UserRole } from '@/enums/user-role.enum'
 import { useAuthStore } from '@/stores/auth.store'
+import { pinia } from '@/stores/pinia'
 
 const routes: RouteRecordRaw[] = [
     {
@@ -84,6 +85,15 @@ const routes: RouteRecordRaw[] = [
         }
     },
     {
+        path: '/buildings/:buildingId',
+        name: 'Building',
+        component: () => import('@/modules/building/views/BuildingView.vue'),
+        meta: {
+            requiresAuth: true,
+            role: UserRole.ORGANIZATION_ADMIN
+        }
+    },
+    {
         path: '/organization-dashboard',
         redirect: '/organizations'
     },
@@ -95,6 +105,11 @@ const routes: RouteRecordRaw[] = [
             requiresAuth: true,
             role: UserRole.TAG_ADMIN
         }
+    },
+    {
+        path: '/:pathMatch(.*)*',
+        name: 'NotFound',
+        component: () => import('@/modules/not-found/views/NotFoundView.vue')
     }
 ]
 
@@ -104,7 +119,7 @@ export const router = createRouter({
 })
 
 router.beforeEach((to, _from, next) => {
-    const authStore = useAuthStore()
+    const authStore = useAuthStore(pinia)
 
     const hasGlobalToken = !!authStore.globalToken
     const hasOrgToken = !!authStore.orgToken
@@ -113,7 +128,7 @@ router.beforeEach((to, _from, next) => {
     const isVerified = authStore.isVerified
 
     if (hasGlobalToken) {
-        if (to.name !== 'GlobalAdminPanel') {
+        if (to.name !== 'GlobalAdminPanel' && to.name !== 'NotFound') {
             return next({ name: 'GlobalAdminPanel' })
         }
         return next()
@@ -133,10 +148,10 @@ router.beforeEach((to, _from, next) => {
         }
 
         if (isVerified) {
-            if (hasOrgToken && to.name !== 'Organizations') {
+            if (hasOrgToken && to.name !== 'Organizations' && to.name !== 'Building' && to.name !== 'NotFound') {
                 return next({ name: 'Organizations' })
             }
-            if (hasTagToken && to.name !== 'TagDashboard') {
+            if (hasTagToken && to.name !== 'TagDashboard' && to.name !== 'NotFound') {
                 return next({ name: 'TagDashboard' })
             }
         }

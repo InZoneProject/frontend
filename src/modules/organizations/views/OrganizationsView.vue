@@ -24,6 +24,9 @@ const {
   searchQuery,
   organizations,
   isLoadingData,
+  tableOffset,
+  tableLimit,
+  tableTotal,
   currentPlaceholder,
   isOrganizationFormModalOpen,
   organizationFormMode,
@@ -89,9 +92,16 @@ const {
           <DataTable
               v-model:search-query="searchQuery"
               :items="organizations"
+              :offset="tableOffset"
+              :limit="tableLimit"
+              :total="tableTotal"
+              @update:offset="tableOffset = $event"
               :loading="isLoadingData"
               :placeholder="currentPlaceholder"
+              :empty-text="organizationTranslations.table.empty"
+              :loading-text="organizationTranslations.table.loading"
               :interactive-rows="true"
+              :is-drag-over="false"
               max-height="43rem"
           >
             <template #header>

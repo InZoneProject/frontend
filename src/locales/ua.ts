@@ -85,6 +85,8 @@ export const ua = {
         },
         table: {
             searchPlaceholder: 'Пошук організацій...',
+            empty: 'Нічого не знайдено',
+            loading: 'Завантаження даних...',
             headers: {
                 title: 'Назва',
                 description: 'Опис',
@@ -151,8 +153,10 @@ export const ua = {
                 addTagHint: 'Створюйте RFID теги та редагуйте їх назви у таблиці нижче.',
                 headers: {
                     name: 'Назва',
+                    user: 'Користувач',
                     role: 'Роль',
                     email: 'Електронна пошта',
+                    phone: 'Телефон',
                     createdAt: 'Створено',
                     address: 'Адреса',
                     tagUid: 'UID тега',
@@ -246,6 +250,203 @@ export const ua = {
                     confirm: 'Видалити',
                     cancel: 'Скасувати'
                 }
+            }
+        },
+        buildingPage: {
+            floors: {
+                title: 'Поверхи',
+                collapse: 'Згорнути',
+                expand: 'Розгорнути',
+                expandHint: 'Розгорніть, щоб взаємодіяти з поверхами',
+                add: 'Додати поверх',
+                searchPlaceholder: 'Пошук поверхів...',
+                empty: 'Нічого не знайдено',
+                loading: 'Завантаження даних...',
+                headers: {
+                    position: 'Позиція',
+                    name: 'Назва',
+                    actions: 'Дії'
+                }
+            },
+            employees: {
+                title: 'Співробітники',
+                searchPlaceholder: 'Пошук співробітників...',
+                empty: 'На цьому поверсі зараз немає співробітників',
+                loading: 'Завантаження даних...',
+                headers: {
+                    user: 'Користувач',
+                    actions: 'Дії'
+                }
+            },
+            employeeMovementReport: {
+                title: 'Звіт про переміщення за день співробітника {name}',
+                dateLabel: 'Дата звіту',
+                download: 'Завантажити',
+                cancel: 'Скасувати',
+                generatedAt: 'Згенеровано',
+                building: 'Будівля',
+                employee: 'Співробітник',
+                phone: 'Телефон',
+                date: 'Дата',
+                movements: 'Переміщення',
+                violations: 'Порушення',
+                uniqueFloors: 'Поверхи',
+                uniqueZones: 'Зони',
+                firstScan: 'Перший скан',
+                lastScan: 'Останній скан',
+                noMovements: 'За цю дату переміщень немає.',
+                noViolations: 'За цю дату порушень немає.',
+                movementTable: 'Події переміщення',
+                zoneScanCount: 'Сканування по зонах',
+                zoneDwellTime: 'Час перебування по зонах',
+                otherZones: 'Інші зони',
+                minutesShort: 'хв',
+                violationsTable: 'Порушення',
+                hourlyActivity: 'Активність по годинах',
+                scanId: 'Скан',
+                time: 'Час',
+                door: 'Двері',
+                floor: 'Поверх',
+                fromZone: 'Звідки',
+                toZone: 'Куди',
+                outside: 'Поза зонами',
+                moreMovements: 'Ще переміщень: {count}',
+                titleColumn: 'Назва',
+                message: 'Повідомлення',
+                zone: 'Зона'
+            },
+            info: {
+                label: 'Будівля',
+                emptyAddress: 'Адресу не вказано',
+                createdAt: 'Створено'
+            },
+            floorForm: {
+                createTitle: 'Додати поверх',
+                editTitle: 'Редагувати поверх',
+                nameLabel: 'Назва поверху',
+                namePlaceholder: 'Введіть назву поверху',
+                createConfirm: 'Додати',
+                editConfirm: 'Зберегти',
+                cancel: 'Скасувати'
+            },
+            zone: {
+                defaultTitle: 'Нова зона',
+                editingTitle: 'Режим редагування назви кімнати'
+            },
+            preview: {
+                blockedZoneCollision: 'Зони "{first}" та "{second}" впираються одна в одну',
+                blockedDoorBetween: 'Не вистачить місця дверей між "{first}" та "{second}"',
+                blockedEntranceDoor: 'Не вистачить місця для вхідних дверей у "{zone}"'
+            },
+            map: {
+                syncError: 'Не вдалося синхронізувати карту з сервером. Перевірте зʼєднання та спробуйте ще раз.'
+            },
+            zoneForm: {
+                title: 'Створити зону',
+                nameLabel: 'Назва зони',
+                namePlaceholder: 'Введіть назву зони',
+                regular: 'Звичайна',
+                transition: 'Міжповерхова',
+                regularOnly: 'У цьому місці можна створити лише звичайну зону.',
+                defaultError: 'Не вдалося створити зону в цьому місці.',
+                overlapError: 'Зони впираються одна в одну. Оберіть вільне місце або збільшіть простір.',
+                noIntersectionError: 'Нова зона має торкатися іншої зони.',
+                doorSpaceError: 'Не вистачає місця для дверей між зонами.',
+                confirm: 'Створити',
+                cancel: 'Скасувати'
+            },
+            deleteBuilding: {
+                title: 'Видалити будівлю',
+                message: 'Видалення будівлі прибере всі її поверхи, зони та двері.',
+                confirm: 'Видалити',
+                cancel: 'Скасувати'
+            },
+            deleteFloor: {
+                title: 'Видалити поверх',
+                message: 'Поверх буде видалено разом із його зонами.',
+                confirm: 'Видалити',
+                cancel: 'Скасувати'
+            },
+            deleteZone: {
+                title: 'Видалити зону',
+                message: 'Зону буде видалено разом із її дверима.',
+                confirm: 'Видалити',
+                cancel: 'Скасувати'
+            },
+            deleteDoor: {
+                title: 'Видалити двері',
+                message: 'Двері буде видалено.',
+                confirm: 'Видалити',
+                cancel: 'Скасувати'
+            },
+            doorReader: {
+                title: 'Рідер дверей',
+                assignedTitle: 'Призначений рідер',
+                emptyAssigned: 'Перетягніть рідер сюди',
+                searchPlaceholder: 'Пошук рідерів...',
+                hint: 'Створюйте рідери або перетягуйте доступний рідер у призначену область.',
+                add: 'Додати рідер',
+                name: 'Назва',
+                createdAt: 'Створено',
+                actions: 'Дії',
+                tokenLabel: 'Новий токен',
+                copySuccess: 'Токен скопійовано',
+                editNamePrompt: 'Назва рідера',
+                regenerateTitle: 'Перегенерувати токен',
+                regenerateMessage: 'Поточний токен рідера перестане працювати після перегенерації.',
+                regenerateConfirm: 'Перегенерувати',
+                regenerateCancel: 'Скасувати'
+            },
+            readerForm: {
+                createTitle: 'Додати рідер',
+                editTitle: 'Редагувати рідер',
+                nameLabel: 'Назва рідера',
+                namePlaceholder: 'Введіть назву рідера',
+                createConfirm: 'Додати',
+                editConfirm: 'Зберегти',
+                cancel: 'Скасувати'
+            },
+            zoneAccessRules: {
+                rulesTitle: 'Правила доступу зони',
+                positionsTitle: 'Позиції правила',
+                edit: 'Редагувати правила',
+                editPositions: 'Редагувати позиції',
+                zoneInTitle: ' у зоні',
+                close: 'Закрити',
+                finish: 'Завершити',
+                addRule: 'Додати правило',
+                addPosition: 'Додати позицію',
+                assigned: 'Призначені',
+                available: 'Доступні',
+                assignedSearch: 'Пошук призначених...',
+                availableSearch: 'Пошук доступних...',
+                empty: 'Нічого не знайдено',
+                loading: 'Завантаження даних...',
+                rule: 'Правило',
+                role: 'Роль',
+                createdAt: 'Створено',
+                actions: 'Дії',
+                backToEditRules: 'Назад до редагування правил',
+                detachConfirmTitle: 'Відзначити правило',
+                detachConfirmMessage: 'До цього правила призначені позиції. При відзначенні правила від зони ці призначення позицій також буде скинуто.',
+                detachConfirm: 'Відзначити',
+                deleteRuleTitle: 'Видалити правило',
+                deleteRuleMessage: 'Це правило буде видалено.',
+                deletePositionTitle: 'Видалити позицію',
+                deletePositionMessage: 'Цю позицію буде видалено.',
+                delete: 'Видалити',
+                cancel: 'Скасувати',
+                save: 'Зберегти',
+                createRule: 'Створити правило',
+                editRule: 'Редагувати правило',
+                ruleTitle: 'Назва',
+                accessType: 'Тип доступу',
+                accessTypeForbidden: 'Заборонено',
+                accessTypeTimeLimited: 'Обмежено в часі',
+                maxDuration: 'Максимальна тривалість',
+                createPosition: 'Створити позицію',
+                editPosition: 'Редагувати позицію',
+                description: 'Опис'
             }
         }
     },

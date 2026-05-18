@@ -5,6 +5,7 @@ import type { OrganizationListParams } from '@/interfaces/organization-list-para
 import { organizationsRepository } from '@/modules/organizations/repositories/organizations.repository'
 import type { OrganizationItem } from '@/modules/organizations/interfaces/organization-item.interface'
 import type { OrganizationsTranslations } from '@/modules/organizations/interfaces/organizations-translations.interface'
+import { LIST } from '@/constants/list.constants'
 
 export const useOrganizationsView = (translations: Ref<OrganizationsTranslations>) => {
     const { formatDate } = useDateFormatter()
@@ -14,18 +15,28 @@ export const useOrganizationsView = (translations: Ref<OrganizationsTranslations
     const searchQuery = ref('')
     const organizations = ref<OrganizationItem[]>([])
     const isLoadingData = ref(false)
+    const tableOffset = ref(0)
+    const tableLimit = ref(LIST.DEFAULT_LIMIT)
+    const tableTotal = ref(0)
 
     const isOrganizationFormModalOpen = ref(false)
     const organizationFormMode = ref<'create' | 'edit'>('create')
     const organizationToEditId = ref<number | null>(null)
     const organizationFormNameValue = ref('')
     const organizationFormDescriptionValue = ref('')
+    const initialOrganizationFormNameValue = ref('')
+    const initialOrganizationFormDescriptionValue = ref('')
     const isOrganizationFormSubmitting = ref(false)
 
     const isDeleteModalOpen = ref(false)
     const organizationToDelete = ref<number | null>(null)
     const isDeleting = ref(false)
     let searchDebounceTimeout: number | null = null
+    let organizationsRequestId = 0
+
+    const runBackground = (request: Promise<unknown>) => {
+        request.catch(() => undefined)
+    }
 
     const selectedOrganizationId = computed(() => {
         const rawValue = route.params.organizationId
@@ -41,23 +52,47 @@ export const useOrganizationsView = (translations: Ref<OrganizationsTranslations
     const currentPlaceholder = computed(() => translations.value.table.searchPlaceholder)
 
     const canSubmitOrganizationForm = computed(() => {
-        return organizationFormNameValue.value.trim().length > 0
+        const title = organizationFormNameValue.value.trim()
+        if (title.length === 0) {
+            return false
+        }
+
+        if (organizationFormMode.value === 'create') {
+            return true
+        }
+
+        const description = organizationFormDescriptionValue.value.trim()
+        return (
+            title !== initialOrganizationFormNameValue.value
+            || description !== initialOrganizationFormDescriptionValue.value
+        )
     })
 
     const fetchOrganizations = async () => {
+        if (isLoadingData.value) return
+        const requestId = ++organizationsRequestId
         isLoadingData.value = true
 
         try {
             const requestParams: OrganizationListParams = {
                 search: searchQuery.value,
-                offset: 0,
-                limit: 20
+                offset: tableOffset.value,
+                limit: tableLimit.value
             }
             const response = await organizationsRepository.getOrganizations(requestParams)
-
-            organizations.value = response.data.items
+            if (requestId !== organizationsRequestId) return
+            organizations.value = tableOffset.value === 0
+                ? response.data.items
+                : [...organizations.value, ...response.data.items]
+            tableTotal.value = response.data.total
+        } catch {
+            if (requestId !== organizationsRequestId) return
+            if (tableOffset.value === 0) {
+                organizations.value = []
+                tableTotal.value = 0
+            }
         } finally {
-            isLoadingData.value = false
+            if (requestId === organizationsRequestId) isLoadingData.value = false
         }
     }
 
@@ -66,6 +101,8 @@ export const useOrganizationsView = (translations: Ref<OrganizationsTranslations
         organizationToEditId.value = null
         organizationFormNameValue.value = ''
         organizationFormDescriptionValue.value = ''
+        initialOrganizationFormNameValue.value = ''
+        initialOrganizationFormDescriptionValue.value = ''
         isOrganizationFormModalOpen.value = true
     }
 
@@ -74,6 +111,8 @@ export const useOrganizationsView = (translations: Ref<OrganizationsTranslations
         organizationToEditId.value = organization.organization_id
         organizationFormNameValue.value = organization.title
         organizationFormDescriptionValue.value = organization.description || ''
+        initialOrganizationFormNameValue.value = organization.title.trim()
+        initialOrganizationFormDescriptionValue.value = (organization.description || '').trim()
         isOrganizationFormModalOpen.value = true
     }
 
@@ -97,18 +136,23 @@ export const useOrganizationsView = (translations: Ref<OrganizationsTranslations
                 })
 
                 isOrganizationFormModalOpen.value = false
-                await fetchOrganizations()
+                organizations.value = [response.data, ...organizations.value]
+                tableTotal.value += 1
                 await openOrganizationPage(response.data.organization_id)
                 return
             } else if (organizationToEditId.value !== null) {
-                await organizationsRepository.updateOrganization(organizationToEditId.value, {
+                const response = await organizationsRepository.updateOrganization(organizationToEditId.value, {
                     title: titleValue,
                     description: descriptionValue.length > 0 ? descriptionValue : null
                 })
+                organizations.value = organizations.value.map((organization) =>
+                    organization.organization_id === organizationToEditId.value
+                        ? response.data
+                        : organization
+                )
             }
 
             isOrganizationFormModalOpen.value = false
-            await fetchOrganizations()
         } finally {
             isOrganizationFormSubmitting.value = false
         }
@@ -149,7 +193,10 @@ export const useOrganizationsView = (translations: Ref<OrganizationsTranslations
 
         try {
             await organizationsRepository.deleteOrganization(organizationToDelete.value)
-            await fetchOrganizations()
+            organizations.value = organizations.value.filter(
+                (organization) => organization.organization_id !== organizationToDelete.value
+            )
+            tableTotal.value = Math.max(0, tableTotal.value - 1)
         } finally {
             isDeleting.value = false
             closeDeleteModal()
@@ -157,17 +204,25 @@ export const useOrganizationsView = (translations: Ref<OrganizationsTranslations
     }
 
     onMounted(() => {
-        void fetchOrganizations()
+        runBackground(fetchOrganizations())
     })
 
     watch(searchQuery, () => {
+        if (tableOffset.value !== 0) {
+            tableOffset.value = 0
+            return
+        }
         if (searchDebounceTimeout !== null) {
             window.clearTimeout(searchDebounceTimeout)
         }
 
         searchDebounceTimeout = window.setTimeout(() => {
-            void fetchOrganizations()
-        }, 300)
+            runBackground(fetchOrganizations())
+        }, LIST.SEARCH_DEBOUNCE_MS)
+    })
+
+    watch(tableOffset, () => {
+        runBackground(fetchOrganizations())
     })
 
     onBeforeUnmount(() => {
@@ -180,6 +235,9 @@ export const useOrganizationsView = (translations: Ref<OrganizationsTranslations
         searchQuery,
         organizations,
         isLoadingData,
+        tableOffset,
+        tableLimit,
+        tableTotal,
         currentPlaceholder,
         isOrganizationFormModalOpen,
         organizationFormMode,

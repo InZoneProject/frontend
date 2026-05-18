@@ -73,6 +73,8 @@ const {
           type="email"
           :placeholder="properties.commonTranslations.emailPlaceholder"
           :max-length="LENGTH.MAX_EMAIL_LENGTH"
+              :min-value="null"
+              :max-value="null"
           :is-expandable="false"
           :disabled="isSubmitting"
       />
@@ -83,6 +85,8 @@ const {
           type="password"
           :placeholder="properties.commonTranslations.passwordPlaceholder"
           :max-length="LENGTH.MAX_PASSWORD_LENGTH"
+              :min-value="null"
+              :max-value="null"
           :is-expandable="false"
           :disabled="isSubmitting"
       />

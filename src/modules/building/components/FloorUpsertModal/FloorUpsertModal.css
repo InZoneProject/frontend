@@ -1,0 +1,19 @@
+@reference "../../../../styles/main.css";
+
+.modal-card-floor-upsert {
+    @apply max-w-lg;
+}
+
+.floor-upsert-fields {
+    @apply flex flex-col gap-4 mb-8;
+}
+
+.floor-upsert-brand-icon {
+    @apply w-12 h-12 flex items-center justify-center rounded-2xl mb-2;
+    background-color: color-mix(in srgb, var(--color-brand-primary), transparent 90%);
+    color: var(--color-brand-primary);
+}
+
+.floor-upsert-brand-icon svg {
+    @apply w-6 h-6;
+}

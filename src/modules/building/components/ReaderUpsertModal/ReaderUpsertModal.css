@@ -1,0 +1,27 @@
+@reference "../../../../styles/main.css";
+
+.reader-upsert-modal {
+    @apply max-w-lg;
+}
+
+.reader-upsert-modal .base-input-wrapper {
+    @apply mt-2 mb-5;
+}
+
+.reader-upsert-modal .modal-actions {
+    @apply gap-4;
+}
+
+.reader-upsert-modal .modal-actions .base-button {
+    @apply min-h-13;
+}
+
+.reader-upsert-icon {
+    @apply mb-2 flex h-12 w-12 items-center justify-center rounded-2xl;
+    background-color: color-mix(in srgb, var(--color-brand-primary), transparent 88%);
+    color: var(--color-brand-primary);
+}
+
+.reader-upsert-icon svg {
+    @apply h-6 w-6;
+}

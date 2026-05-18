@@ -1,21 +1,16 @@
 <script setup lang="ts" generic="T">
-import { computed } from 'vue'
 import BaseInput from '@/components/BaseInput/BaseInput.vue'
 import { Events } from '@/enums/events.enum'
-import { useLanguageSwitcher } from '@/composables/useLanguageSwitcher'
+import { LENGTH } from '@/constants/length.constants'
+import { useDataTable } from '@/composables/useDataTable'
 import type { DataTableProperties } from '@/interfaces/data-table-properties.interface'
 import type { DataTableEmits } from '@/interfaces/data-table-emits.interface'
 import './DataTable.css'
-import {LENGTH} from "@/constants/length.constants";
 
 const props = defineProps<DataTableProperties<T>>()
-defineEmits<DataTableEmits>()
+const emit = defineEmits<DataTableEmits>()
 
-const { translations } = useLanguageSwitcher()
-
-const tableWrapperStyle = computed(() => ({
-  '--table-max-height': props.maxHeight
-}))
+const { tableWrapperRef, tableWrapperStyle, onScroll } = useDataTable(props, emit)
 </script>
 
 <template>
@@ -28,6 +23,8 @@ const tableWrapperStyle = computed(() => ({
           type="text"
           :placeholder="props.placeholder"
           :max-length="LENGTH.MAX_SEARCH_LENGTH"
+              :min-value="null"
+              :max-value="null"
           :is-expandable="false"
           :disabled="false"
           class="table-search"
@@ -40,31 +37,51 @@ const tableWrapperStyle = computed(() => ({
       </BaseInput>
     </div>
 
-    <div
-        class="table-wrapper"
-        :class="{ 'data-table-interactive-rows': props.interactiveRows }"
-        :style="tableWrapperStyle"
-    >
-      <table class="main-table">
-        <thead>
-        <slot name="header"></slot>
-        </thead>
-        <tbody>
-        <tr v-if="props.loading || props.items.length === 0">
-          <td colspan="100" class="td-status">
-            <div class="status-content">
-              <div v-if="props.loading" class="loader"></div>
-              <span class="status-text">
-                  {{ props.loading ? translations.globalAdmin.table.loading : translations.globalAdmin.table.empty }}
+    <div class="table-shell" :class="{ 'is-drag-over': props.isDragOver }" :style="tableWrapperStyle">
+      <div class="table-header-wrapper">
+        <table class="main-table table-header-table">
+          <thead>
+          <slot name="header"></slot>
+          </thead>
+        </table>
+      </div>
+
+      <div
+          ref="tableWrapperRef"
+          class="table-wrapper"
+          :class="{ 'data-table-interactive-rows': props.interactiveRows }"
+          @scroll.passive="onScroll"
+      >
+        <table class="main-table">
+          <thead class="table-measure-header" aria-hidden="true">
+          <slot name="header"></slot>
+          </thead>
+          <tbody>
+          <tr v-if="props.loading && props.items.length === 0">
+            <td colspan="100" class="td-status">
+              <div class="status-content">
+                <div class="loader"></div>
+                <span class="status-text">
+                    {{ props.loadingText }}
+                  </span>
+              </div>
+            </td>
+          </tr>
+          <template v-if="props.items.length > 0">
+            <slot v-for="(item, index) in props.items" :key="index" :item="item"></slot>
+          </template>
+          <tr v-if="!props.loading && props.items.length === 0">
+            <td colspan="100" class="td-status">
+              <div class="status-content">
+                <span class="status-text">
+                  {{ props.emptyText }}
                 </span>
-            </div>
-          </td>
-        </tr>
-        <template v-else>
-          <slot v-for="(item, index) in props.items" :key="index" :item="item"></slot>
-        </template>
-        </tbody>
-      </table>
+              </div>
+            </td>
+          </tr>
+          </tbody>
+        </table>
+      </div>
     </div>
   </div>
 </template>

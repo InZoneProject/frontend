@@ -1,0 +1,11 @@
+export interface ZoneMapItem {
+    zone_id: number
+    title: string
+    is_transition_between_floors: boolean
+    width: number
+    height: number
+    photo: string | null
+    x_coordinate: number
+    y_coordinate: number
+    floor_id: number | null
+}

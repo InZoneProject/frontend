@@ -48,6 +48,30 @@
     opacity: 0.65;
 }
 
+.base-input-field[type="number"]::-webkit-outer-spin-button,
+.base-input-field[type="number"]::-webkit-inner-spin-button {
+    margin: 0;
+    appearance: none;
+}
+
+.base-input-field[type="number"] {
+    appearance: textfield;
+}
+
+.base-input-field--select {
+    appearance: none;
+    @apply pr-11;
+}
+
+.base-input-select-icon {
+    @apply absolute right-4 pointer-events-none w-4 h-4;
+    color: var(--color-text-muted);
+}
+
+.base-input-select-icon svg {
+    @apply w-full h-full;
+}
+
 .base-input-icon {
     @apply absolute right-4 cursor-pointer transition-colors w-4 h-4;
     color: var(--color-text-muted);

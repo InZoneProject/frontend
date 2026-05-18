@@ -85,6 +85,8 @@ export const en = {
         },
         table: {
             searchPlaceholder: 'Search organizations...',
+            empty: 'Nothing found',
+            loading: 'Loading data...',
             headers: {
                 title: 'Name',
                 description: 'Description',
@@ -151,8 +153,10 @@ export const en = {
                 addTagHint: 'Create RFID tags and edit their names in the table below.',
                 headers: {
                     name: 'Name',
+                    user: 'User',
                     role: 'Role',
                     email: 'Email',
+                    phone: 'Phone',
                     createdAt: 'Created At',
                     address: 'Address',
                     tagUid: 'Tag UID',
@@ -246,6 +250,203 @@ export const en = {
                     confirm: 'Delete',
                     cancel: 'Cancel'
                 }
+            }
+        },
+        buildingPage: {
+            floors: {
+                title: 'Floors',
+                collapse: 'Collapse',
+                expand: 'Expand',
+                expandHint: 'Expand to work with floors',
+                add: 'Add floor',
+                searchPlaceholder: 'Search floors...',
+                empty: 'Nothing found',
+                loading: 'Loading data...',
+                headers: {
+                    position: 'Position',
+                    name: 'Name',
+                    actions: 'Actions'
+                }
+            },
+            employees: {
+                title: 'Employees',
+                searchPlaceholder: 'Search employees...',
+                empty: 'There are no employees on this floor right now',
+                loading: 'Loading data...',
+                headers: {
+                    user: 'User',
+                    actions: 'Actions'
+                }
+            },
+            employeeMovementReport: {
+                title: 'Daily movement report for employee {name}',
+                dateLabel: 'Report date',
+                download: 'Download',
+                cancel: 'Cancel',
+                generatedAt: 'Generated at',
+                building: 'Building',
+                employee: 'Employee',
+                phone: 'Phone',
+                date: 'Date',
+                movements: 'Movements',
+                violations: 'Violations',
+                uniqueFloors: 'Floors',
+                uniqueZones: 'Zones',
+                firstScan: 'First scan',
+                lastScan: 'Last scan',
+                noMovements: 'There are no movements for this date.',
+                noViolations: 'There are no violations for this date.',
+                movementTable: 'Movement events',
+                zoneScanCount: 'Scans by zone',
+                zoneDwellTime: 'Time by zone',
+                otherZones: 'Other zones',
+                minutesShort: 'min',
+                violationsTable: 'Violations',
+                hourlyActivity: 'Hourly activity',
+                scanId: 'Scan',
+                time: 'Time',
+                door: 'Door',
+                floor: 'Floor',
+                fromZone: 'From',
+                toZone: 'To',
+                outside: 'Outside zones',
+                moreMovements: '{count} more movements',
+                titleColumn: 'Title',
+                message: 'Message',
+                zone: 'Zone'
+            },
+            info: {
+                label: 'Building',
+                emptyAddress: 'No address specified',
+                createdAt: 'Created'
+            },
+            floorForm: {
+                createTitle: 'Add floor',
+                editTitle: 'Edit floor',
+                nameLabel: 'Floor name',
+                namePlaceholder: 'Enter floor name',
+                createConfirm: 'Add',
+                editConfirm: 'Save',
+                cancel: 'Cancel'
+            },
+            zone: {
+                defaultTitle: 'New zone',
+                editingTitle: 'Room name editing mode'
+            },
+            preview: {
+                blockedZoneCollision: 'Zones "{first}" and "{second}" are colliding',
+                blockedDoorBetween: 'Not enough door space between "{first}" and "{second}"',
+                blockedEntranceDoor: 'Not enough space for entrance doors in "{zone}"'
+            },
+            map: {
+                syncError: 'Could not sync the map with the server. Check the connection and try again.'
+            },
+            zoneForm: {
+                title: 'Create zone',
+                nameLabel: 'Zone name',
+                namePlaceholder: 'Enter zone name',
+                regular: 'Regular',
+                transition: 'Between floors',
+                regularOnly: 'Only a regular zone can be created here.',
+                defaultError: 'Could not create a zone in this place.',
+                overlapError: 'Zones are colliding. Choose free space or increase the gap.',
+                noIntersectionError: 'The new zone must touch another zone.',
+                doorSpaceError: 'There is not enough space for doors between zones.',
+                confirm: 'Create',
+                cancel: 'Cancel'
+            },
+            deleteBuilding: {
+                title: 'Delete building',
+                message: 'Deleting the building will remove all of its floors, zones, and doors.',
+                confirm: 'Delete',
+                cancel: 'Cancel'
+            },
+            deleteFloor: {
+                title: 'Delete floor',
+                message: 'The floor will be deleted together with its zones.',
+                confirm: 'Delete',
+                cancel: 'Cancel'
+            },
+            deleteZone: {
+                title: 'Delete zone',
+                message: 'The zone will be deleted together with its doors.',
+                confirm: 'Delete',
+                cancel: 'Cancel'
+            },
+            deleteDoor: {
+                title: 'Delete door',
+                message: 'The door will be deleted.',
+                confirm: 'Delete',
+                cancel: 'Cancel'
+            },
+            doorReader: {
+                title: 'Door reader',
+                assignedTitle: 'Assigned reader',
+                emptyAssigned: 'Drag a reader here',
+                searchPlaceholder: 'Search readers...',
+                hint: 'Create readers or drag an available reader into the assigned area.',
+                add: 'Add reader',
+                name: 'Name',
+                createdAt: 'Created',
+                actions: 'Actions',
+                tokenLabel: 'New token',
+                copySuccess: 'Token copied',
+                editNamePrompt: 'Reader name',
+                regenerateTitle: 'Regenerate token',
+                regenerateMessage: 'The current reader token will stop working after regeneration.',
+                regenerateConfirm: 'Regenerate',
+                regenerateCancel: 'Cancel'
+            },
+            readerForm: {
+                createTitle: 'Add reader',
+                editTitle: 'Edit reader',
+                nameLabel: 'Reader name',
+                namePlaceholder: 'Enter reader name',
+                createConfirm: 'Add',
+                editConfirm: 'Save',
+                cancel: 'Cancel'
+            },
+            zoneAccessRules: {
+                rulesTitle: 'Zone access rules',
+                positionsTitle: 'Rule positions',
+                edit: 'Edit rules',
+                editPositions: 'Edit positions',
+                zoneInTitle: ' in zone',
+                close: 'Close',
+                finish: 'Finish',
+                addRule: 'Add rule',
+                addPosition: 'Add position',
+                assigned: 'Assigned',
+                available: 'Available',
+                assignedSearch: 'Search assigned...',
+                availableSearch: 'Search available...',
+                empty: 'Nothing found',
+                loading: 'Loading data...',
+                rule: 'Rule',
+                role: 'Role',
+                createdAt: 'Created',
+                actions: 'Actions',
+                backToEditRules: 'Back to edit rules',
+                detachConfirmTitle: 'Unassign rule',
+                detachConfirmMessage: 'This rule has assigned positions. Unassigning it from the zone will also remove those position assignments.',
+                detachConfirm: 'Unassign',
+                deleteRuleTitle: 'Delete rule',
+                deleteRuleMessage: 'This rule will be deleted.',
+                deletePositionTitle: 'Delete position',
+                deletePositionMessage: 'This position will be deleted.',
+                delete: 'Delete',
+                cancel: 'Cancel',
+                save: 'Save',
+                createRule: 'Create rule',
+                editRule: 'Edit rule',
+                ruleTitle: 'Title',
+                accessType: 'Access type',
+                accessTypeForbidden: 'Forbidden',
+                accessTypeTimeLimited: 'Time-limited',
+                maxDuration: 'Max duration',
+                createPosition: 'Create position',
+                editPosition: 'Edit position',
+                description: 'Description'
             }
         }
     },

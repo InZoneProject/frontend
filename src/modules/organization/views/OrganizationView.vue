@@ -47,6 +47,9 @@ const {
   activeInviteExpiresAt,
   activeInviteCopySuccessMessage,
   tableItems,
+  tableOffset,
+  tableLimit,
+  tableTotal,
   formattedCreatedAt,
   formatDate,
   isEditModalOpen,
@@ -82,6 +85,11 @@ const {
   availableMemberPositions,
   assignedPositionsSearchValue,
   availablePositionsSearchValue,
+  memberPositionsLimit,
+  assignedPositionsOffset,
+  assignedPositionsTotal,
+  availablePositionsOffset,
+  availablePositionsTotal,
   isPositionUpsertModalOpen,
   positionModalMode,
   positionRoleValue,
@@ -101,6 +109,7 @@ const {
   closeDeleteModal,
   openCreateBuildingModal,
   openEditBuildingModal,
+  openBuildingPage,
   closeBuildingModal,
   submitBuilding,
   openDeleteBuildingModal,
@@ -248,9 +257,16 @@ const {
             <DataTable
                 v-model:search-query="searchQuery"
                 :items="tableItems"
+                :offset="tableOffset"
+                :limit="tableLimit"
+                :total="tableTotal"
+                @update:offset="tableOffset = $event"
                 :loading="isLoadingTable"
                 :placeholder="currentListPlaceholder"
+                :empty-text="properties.translations.table.empty"
+                :loading-text="properties.translations.table.loading"
                 :interactive-rows="activeListTab === 'members'"
+                :is-drag-over="false"
                 max-height="34rem"
             >
               <template #header>
@@ -262,11 +278,11 @@ const {
                 </tr>
 
                 <tr v-if="activeListTab === 'members'">
-                  <th class="w-[30%]">{{ properties.translations.page.table.headers.name }}</th>
-                  <th class="w-[18%]">{{ properties.translations.page.table.headers.role }}</th>
-                  <th class="w-[27%]">{{ properties.translations.page.table.headers.email }}</th>
-                  <th class="w-[17%]">{{ properties.translations.page.table.headers.createdAt }}</th>
-                  <th class="w-[8%]">{{ properties.translations.page.table.headers.actions }}</th>
+                  <th class="w-[30%]">{{ properties.translations.page.table.headers.user }}</th>
+                  <th class="w-[20%]">{{ properties.translations.page.table.headers.role }}</th>
+                  <th class="w-[20%]">{{ properties.translations.page.table.headers.phone }}</th>
+                  <th class="w-[20%]">{{ properties.translations.page.table.headers.createdAt }}</th>
+                  <th class="w-[10%]">{{ properties.translations.page.table.headers.actions }}</th>
                 </tr>
 
                 <tr v-if="activeListTab === 'tags'">
@@ -278,7 +294,11 @@ const {
               </template>
 
               <template #default="{ item }: { item: OrganizationBuildingItem | OrganizationMemberItem | OrganizationRfidTagItem }">
-                <tr v-if="activeListTab === 'buildings'">
+                <tr
+                    v-if="activeListTab === 'buildings'"
+                    class="organization-page-member-row"
+                    @click="openBuildingPage((item as OrganizationBuildingItem))"
+                >
                   <td>
                     <span class="organization-page-cell-title">{{ (item as OrganizationBuildingItem).title || '—' }}</span>
                   </td>
@@ -319,7 +339,7 @@ const {
                       </div>
                       <div class="user-info-text">
                         <span class="user-name">{{ (item as OrganizationMemberItem).full_name }}</span>
-                        <span class="user-email">{{ (item as OrganizationMemberItem).email }}</span>
+                        <span class="user-email">{{ (item as OrganizationMemberItem).email || '—' }}</span>
                       </div>
                     </div>
                   </td>
@@ -327,7 +347,7 @@ const {
                     <span class="organization-page-role-badge">{{ getRoleLabel((item as OrganizationMemberItem).role) }}</span>
                   </td>
                   <td>
-                    <span class="td-phone">{{ (item as OrganizationMemberItem).email }}</span>
+                    <span class="td-phone" :class="{ 'is-empty': !(item as OrganizationMemberItem).phone }">{{ (item as OrganizationMemberItem).phone || '—' }}</span>
                   </td>
                   <td>
                     <span class="td-date">{{ formatDate((item as OrganizationMemberItem).created_at) }}</span>
@@ -352,7 +372,7 @@ const {
                       <span class="organization-page-cell-muted">
                         {{ isTagUidVisible((item as OrganizationRfidTagItem).rfid_tag_id)
                           ? (item as OrganizationRfidTagItem).tag_uid
-                          : '********' }}
+                          : String((item as OrganizationRfidTagItem).tag_uid).replace(/\d/g, '*') }}
                       </span>
                       <button
                           type="button"
@@ -479,6 +499,11 @@ const {
         :available-positions="availableMemberPositions"
         :assigned-search-value="assignedPositionsSearchValue"
         :available-search-value="availablePositionsSearchValue"
+        :assigned-offset="assignedPositionsOffset"
+        :available-offset="availablePositionsOffset"
+        :limit="memberPositionsLimit"
+        :assigned-total="assignedPositionsTotal"
+        :available-total="availablePositionsTotal"
         :format-date="formatDate"
         :translations="properties.translations.page.memberPositions"
         @close="closeMemberPositionsModal"
@@ -492,6 +517,8 @@ const {
         @unassign="unassignPositionFromMember"
         @update:assigned-search-value="assignedPositionsSearchValue = $event"
         @update:available-search-value="availablePositionsSearchValue = $event"
+        @update:assigned-offset="assignedPositionsOffset = $event"
+        @update:available-offset="availablePositionsOffset = $event"
     />
 
     <PositionUpsertModal

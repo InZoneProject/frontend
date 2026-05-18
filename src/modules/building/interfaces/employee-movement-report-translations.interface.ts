@@ -1,0 +1,34 @@
+export interface EmployeeMovementReportTranslations {
+    title: string
+    generatedAt: string
+    building: string
+    employee: string
+    phone: string
+    date: string
+    movements: string
+    violations: string
+    uniqueFloors: string
+    uniqueZones: string
+    firstScan: string
+    lastScan: string
+    noMovements: string
+    noViolations: string
+    movementTable: string
+    zoneScanCount: string
+    zoneDwellTime: string
+    otherZones: string
+    minutesShort: string
+    violationsTable: string
+    hourlyActivity: string
+    scanId: string
+    time: string
+    door: string
+    floor: string
+    fromZone: string
+    toZone: string
+    outside: string
+    moreMovements: string
+    titleColumn: string
+    message: string
+    zone: string
+}

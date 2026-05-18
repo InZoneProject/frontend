@@ -1,0 +1,144 @@
+@reference "../../../../styles/main.css";
+
+.door-reader-modal {
+    @apply relative max-w-3xl;
+}
+
+:root:not(.dark) .door-reader-modal,
+:root:not(.dark) .reader-upsert-modal,
+:root:not(.dark) .modal-card-floor-upsert,
+:root:not(.dark) .modal-card-zone-create {
+    background-color: var(--color-card-bg);
+}
+
+.door-reader-modal-close {
+    @apply absolute right-4 top-4 flex h-9 w-9 cursor-pointer items-center justify-center rounded-full text-base transition-colors;
+    color: var(--color-text-muted);
+    background-color: color-mix(in srgb, var(--color-input-bg), transparent 10%);
+    border: 1px solid var(--color-input-border);
+}
+
+.door-reader-modal-close:hover {
+    color: var(--color-text-main);
+}
+
+.door-reader-token {
+    @apply mb-4 flex flex-col gap-2 rounded-2xl px-4 py-3 text-sm;
+    background-color: color-mix(in srgb, var(--color-card-bg), transparent 4%);
+    border: 1px solid color-mix(in srgb, var(--color-card-border), transparent 10%);
+    color: var(--color-text-main);
+}
+
+.door-reader-token span {
+    @apply text-xs font-bold uppercase tracking-wide;
+    color: var(--color-text-muted);
+}
+
+.door-reader-token code {
+    @apply min-w-0 flex-1 select-all truncate px-4 font-mono;
+    color: var(--color-brand-primary);
+}
+
+.door-reader-token-capsule {
+    @apply flex h-12 min-w-0 items-center rounded-2xl border border-solid px-1 py-1;
+    background-color: var(--color-input-bg);
+    border-color: var(--color-input-border);
+}
+
+.door-reader-assigned {
+    @apply mb-4 rounded-md p-3 transition-colors;
+    border: 1px dashed color-mix(in srgb, var(--color-card-border), transparent 10%);
+}
+
+.door-reader-assigned.is-drag-over {
+    border-color: var(--color-brand-primary);
+    box-shadow: 0 0 0 2px color-mix(in srgb, var(--color-brand-primary), transparent 70%);
+}
+
+.door-reader-section-title {
+    @apply mb-2 text-xs font-black uppercase;
+    color: var(--color-brand-primary);
+}
+
+.door-reader-assigned-table {
+    @apply overflow-hidden rounded-[2.5rem] border border-solid;
+    background-color: var(--color-card-bg);
+    border-color: var(--color-card-border);
+}
+
+.door-reader-assigned-table .main-table td {
+    border-bottom: 0;
+}
+
+.door-reader-table-toolbar {
+    @apply mb-4 flex items-center justify-between gap-4;
+}
+
+.door-reader-intro-chip {
+    @apply flex min-w-0 items-center gap-3;
+}
+
+.door-reader-intro-icon {
+    @apply flex h-10 w-10 shrink-0 items-center justify-center rounded-xl;
+    background-color: color-mix(in srgb, var(--color-brand-primary), transparent 88%);
+    color: var(--color-brand-primary);
+}
+
+.door-reader-intro-icon svg {
+    @apply h-5 w-5;
+}
+
+.door-reader-intro-chip p {
+    @apply text-sm font-semibold leading-relaxed;
+    color: var(--color-text-muted);
+}
+
+.door-reader-add-button {
+    @apply w-auto min-w-[180px] px-6 py-3;
+}
+
+.door-reader-add-button + .door-reader-add-button {
+    margin-left: 0;
+}
+
+.door-reader-row {
+    cursor: grab;
+}
+
+.door-reader-row:hover td {
+    background-color: color-mix(in srgb, var(--color-brand-primary), transparent 90%);
+}
+
+.door-reader-row:active {
+    cursor: grabbing;
+}
+
+.door-reader-empty,
+.door-reader-muted {
+    color: var(--color-text-muted);
+}
+
+.door-reader-id-cell {
+    @apply flex items-center gap-2;
+}
+
+.door-reader-id-toggle {
+    @apply inline-flex h-4 w-4 shrink-0 cursor-pointer items-center justify-center transition-colors;
+    color: var(--color-text-muted);
+}
+
+.door-reader-id-toggle:hover {
+    color: var(--color-brand-primary);
+}
+
+.door-reader-id-icon {
+    @apply h-4 w-4;
+}
+
+.door-reader-actions {
+    @apply flex items-center gap-2;
+}
+
+.door-reader-modal > .success-message-container {
+    @apply mb-3;
+}

@@ -61,7 +61,7 @@
 }
 
 :root:not(.dark) .modal-card {
-    background-color: color-mix(in srgb, var(--color-main-bg), var(--color-card-bg) 60%);
+    background-color: var(--color-card-bg);
     border-color: color-mix(in srgb, var(--color-card-border), var(--color-text-muted) 35%);
     box-shadow: 0 25px 55px -20px color-mix(in srgb, var(--color-text-main), transparent 78%);
 }
@@ -72,14 +72,14 @@
 }
 
 :root:not(.dark) .modal-card .variant-secondary {
-    background-color: color-mix(in srgb, var(--color-main-bg), var(--color-card-bg) 45%);
-    border-color: color-mix(in srgb, var(--color-card-border), var(--color-text-muted) 35%);
+    background-color: transparent;
+    border-color: color-mix(in srgb, var(--color-text-main), transparent 82%);
     color: var(--color-text-main);
 }
 
 :root:not(.dark) .modal-card .variant-primary {
     background-color: var(--color-brand-primary);
-    color: var(--color-main-bg);
+    color: var(--color-brand-primary-text);
 }
 
 @keyframes modal-pop {

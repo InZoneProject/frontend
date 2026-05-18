@@ -1,0 +1,48 @@
+@reference "../../../../styles/main.css";
+
+.building-info-panel {
+    @apply border border-solid rounded-[2.2rem] p-6 flex items-center justify-between gap-6;
+    background-color: var(--color-card-bg);
+    border-color: var(--color-card-border);
+    min-height: 9.75rem;
+}
+
+.building-info-main {
+    @apply min-w-0 flex flex-col gap-2;
+}
+
+.building-info-label {
+    @apply text-[11px] font-black uppercase tracking-[0.2em];
+    color: var(--color-brand-primary);
+}
+
+.building-info-title {
+    @apply text-2xl font-black min-w-0;
+    color: var(--color-text-main);
+    overflow-wrap: anywhere;
+}
+
+.building-info-address {
+    @apply text-sm font-semibold;
+    color: var(--color-text-muted);
+}
+
+.building-info-meta {
+    @apply flex items-center gap-5 shrink-0;
+}
+
+.building-info-date {
+    @apply text-sm font-mono mt-2;
+    color: var(--color-text-muted);
+}
+
+.building-info-actions {
+    @apply flex items-center gap-2;
+}
+
+@media (max-width: 860px) {
+    .building-info-panel,
+    .building-info-meta {
+        @apply flex-col items-stretch;
+    }
+}

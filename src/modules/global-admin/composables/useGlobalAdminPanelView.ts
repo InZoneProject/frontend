@@ -5,6 +5,7 @@ import { useDateFormatter } from '@/composables/useDateFormatter'
 import type { OrganizationAdmin } from '@/interfaces/organization-admin.interface'
 import type { InviteHistory } from '@/modules/global-admin/interfaces/invite-history.interface'
 import type { GlobalAdminPanelTranslations } from '../interfaces/global-admin-panel-translations.interface'
+import { LIST } from '@/constants/list.constants'
 
 export const useGlobalAdminPanelView = (translations: Ref<GlobalAdminPanelTranslations>) => {
     const { formatDate, formatRange } = useDateFormatter()
@@ -24,6 +25,9 @@ export const useGlobalAdminPanelView = (translations: Ref<GlobalAdminPanelTransl
     const history = ref<InviteHistory[]>([])
     const isLoadingData = ref(false)
     const isDeleting = ref(false)
+    const tableOffset = ref(0)
+    const tableLimit = ref(LIST.DEFAULT_LIMIT)
+    const tableTotal = ref(0)
 
     const tabs = computed(() => [
         { id: 'admins', label: translations.value.tabs.admins },
@@ -59,11 +63,14 @@ export const useGlobalAdminPanelView = (translations: Ref<GlobalAdminPanelTransl
         try {
             const requestParams: OrganizationListParams = {
                 search: searchQuery.value,
-                offset: 0,
-                limit: 20
+                offset: tableOffset.value,
+                limit: tableLimit.value
             }
             const response = await globalAdminRepository.getOrganizationAdmins(requestParams)
-            admins.value = response.data.items
+            admins.value = tableOffset.value === 0
+                ? response.data.items
+                : [...admins.value, ...response.data.items]
+            tableTotal.value = response.data.total
         } finally {
             isLoadingData.value = false
         }
@@ -74,11 +81,14 @@ export const useGlobalAdminPanelView = (translations: Ref<GlobalAdminPanelTransl
         try {
             const requestParams: OrganizationListParams = {
                 search: searchQuery.value,
-                offset: 0,
-                limit: 20
+                offset: tableOffset.value,
+                limit: tableLimit.value
             }
             const response = await globalAdminRepository.getInviteHistory(requestParams)
-            history.value = response.data.items
+            history.value = tableOffset.value === 0
+                ? response.data.items
+                : [...history.value, ...response.data.items]
+            tableTotal.value = response.data.total
         } finally {
             isLoadingData.value = false
         }
@@ -99,7 +109,6 @@ export const useGlobalAdminPanelView = (translations: Ref<GlobalAdminPanelTransl
             inviteLink.value = response.data.invite_url
             expiresAt.value = response.data.expires_at
             inviteCopySuccessMessage.value = ''
-            if (activeTab.value === 'history') void fetchHistory()
         } finally {
             isGenerating.value = false
         }
@@ -133,7 +142,8 @@ export const useGlobalAdminPanelView = (translations: Ref<GlobalAdminPanelTransl
         isDeleting.value = true
         try {
             await globalAdminRepository.deleteOrganizationAdmin(adminToDelete.value)
-            await fetchAdmins()
+            admins.value = admins.value.filter((admin) => admin.organization_admin_id !== adminToDelete.value)
+            tableTotal.value = Math.max(0, tableTotal.value - 1)
         } finally {
             isDeleting.value = false
             isDeleteModalOpen.value = false
@@ -153,9 +163,27 @@ export const useGlobalAdminPanelView = (translations: Ref<GlobalAdminPanelTransl
 
     watch(activeTab, () => {
         inviteCopySuccessMessage.value = ''
+        tableTotal.value = 0
+        admins.value = []
+        history.value = []
+        if (tableOffset.value !== 0) {
+            tableOffset.value = 0
+            return
+        }
+        loadTabData()
     })
 
-    watch([activeTab, searchQuery], () => {
+    watch(searchQuery, () => {
+        if (tableOffset.value !== 0) {
+            tableOffset.value = 0
+            return
+        }
+        admins.value = []
+        history.value = []
+        loadTabData()
+    })
+
+    watch(tableOffset, () => {
         loadTabData()
     })
 
@@ -170,6 +198,9 @@ export const useGlobalAdminPanelView = (translations: Ref<GlobalAdminPanelTransl
         isInitialLoading,
         tabs,
         tableItems,
+        tableOffset,
+        tableLimit,
+        tableTotal,
         currentPlaceholder,
         isLoadingData,
         isDeleting,

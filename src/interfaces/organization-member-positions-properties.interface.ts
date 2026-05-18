@@ -10,6 +10,11 @@ export interface OrganizationMemberPositionsProperties {
     availablePositions: OrganizationPositionItem[]
     assignedSearchValue: string
     availableSearchValue: string
+    assignedOffset: number
+    availableOffset: number
+    limit: number
+    assignedTotal: number
+    availableTotal: number
     formatDate: (value: string) => string
     translations: OrganizationsTranslations['page']['memberPositions']
 }

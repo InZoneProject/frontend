@@ -4,13 +4,16 @@ import { useDateFormatter } from '@/composables/useDateFormatter'
 import type { OrganizationListParams } from '@/interfaces/organization-list-params.interface'
 import type { OrganizationMemberProfile } from '@/interfaces/organization-member-profile.interface'
 import { organizationEditDeleteRepository } from '@/repositories/organization-edit-delete.repository'
+import { participantsControlRepository } from '@/repositories/participants-control.repository'
 import { organizationRepository } from '@/modules/organization/repositories/organization.repository'
+import { positionsRepository } from '@/repositories/positions.repository'
 import type { OrganizationInfo } from '@/modules/organization/interfaces/organization-info.interface'
 import type { OrganizationBuildingItem } from '@/modules/organization/interfaces/organization-building-item.interface'
 import type { OrganizationMemberItem } from '@/modules/organization/interfaces/organization-member-item.interface'
 import type { OrganizationRfidTagItem } from '@/modules/organization/interfaces/organization-rfid-tag-item.interface'
 import type { OrganizationPositionItem } from '@/modules/organization/interfaces/organization-position-item.interface'
 import type { OrganizationsTranslations } from '@/modules/organizations/interfaces/organizations-translations.interface'
+import { LIST } from '@/constants/list.constants'
 
 export const useOrganizationView = (params: {
     organizationId: number
@@ -72,6 +75,9 @@ export const useOrganizationView = (params: {
     const buildings = ref<OrganizationBuildingItem[]>([])
     const members = ref<OrganizationMemberItem[]>([])
     const tags = ref<OrganizationRfidTagItem[]>([])
+    const tableOffset = ref(0)
+    const tableLimit = ref(LIST.DEFAULT_LIMIT)
+    const tableTotal = ref(0)
 
     const isEditModalOpen = ref(false)
     const isDeleteModalOpen = ref(false)
@@ -84,6 +90,8 @@ export const useOrganizationView = (params: {
     const buildingToDeleteId = ref<number | null>(null)
     const buildingTitleValue = ref('')
     const buildingAddressValue = ref('')
+    const initialBuildingTitleValue = ref('')
+    const initialBuildingAddressValue = ref('')
     const isBuildingSubmitting = ref(false)
     const isDeleteBuildingModalOpen = ref(false)
     const isDeletingBuilding = ref(false)
@@ -93,6 +101,7 @@ export const useOrganizationView = (params: {
     const tagToDeleteId = ref<number | null>(null)
     const tagNameValue = ref('')
     const tagUidValue = ref('')
+    const initialTagNameValue = ref('')
     const isTagSubmitting = ref(false)
     const isDeleteTagModalOpen = ref(false)
     const isDeletingTag = ref(false)
@@ -111,6 +120,11 @@ export const useOrganizationView = (params: {
     const isLoadingAvailablePositions = ref(false)
     const assignedMemberPositions = ref<OrganizationPositionItem[]>([])
     const availableMemberPositions = ref<OrganizationPositionItem[]>([])
+    const assignedPositionsOffset = ref(0)
+    const assignedPositionsTotal = ref(0)
+    const availablePositionsOffset = ref(0)
+    const availablePositionsTotal = ref(0)
+    const memberPositionsLimit = LIST.DEFAULT_LIMIT
     const assignedPositionsSearchValue = ref('')
     const availablePositionsSearchValue = ref('')
 
@@ -119,6 +133,8 @@ export const useOrganizationView = (params: {
     const positionToEditId = ref<number | null>(null)
     const positionRoleValue = ref('')
     const positionDescriptionValue = ref('')
+    const initialPositionRoleValue = ref('')
+    const initialPositionDescriptionValue = ref('')
     const isPositionSubmitting = ref(false)
 
     const isDeletePositionModalOpen = ref(false)
@@ -127,12 +143,39 @@ export const useOrganizationView = (params: {
 
     const editNameValue = ref('')
     const editDescriptionValue = ref('')
+    const initialEditNameValue = ref('')
+    const initialEditDescriptionValue = ref('')
 
     const revealedTagIds = ref<Set<number>>(new Set<number>())
 
     let searchDebounceTimeout: number | null = null
     let assignedPositionsSearchDebounceTimeout: number | null = null
     let availablePositionsSearchDebounceTimeout: number | null = null
+    let organizationInfoRequestId = 0
+    let inviteStatusRequestId = 0
+    let activeTabRequestId = 0
+
+    const runBackground = (request: Promise<unknown>) => {
+        request.catch(() => undefined)
+    }
+
+    const handleProfilePhotoUpdated = (event: Event) => {
+        const detail = (event as CustomEvent<{ email?: string; photo?: string }>).detail
+        if (!detail?.email) return
+
+        members.value = members.value.map((member) =>
+            member.email === detail.email
+                ? { ...member, photo: detail.photo || null }
+                : member
+        )
+
+        if (selectedMemberProfile.value?.email === detail.email) {
+            selectedMemberProfile.value = {
+                ...selectedMemberProfile.value,
+                photo: detail.photo || null
+            }
+        }
+    }
 
     const clearEmployeeInviteCopySuccessMessage = () => {
         employeeInviteCopySuccessMessage.value = ''
@@ -191,20 +234,53 @@ export const useOrganizationView = (params: {
         return formatDate(organizationInfo.value.created_at)
     })
 
-    const canSubmitOrganizationForm = computed(() => editNameValue.value.trim().length > 0)
-    const canSubmitBuildingForm = computed(() => buildingTitleValue.value.trim().length > 0)
+    const canSubmitOrganizationForm = computed(() => {
+        const title = editNameValue.value.trim()
+        if (title.length === 0) {
+            return false
+        }
+
+        const description = editDescriptionValue.value.trim()
+        return title !== initialEditNameValue.value || description !== initialEditDescriptionValue.value
+    })
+
+    const canSubmitBuildingForm = computed(() => {
+        const title = buildingTitleValue.value.trim()
+        if (title.length === 0) {
+            return false
+        }
+
+        if (buildingModalMode.value === 'create') {
+            return true
+        }
+
+        const address = buildingAddressValue.value.trim()
+        return title !== initialBuildingTitleValue.value || address !== initialBuildingAddressValue.value
+    })
     const canSubmitTagForm = computed(() => {
         const hasName = tagNameValue.value.trim().length > 0
 
         if (tagModalMode.value === 'edit') {
-            return hasName
+            return hasName && tagNameValue.value.trim() !== initialTagNameValue.value
         }
 
         const rawTagUid = tagUidValue.value.trim()
         const parsedTagUid = Number(rawTagUid)
         return hasName && rawTagUid.length > 0 && Number.isFinite(parsedTagUid)
     })
-    const canSubmitPositionForm = computed(() => positionRoleValue.value.trim().length > 0)
+    const canSubmitPositionForm = computed(() => {
+        const role = positionRoleValue.value.trim()
+        if (role.length === 0) {
+            return false
+        }
+
+        if (positionModalMode.value === 'create') {
+            return true
+        }
+
+        const description = positionDescriptionValue.value.trim()
+        return role !== initialPositionRoleValue.value || description !== initialPositionDescriptionValue.value
+    })
 
     const expelModalMessage = computed(() => {
         if (!memberToExpel.value) {
@@ -227,17 +303,24 @@ export const useOrganizationView = (params: {
     }
 
     const fetchOrganizationInfo = async () => {
+        const requestId = ++organizationInfoRequestId
         isLoadingInfo.value = true
 
         try {
             const response = await organizationEditDeleteRepository.getOrganizationInfo(params.organizationId)
+            if (requestId !== organizationInfoRequestId) return
             organizationInfo.value = response.data
+        } catch {
+            if (requestId === organizationInfoRequestId) {
+                organizationInfo.value = defaultOrganizationInfo
+            }
         } finally {
-            isLoadingInfo.value = false
+            if (requestId === organizationInfoRequestId) isLoadingInfo.value = false
         }
     }
 
     const fetchInviteStatuses = async () => {
+        const requestId = ++inviteStatusRequestId
         isLoadingInviteStatus.value = true
 
         try {
@@ -246,37 +329,55 @@ export const useOrganizationView = (params: {
                 organizationRepository.getTagAdminInviteStatus(params.organizationId)
             ])
 
+            if (requestId !== inviteStatusRequestId) return
+
             employeeInviteLink.value = employeeStatusResponse.data?.invite_url || ''
             employeeInviteExpiresAt.value = employeeStatusResponse.data?.expires_at || ''
 
             tagAdminInviteLink.value = tagAdminStatusResponse.data?.invite_url || ''
             tagAdminInviteExpiresAt.value = tagAdminStatusResponse.data?.expires_at || ''
+        } catch {
+            if (requestId !== inviteStatusRequestId) return
+            employeeInviteLink.value = ''
+            employeeInviteExpiresAt.value = ''
+            tagAdminInviteLink.value = ''
+            tagAdminInviteExpiresAt.value = ''
         } finally {
-            isLoadingInviteStatus.value = false
+            if (requestId === inviteStatusRequestId) isLoadingInviteStatus.value = false
         }
     }
 
     const fetchActiveTabData = async () => {
+        if (isLoadingTable.value) return
+        const requestId = ++activeTabRequestId
         isLoadingTable.value = true
 
         try {
             const requestParams: OrganizationListParams = {
                 search: searchQuery.value,
-                offset: 0,
-                limit: 20
+                offset: tableOffset.value,
+                limit: tableLimit.value
             }
 
             if (activeListTab.value === 'buildings') {
                 const response = await organizationRepository.getBuildings(params.organizationId, requestParams)
-                buildings.value = response.data
+                if (requestId !== activeTabRequestId) return
+                buildings.value = tableOffset.value === 0
+                    ? response.data.items
+                    : [...buildings.value, ...response.data.items]
+                tableTotal.value = response.data.total
                 selectedMemberProfile.value = null
                 return
             }
 
             if (activeListTab.value === 'members') {
                 const response = await organizationRepository.getMembers(params.organizationId, requestParams)
-                const nextMembers = response.data
-                members.value = nextMembers
+                if (requestId !== activeTabRequestId) return
+                const nextMembers = response.data.items
+                tableTotal.value = response.data.total
+                members.value = tableOffset.value === 0
+                    ? nextMembers
+                    : [...members.value, ...nextMembers]
 
                 if (
                     selectedMemberProfile.value &&
@@ -290,10 +391,22 @@ export const useOrganizationView = (params: {
             }
 
             const response = await organizationRepository.getRfidTags(params.organizationId, requestParams)
-            tags.value = response.data
+            if (requestId !== activeTabRequestId) return
+            tags.value = tableOffset.value === 0
+                ? response.data.items
+                : [...tags.value, ...response.data.items]
+            tableTotal.value = response.data.total
             selectedMemberProfile.value = null
+        } catch {
+            if (requestId !== activeTabRequestId) return
+            if (tableOffset.value === 0) {
+                buildings.value = []
+                members.value = []
+                tags.value = []
+                tableTotal.value = 0
+            }
         } finally {
-            isLoadingTable.value = false
+            if (requestId === activeTabRequestId) isLoadingTable.value = false
         }
     }
 
@@ -310,17 +423,20 @@ export const useOrganizationView = (params: {
         try {
             const requestParams: OrganizationListParams = {
                 search: assignedPositionsSearchValue.value,
-                offset: 0,
-                limit: 20
+                offset: assignedPositionsOffset.value,
+                limit: LIST.DEFAULT_LIMIT
             }
 
-            const response = await organizationRepository.getMemberPositions(
+            const response = await positionsRepository.getMemberPositions(
                 params.organizationId,
                 employeeId,
                 requestParams
             )
 
-            assignedMemberPositions.value = response.data
+            assignedMemberPositions.value = assignedPositionsOffset.value === 0
+                ? response.data.items
+                : [...assignedMemberPositions.value, ...response.data.items]
+            assignedPositionsTotal.value = response.data.total
         } finally {
             isLoadingMemberPositions.value = false
         }
@@ -339,17 +455,20 @@ export const useOrganizationView = (params: {
         try {
             const requestParams: OrganizationListParams = {
                 search: availablePositionsSearchValue.value,
-                offset: 0,
-                limit: 20
+                offset: availablePositionsOffset.value,
+                limit: LIST.DEFAULT_LIMIT
             }
 
-            const response = await organizationRepository.getUnassignedPositions(
+            const response = await positionsRepository.getUnassignedEmployeePositions(
                 params.organizationId,
                 employeeId,
                 requestParams
             )
 
-            availableMemberPositions.value = response.data
+            availableMemberPositions.value = availablePositionsOffset.value === 0
+                ? response.data.items
+                : [...availableMemberPositions.value, ...response.data.items]
+            availablePositionsTotal.value = response.data.total
         } finally {
             isLoadingAvailablePositions.value = false
         }
@@ -358,6 +477,8 @@ export const useOrganizationView = (params: {
     const openEditModal = () => {
         editNameValue.value = organizationInfo.value.title
         editDescriptionValue.value = organizationInfo.value.description || ''
+        initialEditNameValue.value = organizationInfo.value.title.trim()
+        initialEditDescriptionValue.value = (organizationInfo.value.description || '').trim()
         isEditModalOpen.value = true
     }
 
@@ -400,6 +521,8 @@ export const useOrganizationView = (params: {
         buildingToEditId.value = null
         buildingTitleValue.value = ''
         buildingAddressValue.value = ''
+        initialBuildingTitleValue.value = ''
+        initialBuildingAddressValue.value = ''
         isBuildingModalOpen.value = true
     }
 
@@ -408,7 +531,17 @@ export const useOrganizationView = (params: {
         buildingToEditId.value = building.building_id
         buildingTitleValue.value = building.title || ''
         buildingAddressValue.value = building.address || ''
+        initialBuildingTitleValue.value = (building.title || '').trim()
+        initialBuildingAddressValue.value = (building.address || '').trim()
         isBuildingModalOpen.value = true
+    }
+
+    const openBuildingPage = async (building: OrganizationBuildingItem) => {
+        await router.push({
+            name: 'Building',
+            params: { buildingId: String(building.building_id) },
+            query: { mode: 'view' }
+        })
     }
 
     const closeBuildingModal = () => {
@@ -428,20 +561,35 @@ export const useOrganizationView = (params: {
             const address = normalizedAddress.length > 0 ? normalizedAddress : null
 
             if (buildingModalMode.value === 'create') {
-                await organizationRepository.createBuilding({
+                const response = await organizationRepository.createBuilding({
                     organization_id: params.organizationId,
                     title,
                     address
                 })
+
+                if (activeListTab.value === 'buildings') {
+                    buildings.value = [{
+                        building_id: response.data.building_id,
+                        title: response.data.title,
+                        address: response.data.address,
+                        created_at: new Date().toISOString()
+                    }, ...buildings.value]
+                    tableTotal.value += 1
+                }
             } else if (buildingToEditId.value !== null) {
                 await organizationRepository.updateBuilding(buildingToEditId.value, {
                     title,
                     address
                 })
+
+                buildings.value = buildings.value.map((building) =>
+                    building.building_id === buildingToEditId.value
+                        ? { ...building, title, address }
+                        : building
+                )
             }
 
             closeBuildingModal()
-            await fetchActiveTabData()
         } finally {
             isBuildingSubmitting.value = false
         }
@@ -466,7 +614,8 @@ export const useOrganizationView = (params: {
 
         try {
             await organizationRepository.deleteBuilding(buildingToDeleteId.value)
-            await fetchActiveTabData()
+            buildings.value = buildings.value.filter((building) => building.building_id !== buildingToDeleteId.value)
+            tableTotal.value = Math.max(0, tableTotal.value - 1)
         } finally {
             isDeletingBuilding.value = false
             closeDeleteBuildingModal()
@@ -478,6 +627,7 @@ export const useOrganizationView = (params: {
         tagToEditId.value = null
         tagNameValue.value = ''
         tagUidValue.value = ''
+        initialTagNameValue.value = ''
         isTagModalOpen.value = true
     }
 
@@ -486,6 +636,7 @@ export const useOrganizationView = (params: {
         tagToEditId.value = tag.rfid_tag_id
         tagNameValue.value = tag.name || ''
         tagUidValue.value = String(tag.tag_uid)
+        initialTagNameValue.value = (tag.name || '').trim()
         isTagModalOpen.value = true
     }
 
@@ -504,17 +655,29 @@ export const useOrganizationView = (params: {
             const name = tagNameValue.value.trim()
 
             if (tagModalMode.value === 'create') {
-                await organizationRepository.createRfidTag({
+                const response = await organizationRepository.createRfidTag({
                     organization_id: params.organizationId,
                     tag_uid: Number(tagUidValue.value.trim()),
                     name
                 })
+
+                if (activeListTab.value === 'tags') {
+                    tags.value = [{
+                        ...response.data,
+                        created_at: new Date().toISOString()
+                    }, ...tags.value]
+                    tableTotal.value += 1
+                }
             } else if (tagToEditId.value !== null) {
                 await organizationRepository.updateRfidTag(tagToEditId.value, { name })
+                tags.value = tags.value.map((tag) =>
+                    tag.rfid_tag_id === tagToEditId.value
+                        ? { ...tag, name }
+                        : tag
+                )
             }
 
             closeTagModal()
-            await fetchActiveTabData()
         } finally {
             isTagSubmitting.value = false
         }
@@ -539,7 +702,8 @@ export const useOrganizationView = (params: {
 
         try {
             await organizationRepository.deleteRfidTag(tagToDeleteId.value)
-            await fetchActiveTabData()
+            tags.value = tags.value.filter((tag) => tag.rfid_tag_id !== tagToDeleteId.value)
+            tableTotal.value = Math.max(0, tableTotal.value - 1)
         } finally {
             isDeletingTag.value = false
             closeDeleteTagModal()
@@ -568,13 +732,19 @@ export const useOrganizationView = (params: {
         isExpellingMember.value = true
 
         try {
-            if (memberToExpel.value.role === 'tag_admin') {
-                await organizationRepository.removeTagAdmin(params.organizationId, memberToExpel.value.id)
-            } else {
-                await organizationRepository.removeEmployee(params.organizationId, memberToExpel.value.id)
+            const expelTarget = memberToExpel.value
+            if (!expelTarget) {
+                return
             }
 
-            await fetchActiveTabData()
+            if (expelTarget.role === 'tag_admin') {
+                await participantsControlRepository.removeTagAdmin(params.organizationId, expelTarget.id)
+            } else {
+                await participantsControlRepository.removeEmployee(params.organizationId, expelTarget.id)
+            }
+
+            members.value = members.value.filter((member) => member.id !== expelTarget.id)
+            tableTotal.value = Math.max(0, tableTotal.value - 1)
             closeExpelModal()
         } finally {
             isExpellingMember.value = false
@@ -598,6 +768,8 @@ export const useOrganizationView = (params: {
         isMemberInfoModalOpen.value = false
         isMemberPositionsModalOpen.value = true
         isPositionsEditMode.value = false
+        assignedPositionsOffset.value = 0
+        availablePositionsOffset.value = 0
         availableMemberPositions.value = []
         assignedPositionsSearchValue.value = ''
         availablePositionsSearchValue.value = ''
@@ -613,6 +785,7 @@ export const useOrganizationView = (params: {
 
     const startEditMemberPositions = async () => {
         isPositionsEditMode.value = true
+        availablePositionsOffset.value = 0
         await fetchAvailableMemberPositions()
     }
 
@@ -627,6 +800,8 @@ export const useOrganizationView = (params: {
         positionToEditId.value = null
         positionRoleValue.value = ''
         positionDescriptionValue.value = ''
+        initialPositionRoleValue.value = ''
+        initialPositionDescriptionValue.value = ''
         isPositionUpsertModalOpen.value = true
     }
 
@@ -642,6 +817,8 @@ export const useOrganizationView = (params: {
         positionToEditId.value = targetPosition.position_id
         positionRoleValue.value = targetPosition.role
         positionDescriptionValue.value = targetPosition.description || ''
+        initialPositionRoleValue.value = targetPosition.role.trim()
+        initialPositionDescriptionValue.value = (targetPosition.description || '').trim()
         isPositionUpsertModalOpen.value = true
     }
 
@@ -664,20 +841,34 @@ export const useOrganizationView = (params: {
             }
 
             if (positionModalMode.value === 'create') {
-                await organizationRepository.createPosition({
+                const response = await positionsRepository.createPosition({
                     organization_id: params.organizationId,
                     ...payload
                 })
+                if (isPositionsEditMode.value) {
+                    availableMemberPositions.value = [response.data, ...availableMemberPositions.value]
+                    availablePositionsTotal.value += 1
+                }
             } else if (positionToEditId.value !== null) {
-                await organizationRepository.updatePosition(positionToEditId.value, payload)
+                await positionsRepository.updatePosition(positionToEditId.value, payload)
+                const assignedIndex = assignedMemberPositions.value.findIndex((position) => position.position_id === positionToEditId.value)
+                if (assignedIndex >= 0) {
+                    assignedMemberPositions.value[assignedIndex] = {
+                        ...assignedMemberPositions.value[assignedIndex],
+                        ...payload
+                    }
+                } else {
+                    const availableIndex = availableMemberPositions.value.findIndex((position) => position.position_id === positionToEditId.value)
+                    if (availableIndex >= 0) {
+                        availableMemberPositions.value[availableIndex] = {
+                            ...availableMemberPositions.value[availableIndex],
+                            ...payload
+                        }
+                    }
+                }
             }
 
             closePositionUpsertModal()
-            await fetchAssignedMemberPositions()
-
-            if (isPositionsEditMode.value) {
-                await fetchAvailableMemberPositions()
-            }
         } finally {
             isPositionSubmitting.value = false
         }
@@ -701,11 +892,21 @@ export const useOrganizationView = (params: {
         isDeletingPosition.value = true
 
         try {
-            await organizationRepository.deletePosition(positionToDeleteId.value)
-            await fetchAssignedMemberPositions()
+            await positionsRepository.deletePosition(positionToDeleteId.value)
+            const assignedBefore = assignedMemberPositions.value.length
+            assignedMemberPositions.value = assignedMemberPositions.value.filter(
+                (position) => position.position_id !== positionToDeleteId.value
+            )
+            if (assignedBefore !== assignedMemberPositions.value.length) {
+                assignedPositionsTotal.value = Math.max(0, assignedPositionsTotal.value - 1)
+            }
 
-            if (isPositionsEditMode.value) {
-                await fetchAvailableMemberPositions()
+            const availableBefore = availableMemberPositions.value.length
+            availableMemberPositions.value = availableMemberPositions.value.filter(
+                (position) => position.position_id !== positionToDeleteId.value
+            )
+            if (availableBefore !== availableMemberPositions.value.length) {
+                availablePositionsTotal.value = Math.max(0, availablePositionsTotal.value - 1)
             }
 
             closeDeletePositionModal()
@@ -725,11 +926,15 @@ export const useOrganizationView = (params: {
         isLoadingAvailablePositions.value = true
 
         try {
-            await organizationRepository.assignPosition(employeeId, positionId)
-            await Promise.all([
-                fetchAssignedMemberPositions(),
-                fetchAvailableMemberPositions()
-            ])
+            await positionsRepository.assignPosition(employeeId, positionId)
+            const movedPosition = availableMemberPositions.value.find((position) => position.position_id === positionId)
+            availableMemberPositions.value = availableMemberPositions.value.filter((position) => position.position_id !== positionId)
+            availablePositionsTotal.value = Math.max(0, availablePositionsTotal.value - 1)
+            if (movedPosition) {
+                assignedMemberPositions.value = [movedPosition, ...assignedMemberPositions.value]
+            }
+            assignedPositionsTotal.value += 1
+            await fetchAssignedMemberPositions()
         } finally {
             isLoadingMemberPositions.value = false
             isLoadingAvailablePositions.value = false
@@ -747,11 +952,15 @@ export const useOrganizationView = (params: {
         isLoadingAvailablePositions.value = true
 
         try {
-            await organizationRepository.unassignPosition(employeeId, positionId)
-            await Promise.all([
-                fetchAssignedMemberPositions(),
-                fetchAvailableMemberPositions()
-            ])
+            await positionsRepository.unassignPosition(employeeId, positionId)
+            const movedPosition = assignedMemberPositions.value.find((position) => position.position_id === positionId)
+            assignedMemberPositions.value = assignedMemberPositions.value.filter((position) => position.position_id !== positionId)
+            assignedPositionsTotal.value = Math.max(0, assignedPositionsTotal.value - 1)
+            if (movedPosition) {
+                availableMemberPositions.value = [movedPosition, ...availableMemberPositions.value]
+            }
+            availablePositionsTotal.value += 1
+            await fetchAvailableMemberPositions()
         } finally {
             isLoadingMemberPositions.value = false
             isLoadingAvailablePositions.value = false
@@ -772,7 +981,7 @@ export const useOrganizationView = (params: {
         isLoadingMemberProfile.value = true
 
         try {
-            const response = await organizationRepository.getMemberProfile(
+            const response = await participantsControlRepository.getMemberProfile(
                 params.organizationId,
                 member.id,
                 member.role
@@ -905,13 +1114,15 @@ export const useOrganizationView = (params: {
     }
 
     onMounted(() => {
-        void fetchOrganizationInfo()
-        void fetchInviteStatuses()
-        void fetchActiveTabData()
+        window.addEventListener('profile-photo-updated', handleProfilePhotoUpdated)
+        runBackground(fetchOrganizationInfo())
+        runBackground(fetchInviteStatuses())
+        runBackground(fetchActiveTabData())
         void syncTabsToRoute()
     })
 
     watch(activeListTab, () => {
+        tableOffset.value = 0
         if (activeListTab.value !== 'members') {
             selectedMemberProfile.value = null
             isMemberInfoModalOpen.value = false
@@ -926,20 +1137,26 @@ export const useOrganizationView = (params: {
             tagToEditId.value = null
         }
 
-        void fetchActiveTabData()
+        runBackground(fetchActiveTabData())
     })
 
     watch(searchQuery, () => {
+        tableOffset.value = 0
         if (searchDebounceTimeout !== null) {
             window.clearTimeout(searchDebounceTimeout)
         }
 
         searchDebounceTimeout = window.setTimeout(() => {
-            void fetchActiveTabData()
-        }, 300)
+            runBackground(fetchActiveTabData())
+        }, LIST.SEARCH_DEBOUNCE_MS)
+    })
+
+    watch(tableOffset, () => {
+        runBackground(fetchActiveTabData())
     })
 
     watch(assignedPositionsSearchValue, () => {
+        assignedPositionsOffset.value = 0
         if (!isMemberPositionsModalOpen.value) {
             return
         }
@@ -949,11 +1166,19 @@ export const useOrganizationView = (params: {
         }
 
         assignedPositionsSearchDebounceTimeout = window.setTimeout(() => {
-            void fetchAssignedMemberPositions()
-        }, 300)
+            runBackground(fetchAssignedMemberPositions())
+        }, LIST.SEARCH_DEBOUNCE_MS)
+    })
+
+    watch(assignedPositionsOffset, () => {
+        if (!isMemberPositionsModalOpen.value) {
+            return
+        }
+        runBackground(fetchAssignedMemberPositions())
     })
 
     watch(availablePositionsSearchValue, () => {
+        availablePositionsOffset.value = 0
         if (!isMemberPositionsModalOpen.value || !isPositionsEditMode.value) {
             return
         }
@@ -963,8 +1188,15 @@ export const useOrganizationView = (params: {
         }
 
         availablePositionsSearchDebounceTimeout = window.setTimeout(() => {
-            void fetchAvailableMemberPositions()
-        }, 300)
+            runBackground(fetchAvailableMemberPositions())
+        }, LIST.SEARCH_DEBOUNCE_MS)
+    })
+
+    watch(availablePositionsOffset, () => {
+        if (!isMemberPositionsModalOpen.value || !isPositionsEditMode.value) {
+            return
+        }
+        runBackground(fetchAvailableMemberPositions())
     })
 
     watch(activeInviteTab, () => {
@@ -993,6 +1225,7 @@ export const useOrganizationView = (params: {
     )
 
     onBeforeUnmount(() => {
+        window.removeEventListener('profile-photo-updated', handleProfilePhotoUpdated)
         if (searchDebounceTimeout !== null) {
             window.clearTimeout(searchDebounceTimeout)
         }
@@ -1022,6 +1255,9 @@ export const useOrganizationView = (params: {
         activeInviteExpiresAt,
         activeInviteCopySuccessMessage,
         tableItems,
+        tableOffset,
+        tableLimit,
+        tableTotal,
         formattedCreatedAt,
         formatDate,
         isEditModalOpen,
@@ -1057,6 +1293,11 @@ export const useOrganizationView = (params: {
         availableMemberPositions,
         assignedPositionsSearchValue,
         availablePositionsSearchValue,
+        memberPositionsLimit,
+        assignedPositionsOffset,
+        assignedPositionsTotal,
+        availablePositionsOffset,
+        availablePositionsTotal,
         isPositionUpsertModalOpen,
         positionModalMode,
         positionRoleValue,
@@ -1077,6 +1318,7 @@ export const useOrganizationView = (params: {
         closeDeleteModal,
         openCreateBuildingModal,
         openEditBuildingModal,
+        openBuildingPage,
         closeBuildingModal,
         submitBuilding,
         openDeleteBuildingModal,

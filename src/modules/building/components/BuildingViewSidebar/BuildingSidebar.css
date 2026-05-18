@@ -1,0 +1,223 @@
+@reference "../../../../styles/main.css";
+
+.building-floors-panel {
+    @apply border border-solid rounded-[2.2rem] p-4 flex flex-col gap-4 overflow-hidden;
+    background-color: var(--color-card-bg);
+    border-color: var(--color-card-border);
+    height: calc(var(--building-info-panel-height) + var(--building-map-panel-height) + 1.25rem);
+    min-height: 0;
+    max-height: calc(var(--building-info-panel-height) + var(--building-map-panel-height) + 1.25rem);
+    grid-area: floors;
+    align-self: start;
+    transition: height 340ms ease, max-height 340ms ease, opacity 180ms ease;
+}
+
+.building-layout-grid.is-floors-collapsed .building-floors-panel {
+    height: 9.75rem;
+    max-height: 9.75rem;
+    justify-content: center;
+}
+
+.building-floors-toolbar {
+    @apply grid items-center;
+    grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+    gap: 0.75rem;
+    transition:
+            grid-template-columns 260ms ease,
+            gap 220ms ease;
+}
+
+.building-floors-toolbar .base-button {
+    width: 100%;
+    min-width: 0;
+    white-space: nowrap;
+    overflow: hidden;
+    transition:
+            opacity 180ms ease,
+            transform 240ms ease,
+            padding-left 240ms ease,
+            padding-right 240ms ease,
+            border-width 180ms ease,
+            background-color 180ms ease,
+            color 180ms ease;
+}
+
+.building-floors-toolbar.is-add-floor-hidden {
+    grid-template-columns: minmax(0, 1fr) 0fr;
+    gap: 0;
+}
+
+.building-floors-toolbar.is-add-floor-hidden .building-floors-add-button {
+    opacity: 0;
+    transform: scaleX(0.86);
+    pointer-events: none;
+    padding-left: 0;
+    padding-right: 0;
+    border-width: 0;
+}
+
+.building-layout-grid.is-floors-collapsed .building-floors-toolbar {
+    grid-template-columns: minmax(0, 1fr) 0fr;
+    gap: 0;
+}
+
+.building-floors-collapsed-note {
+    @apply text-sm font-semibold text-center px-2;
+    color: var(--color-text-muted);
+    max-height: 0;
+    opacity: 0;
+    overflow: hidden;
+    transition: max-height 220ms ease, opacity 180ms ease;
+}
+
+.building-layout-grid.is-floors-collapsed .building-floors-collapsed-note {
+    max-height: 5rem;
+    opacity: 1;
+}
+
+.building-floors-content {
+    @apply flex flex-col gap-3;
+    flex: 1;
+    min-height: 0;
+    opacity: 1;
+    max-height: 100rem;
+    transition: opacity 220ms ease, max-height 300ms ease;
+}
+
+.building-layout-grid.is-floors-collapsed .building-floors-content {
+    opacity: 0;
+    max-height: 0;
+    pointer-events: none;
+}
+
+.building-floor-row {
+    @apply cursor-grab;
+}
+
+.building-floor-row:active {
+    @apply cursor-grabbing;
+}
+
+.building-floor-row.is-selected td {
+    background-color: color-mix(in srgb, var(--color-brand-primary), transparent 93%);
+    box-shadow: none;
+    border-color: color-mix(in srgb, var(--color-card-border), transparent 10%);
+}
+
+.building-floor-row.is-selected .building-floor-number {
+    background-color: color-mix(in srgb, var(--color-brand-primary), transparent 16%);
+    border-color: color-mix(in srgb, var(--color-brand-primary), transparent 35%);
+    color: #ffffff;
+}
+
+:root.dark .building-floor-row.is-selected .building-floor-number {
+    color: #030712;
+}
+
+.building-floor-row.is-selected .building-floor-name {
+    color: var(--color-text-main);
+}
+
+.building-floor-row.is-dragging td {
+    background-color: color-mix(in srgb, var(--color-brand-primary), transparent 78%);
+    box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--color-brand-primary), transparent 30%);
+}
+
+.building-floor-number {
+    @apply inline-flex items-center justify-center min-w-[36px] h-9 px-4 rounded-xl border border-solid text-sm font-black;
+    background-color: color-mix(in srgb, var(--color-brand-primary), transparent 90%);
+    border-color: color-mix(in srgb, var(--color-brand-primary), transparent 75%);
+    color: var(--color-text-main);
+}
+
+.building-floor-name {
+    @apply text-sm;
+    color: var(--color-text-main);
+    overflow-wrap: anywhere;
+}
+
+.building-floor-actions {
+    @apply flex items-center gap-2 justify-start;
+}
+
+.building-floor-actions .edit-button,
+.building-floor-actions .delete-button {
+    @apply shrink-0 p-1.5;
+}
+
+.building-floor-actions .edit-icon,
+.building-floor-actions .delete-icon {
+    @apply w-4 h-4;
+}
+
+.building-employee-actions-header,
+.building-employee-actions-cell {
+    text-align: left;
+}
+
+.building-employee-actions {
+    @apply inline-flex items-center justify-start gap-2;
+    width: auto;
+}
+
+.building-employee-actions .employee-movement-report-button,
+.building-employee-actions .expel-button {
+    @apply shrink-0 p-1.5;
+}
+
+.building-employee-actions .employee-movement-report-button svg,
+.building-employee-actions .expel-icon {
+    @apply w-4 h-4;
+}
+
+.building-employee-row {
+    @apply cursor-pointer;
+}
+
+.building-employee-row:hover td {
+    background-color: color-mix(in srgb, var(--color-brand-primary), transparent 92%);
+}
+
+.building-employee-cell {
+    @apply flex items-center gap-2 min-w-0;
+}
+
+.building-employee-avatar {
+    @apply flex h-8 w-8 shrink-0 items-center justify-center rounded-full object-cover text-xs font-black uppercase;
+    background-color: color-mix(in srgb, var(--color-brand-primary), transparent 82%);
+    color: var(--color-brand-primary);
+}
+
+.building-employee-text {
+    @apply flex min-w-0 flex-col gap-1;
+}
+
+.building-employee-name,
+.building-employee-phone,
+.building-employee-date {
+    @apply text-sm font-bold;
+    color: var(--color-text-main);
+}
+
+.building-employee-email {
+    @apply truncate text-xs font-semibold;
+    color: var(--color-text-muted);
+}
+
+.building-employee-phone.is-empty {
+    color: var(--color-text-main);
+}
+
+.building-floor-mini-button {
+    @apply w-6 h-6 rounded-lg border border-solid text-xs font-black disabled:opacity-40 shrink-0;
+    border-color: var(--color-card-border);
+    color: var(--color-text-main);
+}
+
+@media (max-width: 860px) {
+    .building-floors-panel {
+        height: auto;
+        max-height: none;
+        min-height: 0;
+    }
+}

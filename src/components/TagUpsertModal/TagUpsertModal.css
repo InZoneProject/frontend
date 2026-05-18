@@ -19,8 +19,8 @@
 }
 
 :root:not(.dark) .modal-card-tag-upsert {
-    background-color: color-mix(in srgb, var(--color-main-bg), var(--color-card-bg) 60%);
-    border-color: color-mix(in srgb, var(--color-card-border), var(--color-text-muted) 35%);
+    background-color: var(--color-card-bg);
+    border-color: var(--color-card-border);
 }
 
 :root:not(.dark) .modal-card-tag-upsert .base-input-label {
@@ -29,8 +29,8 @@
 }
 
 :root:not(.dark) .modal-card-tag-upsert .base-input-field {
-    background-color: color-mix(in srgb, var(--color-main-bg), var(--color-input-bg) 65%);
-    border-color: color-mix(in srgb, var(--color-input-border), var(--color-text-muted) 30%);
+    background-color: var(--color-input-bg);
+    border-color: var(--color-input-border);
     color: var(--color-text-main);
 }
 
@@ -40,12 +40,12 @@
 }
 
 :root:not(.dark) .modal-card-tag-upsert .variant-secondary {
-    background-color: color-mix(in srgb, var(--color-main-bg), var(--color-card-bg) 45%);
-    border-color: color-mix(in srgb, var(--color-card-border), var(--color-text-muted) 35%);
+    background-color: transparent;
+    border-color: color-mix(in srgb, var(--color-text-main), transparent 82%);
     color: var(--color-text-main);
 }
 
 :root:not(.dark) .modal-card-tag-upsert .variant-primary {
     background-color: var(--color-brand-primary);
-    color: var(--color-main-bg);
+    color: var(--color-brand-primary-text);
 }

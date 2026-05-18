@@ -1,0 +1,84 @@
+@reference "../../../styles/main.css";
+
+.building-page {
+    @apply min-h-screen p-8;
+}
+
+.building-layout-grid {
+    @apply grid gap-5 items-stretch;
+    --building-info-panel-height: 9.75rem;
+    --building-map-panel-height: 720px;
+    grid-template-columns: 420px minmax(0, 1fr);
+    grid-template-rows: var(--building-info-panel-height) var(--building-map-panel-height);
+    grid-template-areas:
+        "floors info"
+        "floors map";
+    transition: grid-template-columns 280ms ease;
+}
+.building-layout-grid.is-map-expanded {
+}
+
+.building-info-column {
+    @apply flex flex-col gap-5;
+    grid-area: info;
+}
+
+.building-layout-grid .building-map {
+    grid-area: map;
+    width: 100%;
+    margin-left: 0;
+    transition: width 320ms ease, margin-left 320ms ease, min-height 280ms ease, opacity 180ms ease;
+}
+
+.building-map-error {
+    @apply self-start justify-self-stretch z-50 mt-4 mx-4 pointer-events-none;
+    grid-area: map;
+}
+
+.building-map-error .error-message-content {
+    @apply pointer-events-auto;
+}
+
+.building-layout-grid.is-map-expanded .building-map {
+    width: calc(100% + 420px + 1.25rem);
+    margin-left: calc(-420px - 1.25rem);
+}
+
+.building-loading-line {
+    @apply h-1 rounded-full;
+    background-color: color-mix(in srgb, var(--color-brand-primary), transparent 30%);
+}
+
+.building-page .base-tabs {
+    margin-bottom: 0;
+}
+
+.building-page .main-table {
+    min-width: 0;
+}
+
+.building-page .main-table th,
+.building-page .main-table td {
+    padding-left: 1rem;
+    padding-right: 1rem;
+}
+
+@media (max-width: 860px) {
+    .building-page {
+        @apply p-4;
+    }
+
+    .building-layout-grid {
+        @apply grid-cols-1;
+        grid-template-areas:
+            "floors"
+            "info"
+            "map";
+    }
+
+    .building-layout-grid.is-map-expanded .building-map {
+        width: 100%;
+        margin-left: 0;
+    }
+
+}

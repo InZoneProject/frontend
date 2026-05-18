@@ -1,6 +1,7 @@
 import { ref } from 'vue'
 import InZoneIconLight from '@/assets/in-zone-icon-light.svg'
 import InZoneIconDark from '@/assets/in-zone-icon-dark.svg'
+import { THEME_SWITCHER_CONSTANTS } from '@/constants/theme-switcher.constants'
 
 const isDark = ref(localStorage.getItem('theme') !== 'light')
 
@@ -23,7 +24,13 @@ export function useThemeSwitcher() {
 
         setTimeout(() => {
             document.documentElement.classList.remove('is-toggling')
-        }, 1250)
+        }, THEME_SWITCHER_CONSTANTS.TOGGLE_TRANSITION_MS)
+    }
+
+    const handleToggleTheme = (event: MouseEvent) => {
+        toggleTheme()
+        const target = event.currentTarget as HTMLButtonElement | null
+        target?.blur()
     }
 
     const initializeTheme = () => {
@@ -36,6 +43,7 @@ export function useThemeSwitcher() {
     return {
         isDark,
         toggleTheme,
+        handleToggleTheme,
         initializeTheme
     }
 }

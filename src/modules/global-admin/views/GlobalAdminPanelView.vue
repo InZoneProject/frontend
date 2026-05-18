@@ -28,6 +28,9 @@ const {
   isInitialLoading,
   tabs,
   tableItems,
+  tableOffset,
+  tableLimit,
+  tableTotal,
   currentPlaceholder,
   isLoadingData,
   isDeleting,
@@ -72,9 +75,16 @@ const {
           <DataTable
               v-model:search-query="searchQuery"
               :items="tableItems"
+              :offset="tableOffset"
+              :limit="tableLimit"
+              :total="tableTotal"
+              @update:offset="tableOffset = $event"
               :loading="isLoadingData"
               :placeholder="currentPlaceholder"
+              :empty-text="globalAdminTranslations.table.empty"
+              :loading-text="globalAdminTranslations.table.loading"
               :interactive-rows="false"
+              :is-drag-over="false"
               max-height="32rem"
           >
             <template #header>

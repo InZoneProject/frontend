@@ -5,6 +5,8 @@ export interface OrganizationsTranslations {
     }
     table: {
         searchPlaceholder: string
+        empty: string
+        loading: string
         headers: {
             title: string
             description: string
@@ -71,8 +73,10 @@ export interface OrganizationsTranslations {
             addTagHint: string
             headers: {
                 name: string
+                user: string
                 role: string
                 email: string
+                phone: string
                 createdAt: string
                 address: string
                 tagUid: string
@@ -166,6 +170,55 @@ export interface OrganizationsTranslations {
                 confirm: string
                 cancel: string
             }
+        }
+    }
+    buildingPage: {
+        floors: {
+            collapse: string
+            expand: string
+            expandHint: string
+            add: string
+            searchPlaceholder: string
+            headers: {
+                position: string
+                name: string
+                actions: string
+            }
+        }
+        info: {
+            label: string
+            emptyAddress: string
+            createdAt: string
+        }
+        floorForm: {
+            createTitle: string
+            editTitle: string
+            nameLabel: string
+            namePlaceholder: string
+            createConfirm: string
+            editConfirm: string
+            cancel: string
+        }
+        zone: {
+            defaultTitle: string
+        }
+        deleteBuilding: {
+            title: string
+            message: string
+            confirm: string
+            cancel: string
+        }
+        deleteFloor: {
+            title: string
+            message: string
+            confirm: string
+            cancel: string
+        }
+        deleteZone: {
+            title: string
+            message: string
+            confirm: string
+            cancel: string
         }
     }
 }

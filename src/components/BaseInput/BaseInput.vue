@@ -1,6 +1,5 @@
 <script setup lang="ts">
 import { EyeIcon, EyeSlashIcon } from '@heroicons/vue/24/outline'
-import { nextTick, ref, watch } from 'vue'
 import type { BaseInputProperties } from '@/interfaces/base-input-properties.interface'
 import type { BaseInputEmits } from '@/interfaces/base-input-emits.interface'
 import { useBaseInput } from '@/composables/useBaseInput'
@@ -12,68 +11,91 @@ const emit = defineEmits<BaseInputEmits>()
 const {
   inputType,
   isPasswordVisible,
+  textareaReference,
   togglePasswordVisibility,
-  handleInput
+  handleInput,
+  handleExpandableInput
 } = useBaseInput(props, emit)
-
-const textareaReference = ref<HTMLTextAreaElement | null>(null)
-
-const resizeTextarea = () => {
-  if (!props.isExpandable || !textareaReference.value) return
-  textareaReference.value.style.height = 'auto'
-  textareaReference.value.style.height = `${textareaReference.value.scrollHeight}px`
-}
-
-const handleExpandableInput = (event: Event) => {
-  handleInput(event)
-  resizeTextarea()
-}
-
-watch(
-    () => props.modelValue,
-    () => {
-      void nextTick(() => resizeTextarea())
-    },
-    { immediate: true }
-)
 </script>
 
 <template>
   <div class="base-input-wrapper">
-    <label v-if="label" class="base-input-label">{{ label }}</label>
+    <label v-if="label" class="base-input-label">
+      {{ label }}
+    </label>
+
     <div class="base-input-container">
       <div v-if="$slots.prefix" class="base-input-prefix">
-        <slot name="prefix"></slot>
+        <slot name="prefix" />
       </div>
 
       <textarea
           v-if="isExpandable"
           ref="textareaReference"
           :value="modelValue"
-          :maxlength="maxLength"
+          :maxlength="maxLength ?? undefined"
           :disabled="disabled"
           :placeholder="placeholder"
-          @input="handleExpandableInput"
           class="base-input-field base-input-field--expandable"
           :class="{ 'has-prefix': $slots.prefix }"
           rows="3"
+          @input="handleExpandableInput"
       />
 
       <input
-          v-else
+          v-else-if="type !== 'select'"
           :type="inputType"
           :value="modelValue"
-          :maxlength="maxLength"
+          :maxlength="maxLength ?? undefined"
+          :min="type === 'number' ? (minValue ?? undefined) : undefined"
+          :max="type === 'number' ? (maxValue ?? undefined) : undefined"
           :disabled="disabled"
           :placeholder="placeholder"
-          @input="handleInput"
           class="base-input-field"
           :class="{ 'has-prefix': $slots.prefix }"
+          @input="handleInput"
       />
 
-      <div v-if="type === 'password' && !isExpandable && !disabled" class="base-input-icon" @click="togglePasswordVisibility">
-        <component :is="isPasswordVisible ? EyeSlashIcon : EyeIcon" />
+      <select
+          v-else
+          :value="modelValue"
+          :disabled="disabled"
+          class="base-input-field base-input-field--select"
+          :class="{ 'has-prefix': $slots.prefix }"
+          @change="handleInput"
+      >
+        <option
+            v-for="option in options || []"
+            :key="option.value"
+            :value="option.value"
+        >
+          {{ option.label }}
+        </option>
+      </select>
+
+      <div
+          v-if="type === 'select'"
+          class="base-input-select-icon"
+          aria-hidden="true"
+      >
+        <svg viewBox="0 0 20 20" fill="none" stroke="currentColor">
+          <path
+              d="M6 8l4 4 4-4"
+              stroke-linecap="round"
+              stroke-linejoin="round"
+              stroke-width="1.8"
+          />
+        </svg>
       </div>
+
+      <button
+          v-if="type === 'password' && !isExpandable && !disabled"
+          type="button"
+          class="base-input-icon"
+          @click="togglePasswordVisibility"
+      >
+        <component :is="isPasswordVisible ? EyeSlashIcon : EyeIcon" />
+      </button>
     </div>
   </div>
 </template>

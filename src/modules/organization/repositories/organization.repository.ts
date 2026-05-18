@@ -4,8 +4,8 @@ import type { OrganizationListParams } from '@/interfaces/organization-list-para
 import type { OrganizationMemberProfile } from '@/interfaces/organization-member-profile.interface'
 import type { OrganizationBuildingItem } from '@/modules/organization/interfaces/organization-building-item.interface'
 import type { OrganizationMemberItem } from '@/modules/organization/interfaces/organization-member-item.interface'
-import type { OrganizationPositionItem } from '@/modules/organization/interfaces/organization-position-item.interface'
 import type { OrganizationRfidTagItem } from '@/modules/organization/interfaces/organization-rfid-tag-item.interface'
+import type { PaginatedResponse } from '@/interfaces/paginated-response.interface'
 
 class OrganizationRepository extends BaseRepository {
     constructor() {
@@ -37,11 +37,11 @@ class OrganizationRepository extends BaseRepository {
     }
 
     getBuildings(organizationId: number, params: OrganizationListParams) {
-        return this.get<OrganizationBuildingItem[]>(`/${organizationId}/buildings`, { params })
+        return this.get<PaginatedResponse<OrganizationBuildingItem>>(`/${organizationId}/buildings`, { params })
     }
 
     getMembers(organizationId: number, params: OrganizationListParams) {
-        return this.get<OrganizationMemberItem[]>(`/${organizationId}/members`, { params })
+        return this.get<PaginatedResponse<OrganizationMemberItem>>(`/${organizationId}/members`, { params })
     }
 
     getMemberProfile(organizationId: number, memberId: number, role: OrganizationMemberItem['role']) {
@@ -49,38 +49,7 @@ class OrganizationRepository extends BaseRepository {
     }
 
     getRfidTags(organizationId: number, params: OrganizationListParams) {
-        return this.get<OrganizationRfidTagItem[]>(`/${organizationId}/rfid-tags`, { params })
-    }
-
-    getMemberPositions(organizationId: number, memberId: number, params: OrganizationListParams) {
-        return this.get<OrganizationPositionItem[]>(`/${organizationId}/members/${memberId}/positions`, { params })
-    }
-
-    getUnassignedPositions(organizationId: number, employeeId: number, params: OrganizationListParams) {
-        return this.get<OrganizationPositionItem[]>(
-            `/${organizationId}/employees/${employeeId}/unassigned-positions`,
-            { params }
-        )
-    }
-
-    createPosition(payload: { organization_id: number; role: string; description?: string | null }) {
-        return this.post<OrganizationPositionItem>('/positions', payload)
-    }
-
-    updatePosition(positionId: number, payload: { role: string; description?: string | null }) {
-        return this.patch<OrganizationPositionItem>(`/positions/${positionId}`, payload)
-    }
-
-    deletePosition(positionId: number) {
-        return this.delete<void>(`/positions/${positionId}`)
-    }
-
-    assignPosition(employeeId: number, positionId: number) {
-        return this.post<void>(`/employees/${employeeId}/positions/${positionId}`)
-    }
-
-    unassignPosition(employeeId: number, positionId: number) {
-        return this.delete<void>(`/employees/${employeeId}/positions/${positionId}`)
+        return this.get<PaginatedResponse<OrganizationRfidTagItem>>(`/${organizationId}/rfid-tags`, { params })
     }
 
     createBuilding(payload: { organization_id: number; title: string; address: string | null }) {

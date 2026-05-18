@@ -1,0 +1,21 @@
+@reference "../../../../styles/main.css";
+
+.door-reader-button {
+    @apply flex items-center justify-center w-6 h-6 rounded-full cursor-pointer transition-colors outline-none;
+    background-color: color-mix(in srgb, var(--color-main-bg), transparent 10%);
+    color: #ffffff;
+}
+
+.door-reader-button:hover {
+    background-color: color-mix(in srgb, var(--color-brand-primary), transparent 82%);
+    color: var(--color-brand-primary);
+}
+
+:root:not(.dark) .door-reader-button:hover {
+    box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--color-brand-primary), transparent 58%);
+}
+
+.door-reader-button-icon {
+    @apply w-4 h-4 shrink-0;
+    aspect-ratio: 1 / 1;
+}

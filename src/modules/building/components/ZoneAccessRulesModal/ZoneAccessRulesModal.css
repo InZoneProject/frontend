@@ -1,0 +1,201 @@
+@reference "../../../../styles/main.css";
+
+.zone-access-rules-modal {
+    @apply relative;
+    width: min(92vw, 760px);
+    max-width: none;
+    padding: 1.5rem;
+    border-radius: 2rem;
+}
+
+.zone-access-rules-modal.is-edit-mode {
+    width: min(96vw, 1420px);
+}
+
+.zone-access-rules-heading {
+    @apply mb-4 flex items-center gap-3;
+}
+
+.zone-access-rules-title {
+    @apply text-2xl font-black;
+    color: var(--color-text-main);
+}
+
+.zone-access-rules-back-button {
+    @apply flex h-10 items-center justify-center rounded-xl border border-solid px-4 text-sm font-black transition-colors;
+    background-color: color-mix(in srgb, var(--color-main-bg), transparent 15%);
+    border-color: var(--color-card-border);
+    color: var(--color-text-main);
+}
+
+.zone-access-rules-back-button:hover {
+    border-color: color-mix(in srgb, var(--color-brand-primary), transparent 40%);
+    color: var(--color-brand-primary);
+}
+
+.zone-access-rules-actions-bar {
+    @apply mb-4 flex items-center justify-between gap-3;
+}
+
+.zone-access-rules-grid {
+    @apply grid grid-cols-1 gap-4;
+}
+
+.zone-access-rules-grid.is-edit-mode {
+    @apply grid-cols-2;
+}
+
+.zone-access-rules-column {
+    @apply flex min-h-[460px] flex-col gap-3;
+}
+
+.zone-access-rules-column-title {
+    @apply px-1 text-xs font-black uppercase tracking-[0.18em];
+    color: var(--color-brand-primary);
+}
+
+.zone-access-rules-drop-zone {
+    @apply flex-1 rounded-2xl border border-solid p-2 min-h-[320px];
+    background-color: color-mix(in srgb, var(--color-card-bg), transparent 22%);
+    border-color: var(--color-card-border);
+}
+
+.zone-access-rules-drop-zone.is-drag-over {
+    border-color: color-mix(in srgb, var(--color-brand-primary), transparent 40%);
+    background-color: color-mix(in srgb, var(--color-brand-primary), transparent 94%);
+}
+
+.zone-access-rules-row[draggable="true"] {
+    cursor: grab;
+}
+
+.zone-access-rules-item-title {
+    @apply block text-[14px] font-black;
+    color: var(--color-text-main);
+    overflow-wrap: anywhere;
+    word-break: break-word;
+}
+
+.zone-access-rules-item-description {
+    @apply block text-[13px] leading-snug;
+    color: var(--color-text-muted);
+    overflow-wrap: anywhere;
+    word-break: break-word;
+}
+
+.zone-access-rules-item-date {
+    @apply block text-xs font-mono;
+    color: color-mix(in srgb, var(--color-text-muted), transparent 12%);
+}
+
+.zone-access-rules-item-actions {
+    @apply flex items-center justify-start gap-1;
+    min-width: max-content;
+}
+
+.zone-access-rules-position-button {
+    @apply flex items-center justify-center rounded-full p-[0.3rem] transition-colors outline-none;
+    background-color: transparent;
+    color: var(--color-text-muted);
+}
+
+.zone-access-rules-position-button:hover {
+    background-color: color-mix(in srgb, var(--color-brand-primary), transparent 78%);
+    color: var(--color-brand-primary);
+}
+
+.zone-access-rules-position-button svg {
+    @apply h-4 w-4 shrink-0;
+    aspect-ratio: 1 / 1;
+}
+
+.zone-access-rules-drop-zone .data-table-container {
+    @apply h-full gap-3;
+}
+
+.zone-access-rules-drop-zone .table-wrapper {
+    @apply rounded-xl;
+    min-height: 250px;
+}
+
+.zone-access-rules-modal .zone-access-rules-item-actions .edit-button,
+.zone-access-rules-modal .zone-access-rules-item-actions .delete-button {
+    padding: 0.3rem;
+}
+
+.zone-access-rules-modal .zone-access-rules-item-actions .edit-icon,
+.zone-access-rules-modal .zone-access-rules-item-actions .delete-icon {
+    width: 1rem;
+    height: 1rem;
+}
+
+.zone-access-rules-upsert-card {
+    @apply max-w-xl;
+}
+
+.zone-access-rules-form-fields {
+    @apply mb-8 flex flex-col gap-4;
+}
+
+.zone-access-rules-brand-icon {
+    @apply mb-2 flex h-12 w-12 items-center justify-center rounded-2xl;
+    background-color: color-mix(in srgb, var(--color-brand-primary), transparent 90%);
+    color: var(--color-brand-primary);
+}
+
+.zone-access-rules-brand-icon svg {
+    @apply h-6 w-6;
+}
+
+:root:not(.dark) .zone-access-rules-upsert-card {
+    background-color: var(--color-card-bg);
+    border-color: var(--color-card-border);
+}
+
+:root:not(.dark) .zone-access-rules-upsert-card .base-input-label {
+    color: var(--color-text-muted);
+    opacity: 0.9;
+}
+
+:root:not(.dark) .zone-access-rules-upsert-card .base-input-field,
+:root:not(.dark) .zone-access-rules-upsert-card .base-input-field--select {
+    background-color: var(--color-input-bg);
+    border-color: var(--color-input-border);
+    color: var(--color-text-main);
+}
+
+:root:not(.dark) .zone-access-rules-upsert-card .base-input-field:focus,
+:root:not(.dark) .zone-access-rules-upsert-card .base-input-field--select:focus {
+    border-color: var(--color-text-main);
+    --tw-ring-color: color-mix(in srgb, var(--color-text-main), transparent 86%);
+}
+
+:root:not(.dark) .zone-access-rules-upsert-card .variant-secondary {
+    background-color: transparent;
+    border-color: color-mix(in srgb, var(--color-text-main), transparent 82%);
+    color: var(--color-text-main);
+}
+
+:root:not(.dark) .zone-access-rules-upsert-card .variant-primary {
+    background-color: var(--color-brand-primary);
+    color: var(--color-brand-primary-text);
+}
+
+@media (max-width: 1024px) {
+    .zone-access-rules-modal {
+        width: min(96vw, 760px);
+        padding: 1rem;
+    }
+
+    .zone-access-rules-modal.is-edit-mode {
+        width: min(97vw, 980px);
+    }
+
+    .zone-access-rules-grid.is-edit-mode {
+        @apply grid-cols-1;
+    }
+
+    .zone-access-rules-actions-bar {
+        @apply pr-0;
+    }
+}

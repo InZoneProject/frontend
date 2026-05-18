@@ -28,6 +28,8 @@ const {
     unassignEvent,
     updateAssignedSearchEvent,
     updateAvailableSearchEvent,
+    updateAssignedOffsetEvent,
+    updateAvailableOffsetEvent,
     onDragStart,
     onDragOver,
     clearDragState,
@@ -106,9 +108,16 @@ const {
                   :items="properties.assignedPositions"
                   :search-query="properties.assignedSearchValue"
                   @update:search-query="emit(updateAssignedSearchEvent, $event)"
+                  :offset="properties.assignedOffset"
+                  :limit="properties.limit"
+                  :total="properties.assignedTotal"
+                  @update:offset="emit(updateAssignedOffsetEvent, $event)"
                   :loading="showAssignedLoader"
                   :placeholder="properties.translations.assignedSearchPlaceholder"
+                  empty-text="Нічого не знайдено"
+                  loading-text="Завантаження даних..."
                   :interactive-rows="properties.isEditMode"
+                  :is-drag-over="dragOverAssigned"
                   max-height="28rem"
               >
                 <template #header>
@@ -165,9 +174,16 @@ const {
                   :items="properties.availablePositions"
                   :search-query="properties.availableSearchValue"
                   @update:search-query="emit(updateAvailableSearchEvent, $event)"
+                  :offset="properties.availableOffset"
+                  :limit="properties.limit"
+                  :total="properties.availableTotal"
+                  @update:offset="emit(updateAvailableOffsetEvent, $event)"
                   :loading="showAvailableLoader"
                   :placeholder="properties.translations.availableSearchPlaceholder"
+                  empty-text="Нічого не знайдено"
+                  loading-text="Завантаження даних..."
                   :interactive-rows="true"
+                  :is-drag-over="dragOverAvailable"
                   max-height="28rem"
               >
                 <template #header>

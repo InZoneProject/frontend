@@ -5,6 +5,7 @@ import { useAuthStore } from '@/stores/auth.store'
 import { isValidPhoneInputValue } from '@/composables/useBaseInput'
 import { organizationAdminProfileRepository } from '@/repositories/organization-admin-profile.repository'
 import { Events } from '@/enums/events.enum'
+import { IMAGE_UPLOAD_CONSTANTS } from '@/constants/image-upload.constants'
 import type { ProfileFormEmits } from '@/interfaces/profile-form-emits.interface'
 import type { ProfileFormProperties } from '@/interfaces/profile-form-properties.interface'
 
@@ -118,6 +119,11 @@ export function useProfileForm(
             return
         }
 
+        if (!selectedFile.type.startsWith(IMAGE_UPLOAD_CONSTANTS.ACCEPT.replace('*', ''))) {
+            target.value = ''
+            return
+        }
+
         const formData = new FormData()
         formData.append('photo', selectedFile)
 
@@ -130,6 +136,12 @@ export function useProfileForm(
             const nextPhotoUrl = response.data.photo
             photoUrl.value = nextPhotoUrl
             initialPhotoUrl.value = nextPhotoUrl
+            window.dispatchEvent(new CustomEvent('profile-photo-updated', {
+                detail: {
+                    email: emailValue.value,
+                    photo: nextPhotoUrl
+                }
+            }))
         } catch (_error) {
             errorMessage.value = getTranslations().errors.uploadFailed
         } finally {

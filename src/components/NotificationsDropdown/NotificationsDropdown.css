@@ -2,7 +2,7 @@
 
 .notifications-dropdown {
     @apply absolute top-[calc(100%+12px)] right-0 w-[420px] rounded-2xl border border-solid p-4 shadow-2xl;
-    background-color: var(--color-main-bg);
+    background-color: var(--color-card-bg);
     border-color: var(--color-card-border);
 }
 

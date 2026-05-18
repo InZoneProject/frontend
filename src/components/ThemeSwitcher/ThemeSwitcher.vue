@@ -2,11 +2,11 @@
 import { useThemeSwitcher } from '@/composables/useThemeSwitcher'
 import './ThemeSwitcher.css'
 
-const { isDark, toggleTheme } = useThemeSwitcher()
+const { isDark, handleToggleTheme } = useThemeSwitcher()
 </script>
 
 <template>
-  <button @click="toggleTheme" class="theme-switcher">
+  <button @click="handleToggleTheme" class="theme-switcher">
     <svg
         v-if="isDark"
         class="theme-icon"

@@ -1,0 +1,4 @@
+export const EMPLOYEE_MOVEMENT_REPORT_CALENDAR_CONSTANTS = {
+    DAYS_IN_WEEK: 7,
+    VISIBLE_WEEKS: 6
+} as const

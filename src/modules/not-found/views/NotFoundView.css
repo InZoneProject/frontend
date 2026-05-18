@@ -1,0 +1,32 @@
+@reference "../../../styles/main.css";
+
+.not-found-page {
+    @apply min-h-screen px-6 py-10 flex items-center justify-center relative;
+}
+
+.not-found-page .control-panel {
+    @apply fixed top-8 right-8;
+}
+
+.not-found-card {
+    @apply w-full max-w-2xl rounded-[2rem] border border-solid p-10 text-center flex flex-col items-center gap-6;
+    background-color: color-mix(in srgb, var(--color-card-bg), transparent 12%);
+    border-color: var(--color-card-border);
+    box-shadow: 0 24px 80px color-mix(in srgb, var(--color-main-bg), black 35%);
+    backdrop-filter: blur(20px);
+}
+
+.not-found-label {
+    @apply text-8xl font-black uppercase tracking-[0.18em] leading-none;
+    color: var(--color-brand-primary);
+}
+
+.not-found-title {
+    @apply text-4xl font-black leading-tight;
+    color: var(--color-text-main);
+}
+
+.not-found-text {
+    @apply text-base font-semibold max-w-md;
+    color: var(--color-text-muted);
+}

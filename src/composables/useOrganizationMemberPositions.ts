@@ -21,6 +21,8 @@ export const useOrganizationMemberPositions = (properties: OrganizationMemberPos
     const unassignEvent: Events.UNASSIGN = Events.UNASSIGN
     const updateAssignedSearchEvent: Events.UPDATE_ASSIGNED_SEARCH_VALUE = Events.UPDATE_ASSIGNED_SEARCH_VALUE
     const updateAvailableSearchEvent: Events.UPDATE_AVAILABLE_SEARCH_VALUE = Events.UPDATE_AVAILABLE_SEARCH_VALUE
+    const updateAssignedOffsetEvent: Events.UPDATE_ASSIGNED_OFFSET = Events.UPDATE_ASSIGNED_OFFSET
+    const updateAvailableOffsetEvent: Events.UPDATE_AVAILABLE_OFFSET = Events.UPDATE_AVAILABLE_OFFSET
 
     const onDragStart = (
         event: DragEvent,
@@ -110,6 +112,8 @@ export const useOrganizationMemberPositions = (properties: OrganizationMemberPos
         unassignEvent,
         updateAssignedSearchEvent,
         updateAvailableSearchEvent,
+        updateAssignedOffsetEvent,
+        updateAvailableOffsetEvent,
         onDragStart,
         onDragOver,
         clearDragState,

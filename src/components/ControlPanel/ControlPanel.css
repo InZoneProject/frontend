@@ -2,8 +2,16 @@
 
 .control-panel {
     @apply fixed top-8 right-8 z-50 flex items-center gap-3 p-2 rounded-2xl border transition-all backdrop-blur-xl;
+    background-color: color-mix(in srgb, var(--color-card-bg), transparent 45%);
+    border-color: color-mix(in srgb, var(--color-card-border), transparent 35%);
+    opacity: 0.18;
+}
+
+.control-panel:hover,
+.control-panel:focus-within {
     background-color: var(--color-card-bg);
     border-color: var(--color-card-border);
+    opacity: 1;
 }
 
 .v-divider {

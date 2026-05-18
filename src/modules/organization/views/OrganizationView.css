@@ -68,10 +68,20 @@
 .organization-page-member-row {
     cursor: pointer;
 }
+.organization-page-member-row:hover td {
+    background-color: color-mix(in srgb, var(--color-brand-primary), transparent 90%);
+}
 
 .organization-page-content .table-wrapper {
     overflow-x: auto;
     overflow-y: auto;
+    scrollbar-width: none;
+}
+
+.organization-page-content .table-wrapper::-webkit-scrollbar {
+    width: 0;
+    height: 0;
+    display: none;
 }
 
 .organization-page-table-area .main-table {
@@ -110,6 +120,14 @@
     word-break: break-word;
     line-height: 1.15;
     max-width: 180px;
+}
+
+.td-phone {
+    color: var(--color-text-main);
+}
+
+.td-phone.is-empty {
+    color: var(--color-text-main);
 }
 
 .organization-page-uid-cell {

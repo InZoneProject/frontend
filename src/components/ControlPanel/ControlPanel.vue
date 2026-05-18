@@ -24,7 +24,8 @@ const {
   notifications,
   isDropdownOpen,
   isLoadingNotifications,
-  toggleDropdown
+  toggleDropdown,
+  fetchNextNotifications
 } = useControlPanel(properties)
 </script>
 
@@ -57,6 +58,7 @@ const {
             :is-loading="isLoadingNotifications"
             :title="translations.notifications.title"
             :empty-label="translations.notifications.empty"
+            @load-more="fetchNextNotifications"
         />
       </div>
     </template>

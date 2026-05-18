@@ -1,6 +1,7 @@
 import { BaseRepository } from '@/api/base.repository'
 import type { NotificationItem } from '@/interfaces/notification.interface'
 import type { NotificationsUnreadCount } from '@/interfaces/notifications-unread-count.interface'
+import type { PaginatedResponse } from '@/interfaces/paginated-response.interface'
 
 class NotificationsRepository extends BaseRepository {
     constructor() {
@@ -12,7 +13,7 @@ class NotificationsRepository extends BaseRepository {
     }
 
     getAdminNotifications(params: { offset: number; limit: number }) {
-        return this.get<NotificationItem[]>('/admin', { params })
+        return this.get<PaginatedResponse<NotificationItem>>('/admin', { params })
     }
 
     markAllAsReadByAdmin() {

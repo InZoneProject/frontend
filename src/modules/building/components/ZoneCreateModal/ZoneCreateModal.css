@@ -1,0 +1,37 @@
+@reference "../../../../styles/main.css";
+
+.modal-card-zone-create {
+    @apply max-w-lg;
+}
+
+.zone-create-fields {
+    @apply flex flex-col gap-4 mb-5;
+}
+
+.zone-create-brand-icon {
+    @apply w-12 h-12 flex items-center justify-center rounded-2xl mb-2;
+    background-color: color-mix(in srgb, var(--color-success-main), transparent 88%);
+    color: var(--color-success-main);
+}
+
+.zone-create-brand-icon svg {
+    @apply w-6 h-6;
+}
+
+.zone-create-type {
+    @apply mb-0;
+}
+
+.zone-create-note {
+    @apply rounded-lg px-3 py-2 text-xs font-bold;
+    color: var(--color-brand-primary);
+    background-color: color-mix(in srgb, var(--color-brand-primary), transparent 90%);
+    border: 1px solid color-mix(in srgb, var(--color-brand-primary), transparent 72%);
+}
+
+.zone-create-error {
+    @apply rounded-lg px-3 py-2 text-xs font-bold;
+    color: var(--color-error-main);
+    background-color: var(--color-error-bg);
+    border: 1px solid var(--color-error-border);
+}

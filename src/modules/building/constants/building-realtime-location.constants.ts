@@ -1,0 +1,5 @@
+export const BUILDING_REALTIME_LOCATION_CONSTANTS = {
+    SCANNED_DOOR_FLASH_MS: 1100,
+    DEDUPE_WINDOW_MS: 1000,
+    NAMESPACE: '/locations'
+} as const

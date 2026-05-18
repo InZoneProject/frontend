@@ -18,5 +18,9 @@
 .notification-bell-badge {
     @apply absolute -top-0.5 -right-0.5 min-w-[18px] h-[18px] px-1 rounded-full text-[10px] font-black leading-[18px] text-center;
     background-color: var(--color-brand-primary);
-    color: var(--color-main-bg);
+    color: #ffffff;
+}
+
+:root.dark .notification-bell-badge {
+    color: #030712;
 }

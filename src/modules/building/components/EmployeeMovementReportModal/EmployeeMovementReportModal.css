@@ -1,0 +1,108 @@
+@reference "../../../../styles/main.css";
+
+.employee-movement-report-modal {
+    @apply max-w-[36rem];
+}
+
+.employee-movement-report-modal-icon {
+    @apply flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl;
+    background-color: color-mix(in srgb, var(--color-brand-primary), transparent 84%);
+    color: var(--color-brand-primary);
+}
+
+.employee-movement-report-modal-icon svg {
+    @apply h-6 w-6;
+}
+
+.employee-movement-report-calendar {
+    @apply rounded-[2rem] border border-solid p-5;
+    background-color: color-mix(in srgb, var(--color-card-bg), transparent 28%);
+    border-color: var(--color-card-border);
+    margin-bottom: 1.5rem;
+}
+
+.employee-movement-report-calendar-title {
+    @apply mb-5 flex items-center justify-between gap-4;
+}
+
+.employee-movement-report-calendar-title span {
+    @apply text-xs font-black uppercase;
+    color: var(--color-brand-primary);
+}
+
+.employee-movement-report-calendar-navigation {
+    @apply flex items-center gap-2;
+}
+
+.employee-movement-report-calendar-navigation strong {
+    @apply text-sm font-black capitalize;
+    color: var(--color-text-main);
+    min-width: 9rem;
+    text-align: center;
+}
+
+.employee-movement-report-calendar-navigation button {
+    @apply flex h-9 w-9 items-center justify-center rounded-full border border-solid text-lg font-black transition-colors;
+    background-color: color-mix(in srgb, var(--color-card-bg), transparent 18%);
+    border-color: color-mix(in srgb, var(--color-card-border), transparent 25%);
+    color: var(--color-text-main);
+}
+
+.employee-movement-report-calendar-navigation button:hover:not(:disabled) {
+    background-color: color-mix(in srgb, var(--color-brand-primary), transparent 86%);
+    border-color: color-mix(in srgb, var(--color-brand-primary), transparent 35%);
+    color: var(--color-brand-primary);
+}
+
+.employee-movement-report-calendar-navigation button:disabled {
+    opacity: 0.45;
+    cursor: not-allowed;
+}
+
+.employee-movement-report-weekdays,
+.employee-movement-report-days {
+    @apply grid grid-cols-7 gap-2;
+}
+
+.employee-movement-report-weekdays {
+    @apply mb-2;
+}
+
+.employee-movement-report-weekdays span {
+    @apply text-center text-[11px] font-black uppercase;
+    color: var(--color-text-muted);
+}
+
+.employee-movement-report-day {
+    @apply flex aspect-square items-center justify-center rounded-2xl border border-solid text-sm font-black transition-colors;
+    background-color: color-mix(in srgb, var(--color-card-bg), transparent 18%);
+    border-color: color-mix(in srgb, var(--color-card-border), transparent 28%);
+    color: var(--color-text-main);
+}
+
+.employee-movement-report-day:hover:not(:disabled) {
+    background-color: color-mix(in srgb, var(--color-brand-primary), transparent 86%);
+    border-color: color-mix(in srgb, var(--color-brand-primary), transparent 35%);
+    color: var(--color-brand-primary);
+}
+
+.employee-movement-report-day.is-selected {
+    background-color: var(--color-brand-primary);
+    border-color: var(--color-brand-primary);
+    color: var(--color-brand-primary-text);
+}
+
+.employee-movement-report-day.is-selected:hover:not(:disabled) {
+    background-color: var(--color-brand-primary);
+    border-color: var(--color-brand-primary);
+    color: var(--color-brand-primary-text);
+}
+
+.employee-movement-report-day.is-outside {
+    opacity: 0.45;
+}
+
+.employee-movement-report-day:disabled {
+    opacity: 0.22;
+    cursor: not-allowed;
+}

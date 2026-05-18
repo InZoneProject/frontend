@@ -42,6 +42,8 @@ const {
               type="text"
               :placeholder="properties.translations.namePlaceholder"
               :max-length="LENGTH.MAX_NAME_LENGTH"
+              :min-value="null"
+              :max-value="null"
               :is-expandable="false"
               :disabled="properties.loading"
           />
@@ -54,6 +56,8 @@ const {
               type="text"
               :placeholder="properties.translations.tagUidPlaceholder"
               :max-length="LENGTH.MAX_NAME_LENGTH"
+              :min-value="null"
+              :max-value="null"
               :is-expandable="false"
               :disabled="properties.loading"
           />

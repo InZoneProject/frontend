@@ -1,0 +1,3 @@
+export const THEME_SWITCHER_CONSTANTS = {
+    TOGGLE_TRANSITION_MS: 1250
+} as const

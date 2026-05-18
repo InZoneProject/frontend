@@ -1,0 +1,49 @@
+export interface ZoneAccessRulesModalProperties {
+    isOpen: boolean
+    zoneId: number
+    zoneTitle: string
+    organizationId: number
+    formatDate: (value: string) => string
+    translations: {
+        rulesTitle: string
+        positionsTitle: string
+        edit: string
+        editPositions: string
+        zoneInTitle: string
+        close: string
+        finish: string
+        addRule: string
+        addPosition: string
+        assigned: string
+        available: string
+        assignedSearch: string
+        availableSearch: string
+        empty: string
+        loading: string
+        rule: string
+        role: string
+        createdAt: string
+        actions: string
+        backToEditRules: string
+        detachConfirmTitle: string
+        detachConfirmMessage: string
+        detachConfirm: string
+        deleteRuleTitle: string
+        deleteRuleMessage: string
+        deletePositionTitle: string
+        deletePositionMessage: string
+        delete: string
+        cancel: string
+        save: string
+        createRule: string
+        editRule: string
+        ruleTitle: string
+        accessType: string
+        accessTypeForbidden: string
+        accessTypeTimeLimited: string
+        maxDuration: string
+        createPosition: string
+        editPosition: string
+        description: string
+    }
+}

@@ -13,8 +13,12 @@
 .variant-secondary {
     @apply border border-solid backdrop-blur-md;
     background-color: transparent;
-    border-color: var(--color-card-border);
+    border-color: color-mix(in srgb, var(--color-text-main), transparent 82%);
     color: var(--color-text-main);
+}
+
+:root.dark .variant-secondary {
+    border-color: color-mix(in srgb, var(--color-text-muted), transparent 45%);
 }
 
 .variant-danger {
@@ -31,8 +35,17 @@
 }
 
 .variant-secondary:hover:not(:disabled) {
-    background-color: color-mix(in srgb, var(--color-brand-primary), transparent 95%);
-    border-color: color-mix(in srgb, var(--color-brand-primary), transparent 50%);
+    background-color: color-mix(in srgb, var(--color-brand-primary), transparent 92%);
+    border-color: color-mix(in srgb, var(--color-brand-primary), transparent 28%);
+    color: var(--color-brand-primary);
+}
+
+:root .variant-secondary:hover:not(:disabled),
+:root:not(.dark) .variant-secondary:hover:not(:disabled),
+:root.dark .variant-secondary:hover:not(:disabled) {
+    background-color: color-mix(in srgb, var(--color-brand-primary), transparent 92%);
+    border-color: color-mix(in srgb, var(--color-brand-primary), transparent 28%);
+    color: var(--color-brand-primary);
 }
 
 .variant-danger:hover:not(:disabled) {

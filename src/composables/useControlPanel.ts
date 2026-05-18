@@ -15,7 +15,8 @@ export function useControlPanel(properties: ControlPanelProperties) {
         notifications,
         isDropdownOpen,
         isLoadingNotifications,
-        toggleDropdown
+        toggleDropdown,
+        fetchNextNotifications
     } = useNotificationsDropdown(showNotifications)
 
     const openProfileModal = (): void => {
@@ -39,6 +40,7 @@ export function useControlPanel(properties: ControlPanelProperties) {
         notifications,
         isDropdownOpen,
         isLoadingNotifications,
-        toggleDropdown
+        toggleDropdown,
+        fetchNextNotifications
     }
 }

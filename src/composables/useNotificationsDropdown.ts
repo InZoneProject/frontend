@@ -4,6 +4,7 @@ import { notificationsSocketService } from '@/services/notifications-socket.serv
 import { useAuthStore } from '@/stores/auth.store'
 import type { NotificationItem } from '@/interfaces/notification.interface'
 import type { NotificationSocketPayload } from '@/interfaces/notification-socket-payload.interface'
+import { LIST } from '@/constants/list.constants'
 
 export function useNotificationsDropdown(show: Ref<boolean>) {
     const authStore = useAuthStore()
@@ -11,6 +12,8 @@ export function useNotificationsDropdown(show: Ref<boolean>) {
     const notificationsContainer = ref<HTMLElement | null>(null)
     const unreadCount = ref(0)
     const notifications = ref<NotificationItem[]>([])
+    const notificationsTotal = ref(0)
+    const notificationsOffset = ref(0)
     const isDropdownOpen = ref(false)
     const isLoadingNotifications = ref(false)
     const isMarkingAsRead = ref(false)
@@ -48,25 +51,38 @@ export function useNotificationsDropdown(show: Ref<boolean>) {
     }
 
     const fetchUnreadCount = async (): Promise<void> => {
-        const response = await notificationsRepository.getAdminUnreadCount()
-        unreadCount.value = response.data.unread_count
+        try {
+            const response = await notificationsRepository.getAdminUnreadCount()
+            unreadCount.value = response.data.unread_count
+        } catch {
+            unreadCount.value = 0
+        }
     }
 
-    const fetchNotifications = async (): Promise<void> => {
+    const fetchNotifications = async (offset = 0): Promise<void> => {
         isLoadingNotifications.value = true
 
         try {
             const response = await notificationsRepository.getAdminNotifications({
-                offset: 0,
-                limit: 20
+                offset,
+                limit: LIST.DEFAULT_LIMIT
             })
-            notifications.value = response.data.map((item) => ({
+            const items = response.data.items.map((item) => ({
                 ...item,
                 employee_id: item.employee_id ?? null
             }))
+            notifications.value = offset === 0 ? items : [...notifications.value, ...items]
+            notificationsOffset.value = response.data.offset
+            notificationsTotal.value = response.data.total
         } finally {
             isLoadingNotifications.value = false
         }
+    }
+
+    const fetchNextNotifications = async (): Promise<void> => {
+        if (isLoadingNotifications.value) return
+        if (notifications.value.length >= notificationsTotal.value) return
+        await fetchNotifications(notifications.value.length)
     }
 
     const markAllAsRead = async (): Promise<void> => {
@@ -161,8 +177,12 @@ export function useNotificationsDropdown(show: Ref<boolean>) {
             return
         }
 
-        await fetchUnreadCount()
-        ensureSocketConnection(authStore.orgToken || '')
+        try {
+            await fetchUnreadCount()
+            ensureSocketConnection(authStore.orgToken || '')
+        } catch {
+            disconnectSocket()
+        }
     }
 
     watch(isNotificationsAvailable, () => {
@@ -185,6 +205,7 @@ export function useNotificationsDropdown(show: Ref<boolean>) {
         notifications,
         isDropdownOpen,
         isLoadingNotifications,
-        toggleDropdown
+        toggleDropdown,
+        fetchNextNotifications
     }
 }

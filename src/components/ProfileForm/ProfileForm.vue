@@ -6,12 +6,14 @@ import SuccessMessage from '@/components/SuccessMessage/SuccessMessage.vue'
 import ConfirmationModal from '@/components/ConfirmationModal/ConfirmationModal.vue'
 import { useProfileForm } from '@/composables/useProfileForm'
 import { LENGTH } from '@/constants/length.constants'
+import { IMAGE_UPLOAD_CONSTANTS } from '@/constants/image-upload.constants'
+import { Events } from '@/enums/events.enum'
 import type { ProfileFormProperties } from '@/interfaces/profile-form-properties.interface'
 import type { ProfileFormEmits } from '@/interfaces/profile-form-emits.interface'
 import './ProfileForm.css'
 
 const properties = defineProps<ProfileFormProperties>()
-const emit = defineEmits<ProfileFormEmits>()
+const emit = defineEmits([Events.CLOSE]) as ProfileFormEmits
 
 const {
   fileInputReference,
@@ -75,7 +77,7 @@ const {
           <input
               ref="fileInputReference"
               type="file"
-              accept="image/*"
+              :accept="IMAGE_UPLOAD_CONSTANTS.ACCEPT"
               class="profile-photo-input"
               :disabled="isFormDisabled"
               @change="handlePhotoSelected"
@@ -97,6 +99,8 @@ const {
               type="text"
               :placeholder="properties.translations.namePlaceholder"
               :max-length="LENGTH.MAX_NAME_LENGTH"
+              :min-value="null"
+              :max-value="null"
               :is-expandable="false"
               :disabled="isFormDisabled"
           />
@@ -107,6 +111,8 @@ const {
               type="email"
               placeholder=""
               :max-length="LENGTH.MAX_EMAIL_LENGTH"
+              :min-value="null"
+              :max-value="null"
               :is-expandable="false"
               :disabled="true"
               @update:model-value="handleEmailValueUpdate"
@@ -118,6 +124,8 @@ const {
               type="tel"
               :placeholder="properties.translations.phonePlaceholder"
               :max-length="LENGTH.MAX_PHONE_LENGTH"
+              :min-value="null"
+              :max-value="null"
               :is-expandable="false"
               :disabled="isFormDisabled"
           />
