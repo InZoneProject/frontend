@@ -306,6 +306,10 @@ class BuildingMapAddHandleService {
         const candidateTransitionLength = this.getHandleTransitionLength(candidate)
         const currentTransitionLength = this.getHandleTransitionLength(current)
 
+        if (!this.isSameCoordinate(candidateTransitionLength, currentTransitionLength)) {
+            return candidateTransitionLength > currentTransitionLength
+        }
+
         if (preferredCoordinate !== null) {
             const candidateTouches = this.doesCoordinateTouchHandleTransition(candidate, preferredCoordinate)
             const currentTouches = this.doesCoordinateTouchHandleTransition(current, preferredCoordinate)
@@ -318,10 +322,6 @@ class BuildingMapAddHandleService {
             if (!this.isSameCoordinate(candidateDistance, currentDistance)) {
                 return candidateDistance < currentDistance
             }
-        }
-
-        if (!this.isSameCoordinate(candidateTransitionLength, currentTransitionLength)) {
-            return candidateTransitionLength > currentTransitionLength
         }
 
         if (preferredCoordinate !== null && candidate.doorPlacementSplitScore !== current.doorPlacementSplitScore) {
@@ -421,13 +421,19 @@ class BuildingMapAddHandleService {
             const bestCenter = best.sliceStart + bestLength / 2
             const candidateCenterDistance = Math.abs(candidateCenter - preferredCoordinate)
             const bestCenterDistance = Math.abs(bestCenter - preferredCoordinate)
+            const candidateTransitionLength = this.getHandleTransitionLength(candidate)
+            const bestTransitionLength = this.getHandleTransitionLength(best)
 
-            if (candidate.doorPlacementSplitScore !== best.doorPlacementSplitScore) {
-                return candidate.doorPlacementSplitScore > best.doorPlacementSplitScore ? candidate : best
+            if (!this.isSameCoordinate(candidateTransitionLength, bestTransitionLength)) {
+                return candidateTransitionLength > bestTransitionLength ? candidate : best
             }
 
             if (!this.isSameCoordinate(candidateLength, bestLength)) {
                 return candidateLength > bestLength ? candidate : best
+            }
+
+            if (candidate.doorPlacementSplitScore !== best.doorPlacementSplitScore) {
+                return candidate.doorPlacementSplitScore > best.doorPlacementSplitScore ? candidate : best
             }
 
             if (!this.isSameCoordinate(candidateCenterDistance, bestCenterDistance)) {
@@ -712,6 +718,7 @@ class BuildingMapAddHandleService {
         auraSourceZones: ZoneMapItem[]
         auraSourceDoors: DoorMapItem[]
         otherFloorEntranceDoorChecks: BuildingMapEntranceDoorCheck[]
+        fallbackTransitionSegments?: BuildingMapTransitionSegment[]
     }) {
         if (params.hoveredCoordinate === null || params.handle.baseTransitionSegments.length === 0) {
             return {
@@ -724,9 +731,10 @@ class BuildingMapAddHandleService {
             }
         }
 
-        const preferredTransitionCoordinate = buildingMapTransitionService.getNearestTransitionCoordinate(
-            params.handle.baseTransitionSegments,
-            params.hoveredCoordinate
+        const preferredTransitionCoordinate = buildingMapGeometryService.clampValue(
+            params.hoveredCoordinate,
+            params.handle.baseSegment.start,
+            params.handle.baseSegment.end
         )
 
         if (preferredTransitionCoordinate === null) {
@@ -762,42 +770,58 @@ class BuildingMapAddHandleService {
             preferredCoordinate: preferredTransitionCoordinate
         })
 
+        const cursorTransitionSegments = cursorAuraAdjustedTransition.transitionSegments
+            .filter((segment) =>
+                segment.end - segment.start >= BUILDING_MAP_GEOMETRY_CONSTANTS.MIN_ZONE_SIZE
+            )
         const stableTransitionSegments = stableAuraAdjustedTransition.transitionSegments
             .filter((segment) =>
                 segment.end - segment.start >= BUILDING_MAP_GEOMETRY_CONSTANTS.MIN_ZONE_SIZE
             )
 
-        const cursorTransitionSegments = cursorAuraAdjustedTransition.transitionSegments
-            .filter((segment) =>
-                segment.end - segment.start >= BUILDING_MAP_GEOMETRY_CONSTANTS.MIN_ZONE_SIZE
-            )
-
-        const doesStableTransitionContainPreferredCoordinate = stableTransitionSegments.some((segment) =>
-            preferredTransitionCoordinate >= segment.start - this.epsilon
-            && preferredTransitionCoordinate <= segment.end + this.epsilon
+        const transitionSegments = this.getBestAuraValidatedTransitionSegmentsForCoordinate(
+            stableTransitionSegments,
+            cursorTransitionSegments,
+            preferredTransitionCoordinate
         )
-
-        const doesCursorTransitionContainPreferredCoordinate = cursorTransitionSegments.some((segment) =>
-            preferredTransitionCoordinate >= segment.start - this.epsilon
-            && preferredTransitionCoordinate <= segment.end + this.epsilon
-        )
-
-        const transitionSegments = doesCursorTransitionContainPreferredCoordinate
-            ? cursorTransitionSegments
-            : doesStableTransitionContainPreferredCoordinate
-                ? stableTransitionSegments
-                : cursorTransitionSegments.length > 0
-                ? cursorTransitionSegments
-                : stableTransitionSegments
 
         if (transitionSegments.length === 0) {
+            const fallbackTransitionSegments = this.getAuraValidatedFallbackTransitionSegments(
+                params.fallbackTransitionSegments || [],
+                [
+                    ...stableTransitionSegments,
+                    ...cursorTransitionSegments
+                ]
+            )
+
+            if (fallbackTransitionSegments.length === 0) {
+                return {
+                    ...params.handle,
+                    canCreateTransition: false,
+                    transitionMode: 'none' as const,
+                    transitionSignature: '',
+                    transitionSegments: [],
+                    payload: this.createPayloadFromDynamicTransitionSegments(params.handle, [])
+                }
+            }
+
             return {
                 ...params.handle,
-                canCreateTransition: false,
-                transitionMode: 'none' as const,
-                transitionSignature: '',
-                transitionSegments: [],
-                payload: this.createPayloadFromDynamicTransitionSegments(params.handle, [])
+                canCreateTransition: true,
+                transitionMode: params.handle.transitionMode,
+                transitionSignature: this.getTransitionSegmentsSignature(fallbackTransitionSegments),
+                transitionSegments: fallbackTransitionSegments.map((segment) => ({
+                    ...segment,
+                    style: buildingMapTransitionService.getAddHandleSegmentStyle(
+                        params.handle.side,
+                        params.handle.baseSegment,
+                        segment
+                    )
+                })),
+                payload: this.createPayloadFromDynamicTransitionSegments(
+                    params.handle,
+                    fallbackTransitionSegments
+                )
             }
         }
 
@@ -841,18 +865,38 @@ class BuildingMapAddHandleService {
 
     getPreferredTransitionSegmentsForCoordinate(
         transitionSegments: BuildingMapTransitionSegment[],
-        coordinate: number
+        coordinate: number,
+        requireContainingCoordinate = false
     ) {
-        if (transitionSegments.length <= 1) return transitionSegments
+        if (transitionSegments.length === 0) return []
 
-        const containingSegment = transitionSegments.find((segment) =>
+        const containingSegments = transitionSegments.filter((segment) =>
             coordinate >= segment.start - this.epsilon
             && coordinate <= segment.end + this.epsilon
         )
 
-        if (containingSegment) return [containingSegment]
+        if (containingSegments.length > 0) {
+            const bestContainingSegment = containingSegments
+                .slice()
+                .sort((first, second) => {
+                    const firstLength = first.end - first.start
+                    const secondLength = second.end - second.start
 
-        const nearestSegment = transitionSegments
+                    if (!this.isSameCoordinate(firstLength, secondLength)) {
+                        return secondLength - firstLength
+                    }
+
+                    return first.start - second.start
+                })[0]
+
+            return bestContainingSegment ? [bestContainingSegment] : []
+        }
+
+        if (requireContainingCoordinate) return []
+
+        if (transitionSegments.length === 1) return transitionSegments
+
+        const bestSegment = transitionSegments
             .slice()
             .sort((first, second) => {
                 const firstDistance = this.getSegmentDistanceToCoordinate(first, coordinate)
@@ -872,7 +916,109 @@ class BuildingMapAddHandleService {
                 return first.start - second.start
             })[0]
 
-        return nearestSegment ? [nearestSegment] : []
+        return bestSegment ? [bestSegment] : []
+    }
+
+    getBestAuraValidatedTransitionSegmentsForCoordinate(
+        stableTransitionSegments: BuildingMapTransitionSegment[],
+        cursorTransitionSegments: BuildingMapTransitionSegment[],
+        coordinate: number
+    ) {
+        const stablePreferredSegments = this.getPreferredTransitionSegmentsForCoordinate(
+            stableTransitionSegments,
+            coordinate,
+            true
+        )
+        const cursorPreferredSegments = this.getPreferredTransitionSegmentsForCoordinate(
+            cursorTransitionSegments,
+            coordinate,
+            true
+        )
+        const stableLength = this.getTransitionSegmentsLength(stablePreferredSegments)
+        const cursorLength = this.getTransitionSegmentsLength(cursorPreferredSegments)
+
+        if (cursorPreferredSegments.length > 0) return cursorPreferredSegments
+        if (stablePreferredSegments.length > 0) return stablePreferredSegments
+
+        const cursorDistance = this.getDistanceToTransitionSegments(cursorPreferredSegments, coordinate)
+        const stableDistance = this.getDistanceToTransitionSegments(stablePreferredSegments, coordinate)
+
+        if (
+            this.isSameCoordinate(cursorDistance, 0)
+            && !this.isSameCoordinate(stableDistance, 0)
+        ) {
+            return cursorPreferredSegments
+        }
+
+        if (!this.isSameCoordinate(stableLength, cursorLength)) {
+            return stableLength > cursorLength
+                ? stablePreferredSegments
+                : cursorPreferredSegments
+        }
+
+        if (!this.isSameCoordinate(stableDistance, cursorDistance)) {
+            return cursorDistance < stableDistance
+                ? cursorPreferredSegments
+                : stablePreferredSegments
+        }
+
+        return stablePreferredSegments
+    }
+
+    getTransitionSegmentsLength(
+        transitionSegments: BuildingMapTransitionSegment[]
+    ) {
+        return transitionSegments.reduce((total, segment) =>
+            total + segment.end - segment.start,
+        0)
+    }
+
+    getDistanceToTransitionSegments(
+        transitionSegments: BuildingMapTransitionSegment[],
+        coordinate: number
+    ) {
+        if (transitionSegments.length === 0) return Number.POSITIVE_INFINITY
+
+        return Math.min(
+            ...transitionSegments.map((segment) =>
+                this.getSegmentDistanceToCoordinate(segment, coordinate)
+            )
+        )
+    }
+
+    getAuraValidatedFallbackTransitionSegments(
+        fallbackTransitionSegments: BuildingMapTransitionSegment[],
+        safeTransitionSegments: BuildingMapTransitionSegment[]
+    ) {
+        const clippedSegments: BuildingMapTransitionSegment[] = []
+
+        for (const fallbackSegment of fallbackTransitionSegments) {
+            for (const safeSegment of safeTransitionSegments) {
+                const start = Math.max(fallbackSegment.start, safeSegment.start)
+                const end = Math.min(fallbackSegment.end, safeSegment.end)
+
+                if (end - start < BUILDING_MAP_GEOMETRY_CONSTANTS.MIN_ZONE_SIZE) continue
+
+                clippedSegments.push({
+                    start,
+                    end,
+                    outward: Math.min(fallbackSegment.outward, safeSegment.outward)
+                })
+            }
+        }
+
+        return clippedSegments
+            .sort((first, second) => {
+                const firstLength = first.end - first.start
+                const secondLength = second.end - second.start
+
+                if (!this.isSameCoordinate(firstLength, secondLength)) {
+                    return secondLength - firstLength
+                }
+
+                return first.start - second.start
+            })
+            .slice(0, 1)
     }
 
     getTransitionSegmentsSignature(

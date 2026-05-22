@@ -121,6 +121,8 @@ export const useBuildingMap = (properties: BuildingMapProperties, emit: Building
     let unsubscribeLocationListener: (() => void) | null = null
     let mapMoveFrame: number | null = null
     let pendingMapMoveEvent: MouseEvent | null = null
+    let postInteractionReleaseTimeout: number | null = null
+    let postInteractionIdleCallback: number | null = null
 
     const isWheelInteracting = ref(false)
     const isPostInteractionSettling = ref(false)
@@ -135,8 +137,14 @@ export const useBuildingMap = (properties: BuildingMapProperties, emit: Building
     const hoveredAddHandleKey = ref('')
     const hoveredAddHandleSnapshot = ref<AddZoneHandle | null>(null)
     const hoveredAddHandleCoordinate = ref<number | null>(null)
+    const lastValidAddHandleTransitionSegments = ref<{
+        key: string
+        segments: BuildingMapTransitionSegment[]
+    } | null>(null)
     const isAddZonePending = ref(false)
     let isResizeHandleHovered = false
+    const MIN_UNIT_SIZE_FOR_EDIT_HELPERS = 6
+    const MAX_EDIT_HELPER_SIDE_SPAN = 36
 
     const hoveredAddDoorHandleKey = ref('')
     const hoveredAddDoorHandleSnapshot = ref<AddDoorHandle | null>(null)
@@ -496,6 +504,44 @@ export const useBuildingMap = (properties: BuildingMapProperties, emit: Building
         currentFloorId: properties.currentFloorId
     })
 
+    const getVisibleSideSlice = (
+        side: 'left' | 'right' | 'top' | 'bottom',
+        slice: BuildingMapSegment,
+        viewport: ViewportBounds
+    ): BuildingMapSegment | null => {
+        const helperMargin = BUILDING_MAP_GEOMETRY_CONSTANTS.MAX_ADDED_ZONE_SIDE
+            + BUILDING_MAP_GEOMETRY_CONSTANTS.MIN_ZONE_SIZE
+        const viewportSegment = side === 'left' || side === 'right'
+            ? {
+                start: viewport.y - helperMargin,
+                end: viewport.y + viewport.height + helperMargin
+            }
+            : {
+                start: viewport.x - helperMargin,
+                end: viewport.x + viewport.width + helperMargin
+            }
+        const start = Math.max(slice.start, Math.floor(viewportSegment.start))
+        const end = Math.min(slice.end, Math.ceil(viewportSegment.end))
+
+        if (end - start < BUILDING_MAP_GEOMETRY_CONSTANTS.MIN_ZONE_SIZE) return null
+
+        if (end - start <= MAX_EDIT_HELPER_SIDE_SPAN) {
+            return { start, end }
+        }
+
+        const viewportCenter = (viewportSegment.start + viewportSegment.end) / 2
+        const clampedCenter = buildingMapGeometryService.clampValue(
+            viewportCenter,
+            start + MAX_EDIT_HELPER_SIDE_SPAN / 2,
+            end - MAX_EDIT_HELPER_SIDE_SPAN / 2
+        )
+
+        return {
+            start: Math.floor(clampedCenter - MAX_EDIT_HELPER_SIDE_SPAN / 2),
+            end: Math.ceil(clampedCenter + MAX_EDIT_HELPER_SIDE_SPAN / 2)
+        }
+    }
+
     const baseAddZoneHandles = computed(() => {
         if (
             properties.mode === BuildingMapMode.VIEW
@@ -503,6 +549,7 @@ export const useBuildingMap = (properties: BuildingMapProperties, emit: Building
             || isPostInteractionSettling.value
             || areEditHelpersSuspended.value
             || properties.isEditingZone
+            || unitSize.value < MIN_UNIT_SIZE_FOR_EDIT_HELPERS
         ) return []
 
         const handles: AddZoneHandle[] = []
@@ -537,10 +584,13 @@ export const useBuildingMap = (properties: BuildingMapProperties, emit: Building
                 )
 
                 for (const slice of slices) {
+                    const visibleSlice = getVisibleSideSlice(side, slice, currentViewport)
+                    if (!visibleSlice) continue
+
                     const addSegments = createAddSegmentsForFreeSlice(
                         zone,
                         side,
-                        slice,
+                        visibleSlice,
                         doorsCount,
                         regularBlockingZones,
                         regularDoors
@@ -792,7 +842,10 @@ export const useBuildingMap = (properties: BuildingMapProperties, emit: Building
             hoveredCoordinate: hoveredAddHandleCoordinate.value,
             auraSourceZones,
             auraSourceDoors,
-            otherFloorEntranceDoorChecks: otherFloorEntranceDoorChecks.value
+            otherFloorEntranceDoorChecks: otherFloorEntranceDoorChecks.value,
+            fallbackTransitionSegments: lastValidAddHandleTransitionSegments.value?.key === handle.key
+                ? lastValidAddHandleTransitionSegments.value.segments
+                : []
         })
     }
 
@@ -809,7 +862,20 @@ export const useBuildingMap = (properties: BuildingMapProperties, emit: Building
             hoveredAddHandleCoordinate.value
         )
 
-        return getCursorAdjustedAddHandle(shiftedHandle)
+        const adjustedHandle = getCursorAdjustedAddHandle(shiftedHandle)
+
+        if (adjustedHandle.transitionSegments.length > 0) {
+            lastValidAddHandleTransitionSegments.value = {
+                key: adjustedHandle.key,
+                segments: adjustedHandle.transitionSegments.map((segment) => ({
+                    start: segment.start,
+                    end: segment.end,
+                    outward: segment.outward
+                }))
+            }
+        }
+
+        return adjustedHandle
     })
 
     const transitionPreviewHandle = computed(() => {
@@ -1159,10 +1225,6 @@ export const useBuildingMap = (properties: BuildingMapProperties, emit: Building
     }
 
     const clearStaleAddHandleHover = (event: MouseEvent) => {
-        if (!activeAction.value && areEditHelpersSuspended.value) {
-            releasePostInteractionSettling()
-        }
-
         if (!hoveredAddHandleKey.value && !hoveredAddDoorHandleKey.value) return
 
         const target = event.target
@@ -1223,6 +1285,53 @@ export const useBuildingMap = (properties: BuildingMapProperties, emit: Building
         resizeDependenciesRequestId += 1
     }
 
+    const getResizePreviewSignature = (
+        action: BuildingMapResizeAction,
+        deltaX: number,
+        deltaY: number
+    ) => {
+        let nextX = action.startX
+        let nextY = action.startY
+        let nextWidth = action.startWidth
+        let nextHeight = action.startHeight
+
+        if (action.edge.includes('left')) {
+            nextX = action.startX + deltaX
+            nextWidth = action.startWidth - deltaX
+        }
+
+        if (action.edge.includes('right')) {
+            nextWidth = action.startWidth + deltaX
+        }
+
+        if (action.edge.includes('top')) {
+            nextY = action.startY + deltaY
+            nextHeight = action.startHeight - deltaY
+        }
+
+        if (action.edge.includes('bottom')) {
+            nextHeight = action.startHeight + deltaY
+        }
+
+        return [
+            action.hasLoadedDependencies ? 'deps' : 'base',
+            Math.round(nextX),
+            Math.round(nextY),
+            Math.max(BUILDING_MAP_GEOMETRY_CONSTANTS.MIN_ZONE_SIZE, Math.round(nextWidth)),
+            Math.max(BUILDING_MAP_GEOMETRY_CONSTANTS.MIN_ZONE_SIZE, Math.round(nextHeight))
+        ].join(':')
+    }
+
+    const getMovePreviewSignature = (
+        action: BuildingMapMoveAction,
+        deltaX: number,
+        deltaY: number
+    ) => [
+        action.hasLoadedDependencies ? 'deps' : 'base',
+        Math.round(action.startX + deltaX),
+        Math.round(action.startY + deltaY)
+    ].join(':')
+
     const processMouseMove = (event: MouseEvent) => {
         const action = activeAction.value
         if (!action) return
@@ -1253,6 +1362,17 @@ export const useBuildingMap = (properties: BuildingMapProperties, emit: Building
         if (action.type === BuildingMapActionType.MOVE) {
             action.currentDeltaX = deltaX
             action.currentDeltaY = deltaY
+            const movePreviewSignature = getMovePreviewSignature(action, deltaX, deltaY)
+            if (
+                action.lastPreviewSignature === movePreviewSignature
+                && previewZones.value
+                && !blockedGeometryPreview.value
+            ) {
+                return
+            }
+
+            action.lastPreviewSignature = movePreviewSignature
+
             const result = buildingMapZoneTransformService.getMovePreview({
                 zones: getZonesSource().map((item) => ({...item})),
                 deltaX,
@@ -1299,6 +1419,17 @@ export const useBuildingMap = (properties: BuildingMapProperties, emit: Building
         action.currentDeltaX = deltaX
         action.currentDeltaY = deltaY
 
+        const resizePreviewSignature = getResizePreviewSignature(action, deltaX, deltaY)
+        if (
+            action.lastPreviewSignature === resizePreviewSignature
+            && previewZones.value
+            && !blockedGeometryPreview.value
+        ) {
+            return
+        }
+
+        action.lastPreviewSignature = resizePreviewSignature
+
         const candidate = applyResizeDelta(
             action.zone,
             action.edge,
@@ -1334,10 +1465,47 @@ export const useBuildingMap = (properties: BuildingMapProperties, emit: Building
     const startPostInteractionSettling = () => {
         isPostInteractionSettling.value = true
         areEditHelpersSuspended.value = true
+
+        if (postInteractionReleaseTimeout !== null) {
+            window.clearTimeout(postInteractionReleaseTimeout)
+        }
+
+        if (postInteractionIdleCallback !== null && window.cancelIdleCallback) {
+            window.cancelIdleCallback(postInteractionIdleCallback)
+            postInteractionIdleCallback = null
+        }
+
+        postInteractionReleaseTimeout = window.setTimeout(() => {
+            postInteractionReleaseTimeout = null
+
+            if (activeAction.value) return
+
+            if (window.requestIdleCallback) {
+                postInteractionIdleCallback = window.requestIdleCallback(() => {
+                    postInteractionIdleCallback = null
+                    releasePostInteractionSettling()
+                }, { timeout: 900 })
+                return
+            }
+
+            window.requestAnimationFrame(() => {
+                window.requestAnimationFrame(releasePostInteractionSettling)
+            })
+        }, 350)
     }
 
     const releasePostInteractionSettling = () => {
         if (!isPostInteractionSettling.value && !areEditHelpersSuspended.value) return
+
+        if (postInteractionReleaseTimeout !== null) {
+            window.clearTimeout(postInteractionReleaseTimeout)
+            postInteractionReleaseTimeout = null
+        }
+
+        if (postInteractionIdleCallback !== null && window.cancelIdleCallback) {
+            window.cancelIdleCallback(postInteractionIdleCallback)
+            postInteractionIdleCallback = null
+        }
 
         isPostInteractionSettling.value = false
         areEditHelpersSuspended.value = false
@@ -1507,6 +1675,7 @@ export const useBuildingMap = (properties: BuildingMapProperties, emit: Building
             || isMapInteracting.value
             || isPostInteractionSettling.value
             || areEditHelpersSuspended.value
+            || unitSize.value < MIN_UNIT_SIZE_FOR_EDIT_HELPERS
         ) return []
 
         const zones = getAddZoneSourceZones()
@@ -1531,6 +1700,7 @@ export const useBuildingMap = (properties: BuildingMapProperties, emit: Building
         && !isMapInteracting.value
         && !isPostInteractionSettling.value
         && !areEditHelpersSuspended.value
+        && unitSize.value >= MIN_UNIT_SIZE_FOR_EDIT_HELPERS
     )
 
     const applyHoveredAddHandle = (key: string, clientX?: number, clientY?: number) => {
@@ -1619,6 +1789,7 @@ export const useBuildingMap = (properties: BuildingMapProperties, emit: Building
         hoveredAddHandleKey.value = ''
         hoveredAddHandleSnapshot.value = null
         hoveredAddHandleCoordinate.value = null
+        lastValidAddHandleTransitionSegments.value = null
         blockedGeometryPreview.value = null
     }
 

@@ -561,7 +561,7 @@ export const useBuildingView = () => {
         pendingZonePayload.value = payload
         zoneTitleValue.value = (payload.title || payload.regular_payload?.title || payload.transition_payload?.title || '').trim()
         zoneCanCreateTransition.value = payload.can_create_transition && !!payload.transition_payload
-        zoneHideTypeTabs.value = Boolean(payload.hide_type_tabs)
+        zoneHideTypeTabs.value = Boolean(payload.hide_type_tabs || !zoneCanCreateTransition.value)
         zoneIsTransitionBetweenFloors.value = false
         zoneCreateErrorMessage.value = ''
         isZoneCreateModalOpen.value = true

@@ -58,10 +58,11 @@ class BuildingMapRenderedDoorService {
                 ? params.baseAddZoneHandles.find((item) => item.key === handle.key) || handle
                 : null
 
-            const otherFloorTransitionCoordinate = baseHoveredHandle
-                ? buildingMapTransitionService.getNearestTransitionCoordinate(
-                    baseHoveredHandle.baseTransitionSegments,
-                    params.hoveredAddHandleCoordinate
+            const otherFloorTransitionCoordinate = baseHoveredHandle && params.hoveredAddHandleCoordinate !== null
+                ? buildingMapGeometryService.clampValue(
+                    params.hoveredAddHandleCoordinate,
+                    baseHoveredHandle.baseSegment.start,
+                    baseHoveredHandle.baseSegment.end
                 )
                 : null
 
@@ -123,7 +124,40 @@ class BuildingMapRenderedDoorService {
                 ? candidateHandleRect
                 : null
 
+            const preferredOtherFloorHoverPlacementGroups =
+                isOtherFloorEntranceDoor
+                && handleRect
+                && handle
+                && otherFloorTransitionCoordinate !== null
+                && handle.transitionSegments.length > 0
+                    ? buildingMapEntranceDoorPlacementContextService.getBestOtherFloorEntranceDoorPlacementGroupsForTransition(
+                        zoneTo,
+                        entranceSide,
+                        params.door.floor_id,
+                        handle.sourceZone,
+                        handle.side,
+                        handle.transitionSegments,
+                        renderedZonesForDoorFloor,
+                        sortedSideDoors.length,
+                        otherFloorTransitionCoordinate
+                    )
+                    : []
+
+            const currentFloorRegularHoverPlacementGroups =
+                !isOtherFloorEntranceDoor && handleRect
+                    ? buildingMapEntranceDoorPlacementContextService.getEntranceDoorPlacementGroupsAfterRegularZoneAdd(
+                        zoneTo,
+                        entranceSide,
+                        params.door.floor_id,
+                        handleRect,
+                        renderedZonesForDoorFloor,
+                        sortedSideDoors.length
+                    )
+                    : []
+
             const hardHoverPlacementGroups = handleRect
+                && currentFloorRegularHoverPlacementGroups.length === 0
+                && preferredOtherFloorHoverPlacementGroups.length === 0
                 ? buildingMapEntranceDoorPlacementContextService.getEntranceDoorPlacementGroupsForCandidate(
                     zoneTo,
                     entranceSide,
@@ -170,7 +204,11 @@ class BuildingMapRenderedDoorService {
                     : []
 
             const hoverPlacementGroups = handleRect
-                ? hardHoverPlacementGroups.length > 0
+                ? currentFloorRegularHoverPlacementGroups.length > 0
+                    ? currentFloorRegularHoverPlacementGroups
+                    : preferredOtherFloorHoverPlacementGroups.length > 0
+                    ? preferredOtherFloorHoverPlacementGroups
+                    : hardHoverPlacementGroups.length > 0
                     ? hardHoverPlacementGroups
                     : softHoverPlacementGroups.length > 0
                         ? softHoverPlacementGroups

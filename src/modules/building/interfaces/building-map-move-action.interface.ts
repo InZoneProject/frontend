@@ -13,4 +13,5 @@ export interface BuildingMapMoveAction {
     lastValidDeltaX: number
     lastValidDeltaY: number
     hasLoadedDependencies: boolean
+    lastPreviewSignature?: string
 }

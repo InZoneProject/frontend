@@ -17,4 +17,5 @@ export interface BuildingMapResizeAction {
     currentDeltaX: number
     currentDeltaY: number
     hasLoadedDependencies: boolean
+    lastPreviewSignature?: string
 }

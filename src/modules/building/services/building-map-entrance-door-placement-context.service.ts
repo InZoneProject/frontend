@@ -827,17 +827,187 @@ class BuildingMapEntranceDoorPlacementContextService {
             }
         }
 
-        return this.getEntranceDoorPlacementGroupsFromFreeSegments(
+        const softBlockingRectangles = shouldCandidateBlockDoorAura
+            ? []
+            : [candidateRect]
+        const candidateSegment = buildingMapSideService.getSideSegment(candidateRect, side)
+        const preferredCoordinate = candidateSegment.start + (candidateSegment.end - candidateSegment.start) / 2
+        const normalPlacementGroups = this.getEntranceDoorPlacementGroupsForZones(
             zone,
             side,
             floorId,
-            freeSegments,
-            projectedZonesForDoorAura,
-            doorsCount,
-            shouldCandidateBlockDoorAura
-                ? []
-                : [candidateRect]
+            sourceZones,
+            doorsCount
         )
+        const blockingRectangles = projectedZonesForDoorAura
+            .filter((sourceZone) =>
+                    sourceZone.zone_id !== zone.zone_id
+                    && (
+                        sourceZone.floor_id === floorId
+                        || sourceZone.is_transition_between_floors
+                        || zone.is_transition_between_floors
+                    )
+            )
+            .map((sourceZone) => buildingMapGeometryService.toRectangle(sourceZone))
+
+        if (
+            normalPlacementGroups.length > 0
+            && this.areEntranceDoorPlacementGroupsValidInSegments(
+                buildingMapGeometryService.toRectangle(zone),
+                side,
+                normalPlacementGroups,
+                freeSegments,
+                [
+                    ...blockingRectangles,
+                    ...softBlockingRectangles
+                ]
+            )
+        ) {
+            return normalPlacementGroups
+        }
+
+        const placementCandidates = [
+            this.getEntranceDoorPlacementGroupsFromFreeSegments(
+                zone,
+                side,
+                floorId,
+                freeSegments,
+                projectedZonesForDoorAura,
+                doorsCount,
+                softBlockingRectangles
+            ),
+            ...(doorsCount > 1
+                ? this.getEntranceDoorPlacementGroupCandidatesFromFreeSegments(
+                    zone,
+                    side,
+                    floorId,
+                    freeSegments,
+                    projectedZonesForDoorAura,
+                    doorsCount,
+                    preferredCoordinate,
+                    softBlockingRectangles
+                )
+                : [])
+        ].filter((placementGroups) => placementGroups.length > 0)
+
+        if (placementCandidates.length === 0) return []
+
+        return placementCandidates
+            .slice()
+            .sort((first, second) => {
+                const firstSplitScore = this.getEntranceDoorSplitScoreForAddSegment(candidateSegment, first)
+                const secondSplitScore = this.getEntranceDoorSplitScoreForAddSegment(candidateSegment, second)
+
+                if (firstSplitScore !== secondSplitScore) return secondSplitScore - firstSplitScore
+
+                const firstMovement = this.getEntranceDoorPlacementGroupsMovement(
+                    normalPlacementGroups,
+                    first
+                )
+                const secondMovement = this.getEntranceDoorPlacementGroupsMovement(
+                    normalPlacementGroups,
+                    second
+                )
+
+                if (!buildingMapGeometryService.isSameCoordinate(firstMovement, secondMovement)) {
+                    return firstMovement - secondMovement
+                }
+
+                const firstSpan = Math.max(...first.map((group) => group.placement.end))
+                    - Math.min(...first.map((group) => group.placement.start))
+                const secondSpan = Math.max(...second.map((group) => group.placement.end))
+                    - Math.min(...second.map((group) => group.placement.start))
+
+                if (!buildingMapGeometryService.isSameCoordinate(firstSpan, secondSpan)) {
+                    return firstSpan - secondSpan
+                }
+
+                return this.getEntranceDoorPlacementGroupsSignature(first)
+                    .localeCompare(this.getEntranceDoorPlacementGroupsSignature(second))
+            })[0]
+    }
+
+    public getEntranceDoorPlacementGroupsAfterRegularZoneAdd(
+        zone: ZoneMapItem,
+        side: 'left' | 'right' | 'top' | 'bottom',
+        floorId: number,
+        candidateRect: BuildingMapRectangle,
+        sourceZones: ZoneMapItem[],
+        doorsCount: number
+    ) {
+        if (doorsCount <= 0) return []
+
+        const projectedCandidateZone: ZoneMapItem = {
+            ...zone,
+            zone_id: -1,
+            floor_id: floorId,
+            is_transition_between_floors: false,
+            x_coordinate: candidateRect.x,
+            y_coordinate: candidateRect.y,
+            width: candidateRect.width,
+            height: candidateRect.height
+        }
+
+        return this.getEntranceDoorPlacementGroupsForZones(
+            zone,
+            side,
+            floorId,
+            [
+                ...sourceZones.filter((sourceZone) => sourceZone.zone_id !== -1),
+                projectedCandidateZone
+            ],
+            doorsCount
+        )
+    }
+
+    private areEntranceDoorPlacementGroupsValidInSegments(
+        zoneRect: BuildingMapRectangle,
+        side: 'left' | 'right' | 'top' | 'bottom',
+        placementGroups: BuildingMapDoorPlacementGroup[],
+        freeSegments: BuildingMapSegment[],
+        blockingRectangles: BuildingMapRectangle[]
+    ) {
+        return placementGroups.every((group) => {
+            const isInsideFreeSegment = freeSegments.some((segment) =>
+                group.placement.start >= segment.start - BUILDING_MAP_GEOMETRY_CONSTANTS.EPSILON
+                && group.placement.end <= segment.end + BUILDING_MAP_GEOMETRY_CONSTANTS.EPSILON
+            )
+
+            if (!isInsideFreeSegment) return false
+
+            const auraRectangle = this.getEntranceDoorAuraRectangle(
+                zoneRect,
+                side,
+                group.placement,
+                BUILDING_MAP_DOOR_CONSTANTS.ENTRANCE_DOOR_AURA_CLEARANCE
+            )
+
+            return !this.doesRectangleOverlapAny(auraRectangle, blockingRectangles)
+        })
+    }
+
+    private getEntranceDoorPlacementGroupsMovement(
+        sourcePlacementGroups: BuildingMapDoorPlacementGroup[],
+        candidatePlacementGroups: BuildingMapDoorPlacementGroup[]
+    ) {
+        if (sourcePlacementGroups.length !== candidatePlacementGroups.length) {
+            return Number.POSITIVE_INFINITY
+        }
+
+        return candidatePlacementGroups.reduce((total, candidateGroup) => {
+            const sourceGroup = sourcePlacementGroups.find((group) =>
+                group.startIndex === candidateGroup.startIndex
+            )
+
+            if (!sourceGroup) return Number.POSITIVE_INFINITY
+
+            const sourceCenter = sourceGroup.placement.start
+                + (sourceGroup.placement.end - sourceGroup.placement.start) / 2
+            const candidateCenter = candidateGroup.placement.start
+                + (candidateGroup.placement.end - candidateGroup.placement.start) / 2
+
+            return total + Math.abs(candidateCenter - sourceCenter)
+        }, 0)
     }
 
     public getEntranceDoorPlacementGroupsFromFreeSegments(
@@ -950,6 +1120,132 @@ class BuildingMapEntranceDoorPlacementContextService {
         return groups.sort((first, second) => first.startIndex - second.startIndex)
     }
 
+    private getEntranceDoorPlacementGroupCandidatesFromFreeSegments(
+        zone: ZoneMapItem,
+        side: 'left' | 'right' | 'top' | 'bottom',
+        floorId: number,
+        freeSegments: BuildingMapSegment[],
+        sourceZones: ZoneMapItem[],
+        doorsCount: number,
+        preferredCoordinate: number | null = null,
+        softBlockingRectangles: BuildingMapRectangle[] = []
+    ) {
+        if (doorsCount <= 0) return []
+
+        const validSegments = freeSegments
+            .filter((segment) => this.getDoorCapacityOnSegment(segment) > 0)
+            .sort((first, second) => first.start - second.start)
+        const totalCapacity = validSegments.reduce(
+            (total, segment) => total + this.getDoorCapacityOnSegment(segment),
+            0
+        )
+
+        if (totalCapacity < doorsCount) return []
+
+        const zoneRect = buildingMapGeometryService.toRectangle(zone)
+        const blockingRectangles = sourceZones
+            .filter((sourceZone) =>
+                    sourceZone.zone_id !== zone.zone_id
+                    && (
+                        sourceZone.floor_id === floorId
+                        || sourceZone.is_transition_between_floors
+                        || zone.is_transition_between_floors
+                    )
+            )
+            .map((sourceZone) => buildingMapGeometryService.toRectangle(sourceZone))
+        const candidates: BuildingMapDoorPlacementGroup[][] = []
+        const doorSize = BUILDING_MAP_DOOR_CONSTANTS.DOOR_SIZE
+
+        const buildAllocations = (
+            segmentIndex: number,
+            remainingDoors: number,
+            allocations: number[]
+        ) => {
+            if (segmentIndex === validSegments.length) {
+                if (remainingDoors !== 0) return
+
+                const groups: BuildingMapDoorPlacementGroup[] = []
+                let doorIndex = 0
+
+                for (let index = 0; index < allocations.length; index += 1) {
+                    const segment = validSegments[index]
+                    const segmentDoorsCount = allocations[index]
+
+                    if (!segment || segmentDoorsCount <= 0) continue
+
+                    const preferredCenter = preferredCoordinate === null
+                        ? null
+                        : segment.end <= preferredCoordinate + BUILDING_MAP_GEOMETRY_CONSTANTS.EPSILON
+                            ? segment.start
+                            : segment.start >= preferredCoordinate - BUILDING_MAP_GEOMETRY_CONSTANTS.EPSILON
+                                ? segment.end
+                                : null
+
+                    const placement = this.findValidEntranceDoorBandInSegment(
+                        zoneRect,
+                        side,
+                        segment,
+                        segmentDoorsCount,
+                        blockingRectangles,
+                        BUILDING_MAP_DOOR_CONSTANTS.ENTRANCE_DOOR_AURA_CLEARANCE,
+                        preferredCenter,
+                        preferredCenter !== null,
+                        softBlockingRectangles
+                    )
+
+                    if (!placement) return
+
+                    for (let localIndex = 0; localIndex < segmentDoorsCount; localIndex += 1) {
+                        const center = this.getEntranceDoorCenterOnPlacement(
+                            placement,
+                            localIndex,
+                            segmentDoorsCount
+                        )
+
+                        groups.push({
+                            startIndex: doorIndex,
+                            doorsCount: 1,
+                            placement: {
+                                start: center - doorSize / 2,
+                                end: center + doorSize / 2
+                            }
+                        })
+                        doorIndex += 1
+                    }
+                }
+
+                candidates.push(groups.sort((first, second) => first.startIndex - second.startIndex))
+                return
+            }
+
+            const segment = validSegments[segmentIndex]
+            if (!segment) return
+
+            const capacity = Math.min(
+                this.getDoorCapacityOnSegment(segment),
+                remainingDoors
+            )
+
+            for (let count = 0; count <= capacity; count += 1) {
+                const remainingSegmentsCapacity = validSegments
+                    .slice(segmentIndex + 1)
+                    .reduce((total, item) => total + this.getDoorCapacityOnSegment(item), 0)
+
+                if (remainingDoors - count > remainingSegmentsCapacity) continue
+
+                buildAllocations(
+                    segmentIndex + 1,
+                    remainingDoors - count,
+                    [...allocations, count]
+                )
+            }
+        }
+
+        buildAllocations(0, doorsCount, [])
+
+        return candidates
+    }
+
     public getEntranceDoorSingleDoorPlacementCandidates(
         zone: ZoneMapItem,
         side: 'left' | 'right' | 'top' | 'bottom',
@@ -985,7 +1281,7 @@ class BuildingMapEntranceDoorPlacementContextService {
             const startMin = Math.ceil(segment.start - BUILDING_MAP_GEOMETRY_CONSTANTS.EPSILON)
             const startMax = Math.floor(segment.end - doorSize + BUILDING_MAP_GEOMETRY_CONSTANTS.EPSILON)
 
-            for (let start = startMin; start <= startMax; start += 1) {
+            for (let start = startMin; start <= startMax + BUILDING_MAP_GEOMETRY_CONSTANTS.EPSILON; start += 0.5) {
                 const band = {
                     start,
                     end: start + doorSize
@@ -1039,13 +1335,214 @@ class BuildingMapEntranceDoorPlacementContextService {
         return candidates
     }
 
+    private getEntranceDoorPlacementCandidatesForTransition(
+        doorZone: ZoneMapItem,
+        doorSide: 'left' | 'right' | 'top' | 'bottom',
+        floorId: number,
+        sourceZone: ZoneMapItem,
+        sourceSide: 'left' | 'right' | 'top' | 'bottom',
+        transitionSegments: BuildingMapTransitionSegment[],
+        sourceZones: ZoneMapItem[],
+        doorsCount: number,
+        preferredCoordinate: number
+    ) {
+        const candidates: BuildingMapDoorPlacementGroup[][] = []
+        const signatures = new Set<string>()
+        const addCandidate = (placementGroups: BuildingMapDoorPlacementGroup[]) => {
+            if (placementGroups.length === 0) return
+
+            const signature = this.getEntranceDoorPlacementGroupsSignature(placementGroups)
+            if (signatures.has(signature)) return
+
+            signatures.add(signature)
+            candidates.push(placementGroups)
+        }
+
+        const getSubSegments = (transitionSegment: BuildingMapTransitionSegment) => {
+            const segmentStart = Math.ceil(transitionSegment.start - BUILDING_MAP_GEOMETRY_CONSTANTS.EPSILON)
+            const segmentEnd = Math.floor(transitionSegment.end + BUILDING_MAP_GEOMETRY_CONSTANTS.EPSILON)
+            const segmentLength = segmentEnd - segmentStart
+            const subSegments: BuildingMapTransitionSegment[] = []
+            const subSegmentSignatures = new Set<string>()
+            const addSubSegment = (start: number, end: number) => {
+                const safeStart = Math.max(segmentStart, Math.min(start, segmentEnd))
+                const safeEnd = Math.max(safeStart, Math.min(end, segmentEnd))
+
+                if (safeEnd - safeStart < BUILDING_MAP_GEOMETRY_CONSTANTS.MIN_ZONE_SIZE) return
+
+                const signature = `${safeStart}:${safeEnd}`
+                if (subSegmentSignatures.has(signature)) return
+
+                subSegmentSignatures.add(signature)
+                subSegments.push({
+                    start: safeStart,
+                    end: safeEnd,
+                    outward: transitionSegment.outward
+                })
+            }
+
+            addSubSegment(segmentStart, segmentEnd)
+
+            for (
+                let length = BUILDING_MAP_GEOMETRY_CONSTANTS.MIN_ZONE_SIZE;
+                length <= segmentLength;
+                length += 1
+            ) {
+                const centeredStart = Math.round(preferredCoordinate - length / 2)
+
+                addSubSegment(centeredStart, centeredStart + length)
+                addSubSegment(Math.floor(preferredCoordinate), Math.floor(preferredCoordinate) + length)
+                addSubSegment(Math.ceil(preferredCoordinate - length), Math.ceil(preferredCoordinate))
+            }
+
+            return subSegments
+        }
+
+        const baseFreeSegments = this.getEntranceDoorBaseFreeSegments(
+            doorZone,
+            doorSide,
+            floorId,
+            sourceZones
+        )
+
+        addCandidate(this.getEntranceDoorPlacementGroupsFromFreeSegments(
+            doorZone,
+            doorSide,
+            floorId,
+            baseFreeSegments,
+            sourceZones,
+            doorsCount
+        ))
+
+        for (const placementGroups of this.getEntranceDoorPlacementGroupCandidatesFromFreeSegments(
+            doorZone,
+            doorSide,
+            floorId,
+            baseFreeSegments,
+            sourceZones,
+            doorsCount,
+            preferredCoordinate
+        )) {
+            addCandidate(placementGroups)
+        }
+
+        for (const transitionSegment of transitionSegments) {
+            for (const subSegment of getSubSegments(transitionSegment)) {
+                const transitionRect = buildingMapSideService.getSideSliceRectangle(
+                    sourceZone,
+                    sourceSide,
+                    subSegment.start,
+                    subSegment.end,
+                    subSegment.outward
+                )
+                let freeSegments = baseFreeSegments
+                const blockedSegments = this.getEntranceDoorBlockedSegmentsForZone(
+                    buildingMapGeometryService.toRectangle(doorZone),
+                    transitionRect,
+                    doorSide,
+                    BUILDING_MAP_DOOR_CONSTANTS.ENTRANCE_DOOR_AURA_CLEARANCE,
+                    true
+                )
+
+                for (const blockedSegment of blockedSegments) {
+                    freeSegments = this.subtractSegment(freeSegments, blockedSegment)
+                }
+
+                addCandidate(this.getEntranceDoorPlacementGroupsFromFreeSegments(
+                    doorZone,
+                    doorSide,
+                    floorId,
+                    freeSegments,
+                    sourceZones,
+                    doorsCount
+                ))
+
+                for (const placementGroups of this.getEntranceDoorPlacementGroupCandidatesFromFreeSegments(
+                    doorZone,
+                    doorSide,
+                    floorId,
+                    freeSegments,
+                    sourceZones,
+                    doorsCount,
+                    preferredCoordinate
+                )) {
+                    addCandidate(placementGroups)
+                }
+            }
+        }
+
+        return candidates
+    }
+
+    private getDoorPlacementDistanceFromCenteredTransitionLayout(
+        sourceZone: ZoneMapItem,
+        sourceSide: 'left' | 'right' | 'top' | 'bottom',
+        transitionRun: BuildingMapTransitionSegment,
+        doorZone: ZoneMapItem,
+        doorSide: 'left' | 'right' | 'top' | 'bottom',
+        floorId: number,
+        sourceZones: ZoneMapItem[],
+        placementGroups: BuildingMapDoorPlacementGroup[],
+        doorsCount: number
+    ) {
+        const transitionRect = buildingMapSideService.getSideSliceRectangle(
+            sourceZone,
+            sourceSide,
+            transitionRun.start,
+            transitionRun.end,
+            transitionRun.outward
+        )
+        let freeSegments = this.getEntranceDoorBaseFreeSegments(
+            doorZone,
+            doorSide,
+            floorId,
+            sourceZones
+        )
+        const blockedSegments = this.getEntranceDoorBlockedSegmentsForZone(
+            buildingMapGeometryService.toRectangle(doorZone),
+            transitionRect,
+            doorSide,
+            BUILDING_MAP_DOOR_CONSTANTS.ENTRANCE_DOOR_AURA_CLEARANCE,
+            true
+        )
+
+        for (const blockedSegment of blockedSegments) {
+            freeSegments = this.subtractSegment(freeSegments, blockedSegment)
+        }
+
+        const centeredGroups = this.getEntranceDoorPlacementGroupsFromFreeSegments(
+            doorZone,
+            doorSide,
+            floorId,
+            freeSegments,
+            sourceZones,
+            doorsCount
+        )
+
+        if (centeredGroups.length !== placementGroups.length) return Number.POSITIVE_INFINITY
+
+        return placementGroups.reduce((total, group) => {
+            const centeredGroup = centeredGroups.find((item) => item.startIndex === group.startIndex)
+            if (!centeredGroup) return Number.POSITIVE_INFINITY
+
+            const groupCenter = group.placement.start + (group.placement.end - group.placement.start) / 2
+            const centeredGroupCenter = centeredGroup.placement.start
+                + (centeredGroup.placement.end - centeredGroup.placement.start) / 2
+
+            return total + Math.abs(groupCenter - centeredGroupCenter)
+        }, 0)
+    }
+
     public getTransitionScoreForEntranceDoorPlacementGroups(
         sourceZone: ZoneMapItem,
         sourceSide: 'left' | 'right' | 'top' | 'bottom',
         transitionSegments: BuildingMapTransitionSegment[],
         doorZone: ZoneMapItem,
         doorSide: 'left' | 'right' | 'top' | 'bottom',
+        floorId: number,
+        sourceZones: ZoneMapItem[],
         placementGroups: BuildingMapDoorPlacementGroup[],
+        doorsCount: number,
         preferredCoordinate: number
     ) {
         const auraRectangles = this.getEntranceDoorAuraRectanglesFromPlacementGroups(
@@ -1054,14 +1551,14 @@ class BuildingMapEntranceDoorPlacementContextService {
             placementGroups
         )
 
-        const greenCells = new Set<number>()
+        const greenCells = new Map<number, number>()
 
         for (const transitionSegment of transitionSegments) {
             const start = Math.ceil(transitionSegment.start - BUILDING_MAP_GEOMETRY_CONSTANTS.EPSILON)
             const end = Math.floor(transitionSegment.end + BUILDING_MAP_GEOMETRY_CONSTANTS.EPSILON)
 
             for (let cell = start; cell < end; cell += 1) {
-                let hasSafeDepth = false
+                let safeDepth = 0
 
                 for (
                     let depth = transitionSegment.outward;
@@ -1081,19 +1578,26 @@ class BuildingMapEntranceDoorPlacementContextService {
                     )
 
                     if (!overlapsAura) {
-                        hasSafeDepth = true
+                        safeDepth = depth
                         break
                     }
                 }
 
-                if (hasSafeDepth) greenCells.add(cell)
+                if (safeDepth > 0) {
+                    const existingDepth = greenCells.get(cell) || 0
+                    greenCells.set(cell, Math.max(existingDepth, safeDepth))
+                }
             }
         }
 
-        const sortedGreenCells = [...greenCells].sort((first, second) => first - second)
+        const sortedGreenCells = [...greenCells.keys()].sort((first, second) => first - second)
         let containingRunLength = 0
         let containingRunStart = 0
         let containingRunEnd = 0
+        let containingRunCenterDistance = Number.POSITIVE_INFINITY
+        let largestRunStart = 0
+        let largestRunEnd = 0
+        let largestRunOutward = 0
         let largestRunLength = 0
         let nearestDistance = Number.POSITIVE_INFINITY
         let cursor = 0
@@ -1109,7 +1613,18 @@ class BuildingMapEntranceDoorPlacementContextService {
             }
 
             const runLength = end - start
-            largestRunLength = Math.max(largestRunLength, runLength)
+            const runOutward = Math.min(
+                ...sortedGreenCells
+                    .filter((cell) => cell >= start && cell < end)
+                    .map((cell) => greenCells.get(cell) || 0)
+            )
+
+            if (runLength > largestRunLength) {
+                largestRunLength = runLength
+                largestRunStart = start
+                largestRunEnd = end
+                largestRunOutward = runOutward
+            }
 
             if (
                 preferredCoordinate >= start - BUILDING_MAP_GEOMETRY_CONSTANTS.EPSILON
@@ -1119,6 +1634,14 @@ class BuildingMapEntranceDoorPlacementContextService {
                     containingRunLength = runLength
                     containingRunStart = start
                     containingRunEnd = end
+                    containingRunCenterDistance = Math.abs(
+                        preferredCoordinate - (start + (end - start) / 2)
+                    )
+                } else if (runLength === containingRunLength) {
+                    containingRunCenterDistance = Math.min(
+                        containingRunCenterDistance,
+                        Math.abs(preferredCoordinate - (start + (end - start) / 2))
+                    )
                 }
 
                 nearestDistance = 0
@@ -1151,16 +1674,35 @@ class BuildingMapEntranceDoorPlacementContextService {
                 band.start >= containingRunEnd - BUILDING_MAP_GEOMETRY_CONSTANTS.EPSILON
             ).length
             : 0
+        const centeredPlacementDistance = largestRunLength > 0
+            ? this.getDoorPlacementDistanceFromCenteredTransitionLayout(
+                sourceZone,
+                sourceSide,
+                {
+                    start: largestRunStart,
+                    end: largestRunEnd,
+                    outward: largestRunOutward
+                },
+                doorZone,
+                doorSide,
+                floorId,
+                sourceZones,
+                placementGroups,
+                doorsCount
+            )
+            : Number.POSITIVE_INFINITY
 
         return {
             containsPreferredCoordinate: containingRunLength > 0,
             containingRunLength,
+            containingRunCenterDistance,
             totalGreenLength: greenCells.size,
             largestRunLength,
             nearestDistance,
             splitDoorsScore: hasGreenRunOnBothSides
                 ? Math.min(doorsBeforeRun, doorsAfterRun)
                 : 0,
+            centeredPlacementDistance,
             placementSpan: placementGroups.length > 0
                 ? Math.max(...placementGroups.map((group) => group.placement.end))
                 - Math.min(...placementGroups.map((group) => group.placement.start))
@@ -1179,12 +1721,16 @@ class BuildingMapEntranceDoorPlacementContextService {
         doorsCount: number,
         preferredCoordinate: number
     ) {
-        const placementCandidates = this.getEntranceDoorSingleDoorPlacementCandidates(
+        const placementCandidates = this.getEntranceDoorPlacementCandidatesForTransition(
             doorZone,
             doorSide,
             floorId,
+            sourceZone,
+            sourceSide,
+            transitionSegments,
             sourceZones,
-            doorsCount
+            doorsCount,
+            preferredCoordinate
         )
 
         let bestCandidate: typeof placementCandidates[number] | null = null
@@ -1197,7 +1743,10 @@ class BuildingMapEntranceDoorPlacementContextService {
                 transitionSegments,
                 doorZone,
                 doorSide,
+                floorId,
+                sourceZones,
                 placementCandidate,
+                doorsCount,
                 preferredCoordinate
             )
 
@@ -1206,41 +1755,86 @@ class BuildingMapEntranceDoorPlacementContextService {
                 || Number(score.containsPreferredCoordinate) > Number(bestScore.containsPreferredCoordinate)
                 || (
                     score.containsPreferredCoordinate === bestScore.containsPreferredCoordinate
-                    && score.splitDoorsScore > bestScore.splitDoorsScore
-                )
-                || (
-                    score.containsPreferredCoordinate === bestScore.containsPreferredCoordinate
-                    && score.splitDoorsScore === bestScore.splitDoorsScore
                     && score.containingRunLength > bestScore.containingRunLength
                 )
                 || (
                     score.containsPreferredCoordinate === bestScore.containsPreferredCoordinate
-                    && score.splitDoorsScore === bestScore.splitDoorsScore
                     && score.containingRunLength === bestScore.containingRunLength
-                    && score.placementSpan < bestScore.placementSpan
+                    && score.containingRunCenterDistance < bestScore.containingRunCenterDistance
                 )
                 || (
                     score.containsPreferredCoordinate === bestScore.containsPreferredCoordinate
-                    && score.splitDoorsScore === bestScore.splitDoorsScore
                     && score.containingRunLength === bestScore.containingRunLength
-                    && buildingMapGeometryService.isSameCoordinate(score.placementSpan, bestScore.placementSpan)
-                    && score.totalGreenLength > bestScore.totalGreenLength
-                )
-                || (
-                    score.containsPreferredCoordinate === bestScore.containsPreferredCoordinate
-                    && score.splitDoorsScore === bestScore.splitDoorsScore
-                    && score.containingRunLength === bestScore.containingRunLength
-                    && buildingMapGeometryService.isSameCoordinate(score.placementSpan, bestScore.placementSpan)
-                    && score.totalGreenLength === bestScore.totalGreenLength
+                    && buildingMapGeometryService.isSameCoordinate(
+                        score.containingRunCenterDistance,
+                        bestScore.containingRunCenterDistance
+                    )
                     && score.largestRunLength > bestScore.largestRunLength
                 )
                 || (
                     score.containsPreferredCoordinate === bestScore.containsPreferredCoordinate
-                    && score.splitDoorsScore === bestScore.splitDoorsScore
                     && score.containingRunLength === bestScore.containingRunLength
-                    && buildingMapGeometryService.isSameCoordinate(score.placementSpan, bestScore.placementSpan)
-                    && score.totalGreenLength === bestScore.totalGreenLength
+                    && buildingMapGeometryService.isSameCoordinate(
+                        score.containingRunCenterDistance,
+                        bestScore.containingRunCenterDistance
+                    )
                     && score.largestRunLength === bestScore.largestRunLength
+                    && score.totalGreenLength > bestScore.totalGreenLength
+                )
+                || (
+                    score.containsPreferredCoordinate === bestScore.containsPreferredCoordinate
+                    && score.containingRunLength === bestScore.containingRunLength
+                    && buildingMapGeometryService.isSameCoordinate(
+                        score.containingRunCenterDistance,
+                        bestScore.containingRunCenterDistance
+                    )
+                    && score.largestRunLength === bestScore.largestRunLength
+                    && score.totalGreenLength === bestScore.totalGreenLength
+                    && score.splitDoorsScore > bestScore.splitDoorsScore
+                )
+                || (
+                    score.containsPreferredCoordinate === bestScore.containsPreferredCoordinate
+                    && score.containingRunLength === bestScore.containingRunLength
+                    && buildingMapGeometryService.isSameCoordinate(
+                        score.containingRunCenterDistance,
+                        bestScore.containingRunCenterDistance
+                    )
+                    && score.largestRunLength === bestScore.largestRunLength
+                    && score.totalGreenLength === bestScore.totalGreenLength
+                    && score.splitDoorsScore === bestScore.splitDoorsScore
+                    && score.centeredPlacementDistance < bestScore.centeredPlacementDistance
+                )
+                || (
+                    score.containsPreferredCoordinate === bestScore.containsPreferredCoordinate
+                    && score.containingRunLength === bestScore.containingRunLength
+                    && buildingMapGeometryService.isSameCoordinate(
+                        score.containingRunCenterDistance,
+                        bestScore.containingRunCenterDistance
+                    )
+                    && score.largestRunLength === bestScore.largestRunLength
+                    && score.totalGreenLength === bestScore.totalGreenLength
+                    && score.splitDoorsScore === bestScore.splitDoorsScore
+                    && buildingMapGeometryService.isSameCoordinate(
+                        score.centeredPlacementDistance,
+                        bestScore.centeredPlacementDistance
+                    )
+                    && score.placementSpan < bestScore.placementSpan
+                )
+                || (
+                    score.containsPreferredCoordinate === bestScore.containsPreferredCoordinate
+                    && score.containingRunLength === bestScore.containingRunLength
+                    && buildingMapGeometryService.isSameCoordinate(
+                        score.containingRunCenterDistance,
+                        bestScore.containingRunCenterDistance
+                    )
+                    && score.largestRunLength === bestScore.largestRunLength
+                    && score.totalGreenLength === bestScore.totalGreenLength
+                    && score.splitDoorsScore === bestScore.splitDoorsScore
+                    && buildingMapGeometryService.isSameCoordinate(
+                        score.centeredPlacementDistance,
+                        bestScore.centeredPlacementDistance
+                    )
+                    && buildingMapGeometryService.isSameCoordinate(score.placementSpan, bestScore.placementSpan)
                     && score.nearestDistance < bestScore.nearestDistance
                 )
             ) {
@@ -1481,7 +2075,7 @@ class BuildingMapEntranceDoorPlacementContextService {
                 sourceZones,
                 sourceDoors,
                 check.doorsCount,
-                false,
+                true,
                 true
             )
 
