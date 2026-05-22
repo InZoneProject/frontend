@@ -66,10 +66,17 @@ class BuildingMapRenderedDoorService {
                 )
                 : null
 
-            const otherFloorTransitionSegment = handle && otherFloorTransitionCoordinate !== null
-                ? buildingMapTransitionService.getTransitionSegmentNearCoordinate(
+            const effectiveOtherFloorTransitionCoordinate = handle
+                ? buildingMapTransitionService.getNearestTransitionCoordinate(
                     handle.transitionSegments,
                     otherFloorTransitionCoordinate
+                )
+                : null
+
+            const otherFloorTransitionSegment = handle && effectiveOtherFloorTransitionCoordinate !== null
+                ? buildingMapTransitionService.getTransitionSegmentNearCoordinate(
+                    handle.transitionSegments,
+                    effectiveOtherFloorTransitionCoordinate
                 )
                 : null
 
@@ -128,7 +135,7 @@ class BuildingMapRenderedDoorService {
                 isOtherFloorEntranceDoor
                 && handleRect
                 && handle
-                && otherFloorTransitionCoordinate !== null
+                && effectiveOtherFloorTransitionCoordinate !== null
                 && handle.transitionSegments.length > 0
                     ? buildingMapEntranceDoorPlacementContextService.getBestOtherFloorEntranceDoorPlacementGroupsForTransition(
                         zoneTo,
@@ -139,7 +146,7 @@ class BuildingMapRenderedDoorService {
                         handle.transitionSegments,
                         renderedZonesForDoorFloor,
                         sortedSideDoors.length,
-                        otherFloorTransitionCoordinate
+                        effectiveOtherFloorTransitionCoordinate
                     )
                     : []
 

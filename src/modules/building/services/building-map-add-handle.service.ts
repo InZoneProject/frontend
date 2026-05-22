@@ -67,14 +67,16 @@ class BuildingMapAddHandleService {
         handleSize: number,
         depthCssValue = `calc(${BUILDING_MAP_HOVER_CONSTANTS.ADD_HANDLE_DEPTH} * var(--building-map-unit))`
     ): Record<string, string> {
+        const interactiveDepthCssValue = `max(12px, ${depthCssValue})`
+
         return {
             left: `calc(${center.centerX} * var(--building-map-unit))`,
             top: `calc(${center.centerY} * var(--building-map-unit))`,
             width: (side === 'left' || side === 'right')
-                ? depthCssValue
+                ? interactiveDepthCssValue
                 : `calc(${handleSize} * var(--building-map-unit))`,
             height: (side === 'top' || side === 'bottom')
-                ? depthCssValue
+                ? interactiveDepthCssValue
                 : `calc(${handleSize} * var(--building-map-unit))`
         }
     }
@@ -513,16 +515,6 @@ class BuildingMapAddHandleService {
         const addCandidate = (addSegment: BuildingMapSegment) => {
             if (addSegment.end - addSegment.start < BUILDING_MAP_GEOMETRY_CONSTANTS.MIN_ZONE_SIZE) return
 
-            if (!buildingMapEntranceDoorPlacementContextService.canPlaceEntranceDoorsAfterAddSegment(
-                params.zone,
-                params.side,
-                addSegment,
-                params.doorsCount,
-                params.sourceZones,
-                params.sourceDoors,
-                params.currentFloorId
-            )) return
-
             const duplicate = candidates.some((candidate) =>
                 buildingMapGeometryService.isSameCoordinate(candidate.addSegment.start, addSegment.start)
                 && buildingMapGeometryService.isSameCoordinate(candidate.addSegment.end, addSegment.end)
@@ -543,11 +535,11 @@ class BuildingMapAddHandleService {
         )
 
         const startMin = Math.ceil(params.slice.start - BUILDING_MAP_GEOMETRY_CONSTANTS.EPSILON)
-        for (
-            let length = maximumLength;
-            length >= BUILDING_MAP_GEOMETRY_CONSTANTS.MIN_ZONE_SIZE;
-            length -= 1
-        ) {
+        const minimumLength = params.doorsCount > 0
+            ? BUILDING_MAP_GEOMETRY_CONSTANTS.MIN_ZONE_SIZE
+            : maximumLength
+
+        for (let length = maximumLength; length >= minimumLength; length -= 1) {
             const startMax = Math.floor(params.slice.end - length + BUILDING_MAP_GEOMETRY_CONSTANTS.EPSILON)
 
             for (let start = startMin; start <= startMax; start += 1) {
@@ -1007,7 +999,11 @@ class BuildingMapAddHandleService {
             }
         }
 
-        return clippedSegments
+        const segments = clippedSegments.length > 0
+            ? clippedSegments
+            : safeTransitionSegments
+
+        return segments
             .sort((first, second) => {
                 const firstLength = first.end - first.start
                 const secondLength = second.end - second.start

@@ -32,9 +32,19 @@
 .building-map-door-reader-action {
     @apply absolute left-1/2 top-0 z-30 flex h-6 w-6 items-center justify-center rounded-full transition-colors;
 
+    opacity: 0;
+    visibility: hidden;
+    pointer-events: none;
     background-color: color-mix(in srgb, var(--color-main-bg), transparent 10%);
     color: var(--color-text-muted);
     box-shadow: 0 0 0 1px color-mix(in srgb, var(--color-card-border), transparent 30%);
+}
+
+.building-map.is-edit-actions-visible .building-map-door .building-map-door-delete,
+.building-map.is-edit-actions-visible .building-map-door .building-map-door-reader-action {
+    opacity: 1;
+    visibility: visible;
+    pointer-events: auto;
 }
 
 .building-map-door-reader-action {

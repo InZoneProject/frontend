@@ -35,8 +35,8 @@ const {
   zoneStyle,
   zoneActionStyle,
   zoneTitleStyle,
+  isZoneActionEligible,
   isZonePreviewed,
-  editableActionZones,
   getAddZoneHandles,
   getAddDoorHandles,
   setHoveredAddHandle,
@@ -121,16 +121,15 @@ const {
           :door="door"
           :is-current-floor="door.floor_id === properties.currentFloorId"
           :can-delete="door.door_id > 0 && properties.deletableDoorIds.includes(door.door_id)"
-          :are-actions-visible="properties.mode === BuildingMapMode.EDIT && !properties.isEditingZone && editingZoneId === 0 && !isMapInteracting"
           :is-scan-active="activeScannedDoorIds.includes(door.door_id)"
           @delete-door="handleDeleteDoor(door.door_id, door.is_entrance)"
           @open-door-reader="handleOpenDoorReader(door.door_id)"
       />
       <div
-          v-for="zone in editableActionZones"
+          v-for="zone in renderedZones"
           :key="`actions:${zone.zone_id}`"
           class="building-map-zone-actions-overlay"
-          :class="{ 'has-no-delete': !properties.deletableZoneIds.includes(zone.zone_id) }"
+          :class="{ 'has-no-delete': !properties.deletableZoneIds.includes(zone.zone_id), 'is-action-eligible': isZoneActionEligible(zone) }"
           :style="zoneActionStyle(zone)"
           @mousedown.stop
           @click.stop

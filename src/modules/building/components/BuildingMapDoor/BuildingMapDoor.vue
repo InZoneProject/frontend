@@ -19,13 +19,13 @@ const { doorClasses } = useBuildingMapDoor(properties)
       :style="properties.door.style"
   >
     <DoorReaderButton
-        v-if="properties.isCurrentFloor && properties.areActionsVisible"
+        v-if="properties.isCurrentFloor"
         class="building-map-door-reader-action"
         :has-reader="properties.door.rfid_reader_id !== null"
         @click="emit(Events.OPEN_DOOR_READER)"
     />
     <button
-        v-if="properties.isCurrentFloor && properties.areActionsVisible && properties.canDelete"
+        v-if="properties.isCurrentFloor && properties.canDelete"
         class="building-map-door-delete"
         type="button"
         @mousedown.stop

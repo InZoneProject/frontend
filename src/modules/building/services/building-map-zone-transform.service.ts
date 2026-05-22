@@ -131,7 +131,6 @@ class BuildingMapZoneTransformService {
         const actionInset = BUILDING_MAP_ZONE_UI_CONSTANTS.ACTION_INSET
         const {
             zoneWidth,
-            zoneHeight,
             actionSize,
             actionGap,
             actionsWidth,
@@ -143,18 +142,18 @@ class BuildingMapZoneTransformService {
             : (zoneWidth - actionsWidth) / 2
 
         return {
-            left: `${zone.x_coordinate * unitSize}px`,
-            top: `${zone.y_coordinate * unitSize}px`,
-            width: `${zoneWidth}px`,
-            height: `${zoneHeight}px`,
-            '--building-map-zone-upload-left': `${actionsStart}px`,
-            '--building-map-zone-upload-top': `${actionTop}px`,
+            left: `${zone.x_coordinate * unitSize + actionsStart}px`,
+            top: `${zone.y_coordinate * unitSize + actionTop}px`,
+            width: `${actionsWidth}px`,
+            height: `${actionSize}px`,
+            '--building-map-zone-upload-left': '0px',
+            '--building-map-zone-upload-top': '0px',
             '--building-map-zone-upload-transform': 'none',
-            '--building-map-zone-access-left': `${actionsStart + actionSize + actionGap}px`,
-            '--building-map-zone-access-top': `${actionTop}px`,
+            '--building-map-zone-access-left': `${actionSize + actionGap}px`,
+            '--building-map-zone-access-top': '0px',
             '--building-map-zone-access-transform': 'none',
-            '--building-map-zone-delete-left': `${actionsStart + (actionSize + actionGap) * 2}px`,
-            '--building-map-zone-delete-top': `${actionTop}px`,
+            '--building-map-zone-delete-left': `${(actionSize + actionGap) * 2}px`,
+            '--building-map-zone-delete-top': '0px',
             '--building-map-zone-delete-transform': 'none'
         }
     }

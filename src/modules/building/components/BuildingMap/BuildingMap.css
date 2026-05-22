@@ -348,7 +348,6 @@
     width: max-content;
     max-width: var(--building-map-zone-title-max-width);
     transition:
-            transform 180ms ease,
             opacity 180ms ease,
             background-color 180ms ease,
             color 180ms ease;
@@ -389,6 +388,14 @@
 
 .building-map-zone-actions-overlay {
     @apply pointer-events-none absolute z-150;
+
+    opacity: 0;
+    visibility: hidden;
+}
+
+.building-map.is-edit-actions-visible .building-map-zone-actions-overlay.is-action-eligible {
+    opacity: 1;
+    visibility: visible;
 }
 
 .building-map-zone-action-button {

@@ -4,6 +4,5 @@ export interface BuildingMapDoorProperties {
     door: RenderedDoor
     isCurrentFloor: boolean
     canDelete: boolean
-    areActionsVisible: boolean
     isScanActive: boolean
 }

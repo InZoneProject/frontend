@@ -123,10 +123,15 @@ export const useBuildingMap = (properties: BuildingMapProperties, emit: Building
     let pendingMapMoveEvent: MouseEvent | null = null
     let postInteractionReleaseTimeout: number | null = null
     let postInteractionIdleCallback: number | null = null
+    let deferredMapUiActionFrame: number | null = null
+    let deferredMapUiHelperTimeout: number | null = null
+    let deferredMapUiHelperIdleCallback: number | null = null
 
     const isWheelInteracting = ref(false)
     const isPostInteractionSettling = ref(false)
     const areEditHelpersSuspended = ref(false)
+    const areZoneActionsHydrated = ref(true)
+    const areEditHelpersHydrated = ref(true)
 
     const isResizingMap = computed(() => activeAction.value?.type === BuildingMapActionType.RESIZE)
     const isTransformingZone = computed(() =>
@@ -204,18 +209,24 @@ export const useBuildingMap = (properties: BuildingMapProperties, emit: Building
 
     const zoneStyle = (zone: ZoneMapItem) => buildingMapZoneTransformService.getZoneStyle(zone, unitSize.value)
 
-    const areZoneActionsVisible = (zone: ZoneMapItem) =>
+    const areEditActionsVisible = computed(() =>
         properties.mode === BuildingMapMode.EDIT
-        && (zone.floor_id === properties.currentFloorId || zone.is_transition_between_floors)
         && !properties.isEditingZone
         && editingZoneId.value === 0
         && !isMapInteracting.value
+        && !isPostInteractionSettling.value
+        && areZoneActionsHydrated.value
+    )
+
+    const isZoneActionEligible = (zone: ZoneMapItem) =>
+        zone.floor_id === properties.currentFloorId || zone.is_transition_between_floors
 
     const zoneTitleStyle = (zone: ZoneMapItem) => buildingMapZoneTransformService.getZoneTitleStyle(
         zone,
         unitSize.value,
         properties.mode === BuildingMapMode.VIEW,
-        areZoneActionsVisible(zone)
+        properties.mode === BuildingMapMode.EDIT
+        && isZoneActionEligible(zone)
     )
 
     const zoneActionStyle = (zone: ZoneMapItem) => buildingMapZoneTransformService.getZoneActionStyle(zone, unitSize.value)
@@ -504,11 +515,11 @@ export const useBuildingMap = (properties: BuildingMapProperties, emit: Building
         currentFloorId: properties.currentFloorId
     })
 
-    const getVisibleSideSlice = (
+    const getVisibleSideSlices = (
         side: 'left' | 'right' | 'top' | 'bottom',
         slice: BuildingMapSegment,
         viewport: ViewportBounds
-    ): BuildingMapSegment | null => {
+    ): BuildingMapSegment[] => {
         const helperMargin = BUILDING_MAP_GEOMETRY_CONSTANTS.MAX_ADDED_ZONE_SIDE
             + BUILDING_MAP_GEOMETRY_CONSTANTS.MIN_ZONE_SIZE
         const viewportSegment = side === 'left' || side === 'right'
@@ -523,10 +534,30 @@ export const useBuildingMap = (properties: BuildingMapProperties, emit: Building
         const start = Math.max(slice.start, Math.floor(viewportSegment.start))
         const end = Math.min(slice.end, Math.ceil(viewportSegment.end))
 
-        if (end - start < BUILDING_MAP_GEOMETRY_CONSTANTS.MIN_ZONE_SIZE) return null
+        if (end - start < BUILDING_MAP_GEOMETRY_CONSTANTS.MIN_ZONE_SIZE) return []
 
         if (end - start <= MAX_EDIT_HELPER_SIDE_SPAN) {
-            return { start, end }
+            return [{ start, end }]
+        }
+
+        const visibleSlices: BuildingMapSegment[] = []
+        const addVisibleSlice = (candidate: BuildingMapSegment) => {
+            const candidateStart = Math.max(start, Math.floor(candidate.start))
+            const candidateEnd = Math.min(end, Math.ceil(candidate.end))
+
+            if (candidateEnd - candidateStart < BUILDING_MAP_GEOMETRY_CONSTANTS.MIN_ZONE_SIZE) return
+
+            const isDuplicate = visibleSlices.some((visibleSlice) =>
+                buildingMapGeometryService.isSameCoordinate(visibleSlice.start, candidateStart)
+                && buildingMapGeometryService.isSameCoordinate(visibleSlice.end, candidateEnd)
+            )
+
+            if (!isDuplicate) {
+                visibleSlices.push({
+                    start: candidateStart,
+                    end: candidateEnd
+                })
+            }
         }
 
         const viewportCenter = (viewportSegment.start + viewportSegment.end) / 2
@@ -536,10 +567,26 @@ export const useBuildingMap = (properties: BuildingMapProperties, emit: Building
             end - MAX_EDIT_HELPER_SIDE_SPAN / 2
         )
 
-        return {
+        addVisibleSlice({
             start: Math.floor(clampedCenter - MAX_EDIT_HELPER_SIDE_SPAN / 2),
             end: Math.ceil(clampedCenter + MAX_EDIT_HELPER_SIDE_SPAN / 2)
+        })
+
+        if (slice.start >= viewportSegment.start - BUILDING_MAP_GEOMETRY_CONSTANTS.EPSILON) {
+            addVisibleSlice({
+                start: slice.start,
+                end: slice.start + MAX_EDIT_HELPER_SIDE_SPAN
+            })
         }
+
+        if (slice.end <= viewportSegment.end + BUILDING_MAP_GEOMETRY_CONSTANTS.EPSILON) {
+            addVisibleSlice({
+                start: slice.end - MAX_EDIT_HELPER_SIDE_SPAN,
+                end: slice.end
+            })
+        }
+
+        return visibleSlices
     }
 
     const baseAddZoneHandles = computed(() => {
@@ -548,11 +595,19 @@ export const useBuildingMap = (properties: BuildingMapProperties, emit: Building
             || isMapInteracting.value
             || isPostInteractionSettling.value
             || areEditHelpersSuspended.value
+            || !areEditHelpersHydrated.value
             || properties.isEditingZone
             || unitSize.value < MIN_UNIT_SIZE_FOR_EDIT_HELPERS
         ) return []
 
         const handles: AddZoneHandle[] = []
+        const handledKeys = new Set<string>()
+        const pushHandle = (handle: AddZoneHandle) => {
+            if (handledKeys.has(handle.key)) return
+
+            handledKeys.add(handle.key)
+            handles.push(handle)
+        }
 
         const regularBlockingZones = getRegularAddBlockingZonesSource()
         const regularDoors = getRegularAddDoorsSource()
@@ -584,48 +639,48 @@ export const useBuildingMap = (properties: BuildingMapProperties, emit: Building
                 )
 
                 for (const slice of slices) {
-                    const visibleSlice = getVisibleSideSlice(side, slice, currentViewport)
-                    if (!visibleSlice) continue
+                    const visibleSlices = getVisibleSideSlices(side, slice, currentViewport)
 
-                    const addSegments = createAddSegmentsForFreeSlice(
-                        zone,
-                        side,
-                        visibleSlice,
-                        doorsCount,
-                        regularBlockingZones,
-                        regularDoors
-                    )
-
-                    const sliceHandles: typeof handles = []
-
-                    for (const {addSegment, doorSegments} of addSegments) {
-                        void doorSegments
-
-                        const maxOutward = Math.min(
-                            BUILDING_MAP_GEOMETRY_CONSTANTS.MAX_ADDED_ZONE_SIDE,
-                            buildingMapTransitionService.getAvailableOutwardDepth(
-                                zone,
-                                side,
-                                addSegment.start,
-                                addSegment.end,
-                                regularBlockingZones
-                            )
-                        )
-
-                        if (maxOutward < BUILDING_MAP_GEOMETRY_CONSTANTS.MIN_ZONE_SIZE) continue
-
-                        const candidate = findBestValidAddCandidate(
+                    for (const visibleSlice of visibleSlices) {
+                        const addSegments = createAddSegmentsForFreeSlice(
                             zone,
                             side,
-                            addSegment,
-                            slices,
+                            visibleSlice,
                             doorsCount,
-                            maxOutward,
                             regularBlockingZones,
                             regularDoors
                         )
 
-                        if (!candidate) continue
+                        const sliceHandles: typeof handles = []
+
+                        for (const {addSegment, doorSegments} of addSegments) {
+                            void doorSegments
+
+                            const maxOutward = Math.min(
+                                BUILDING_MAP_GEOMETRY_CONSTANTS.MAX_ADDED_ZONE_SIDE,
+                                buildingMapTransitionService.getAvailableOutwardDepth(
+                                    zone,
+                                    side,
+                                    addSegment.start,
+                                    addSegment.end,
+                                    regularBlockingZones
+                                )
+                            )
+
+                            if (maxOutward < BUILDING_MAP_GEOMETRY_CONSTANTS.MIN_ZONE_SIZE) continue
+
+                            const candidate = findBestValidAddCandidate(
+                                zone,
+                                side,
+                                addSegment,
+                                slices,
+                                doorsCount,
+                                maxOutward,
+                                regularBlockingZones,
+                                regularDoors
+                            )
+
+                            if (!candidate) continue
 
                         const doorCollisionCandidate = getAddCandidateGeometry(
                             zone,
@@ -823,9 +878,10 @@ export const useBuildingMap = (properties: BuildingMapProperties, emit: Building
                         })
                     })
 
-                    handles.push(...filteredSliceHandles)
+                    filteredSliceHandles.forEach(pushHandle)
                 }
             }
+        }
         }
 
         return handles
@@ -990,16 +1046,6 @@ export const useBuildingMap = (properties: BuildingMapProperties, emit: Building
                     ? activeHandle
                     : handle
             )
-    })
-
-    const editableActionZones = computed(() => {
-        return renderedZones.value.filter((item) =>
-            properties.mode === BuildingMapMode.EDIT
-            && (item.floor_id === properties.currentFloorId || item.is_transition_between_floors)
-            && !properties.isEditingZone
-            && editingZoneId.value === 0
-            && !isMapInteracting.value
-        )
     })
 
     const applyResizeDelta = (
@@ -1462,7 +1508,60 @@ export const useBuildingMap = (properties: BuildingMapProperties, emit: Building
         })
     }
 
+    const cancelDeferredMapUiHydration = () => {
+        if (deferredMapUiActionFrame !== null) {
+            window.cancelAnimationFrame(deferredMapUiActionFrame)
+            deferredMapUiActionFrame = null
+        }
+
+        if (deferredMapUiHelperTimeout !== null) {
+            window.clearTimeout(deferredMapUiHelperTimeout)
+            deferredMapUiHelperTimeout = null
+        }
+
+        if (deferredMapUiHelperIdleCallback !== null && window.cancelIdleCallback) {
+            window.cancelIdleCallback(deferredMapUiHelperIdleCallback)
+            deferredMapUiHelperIdleCallback = null
+        }
+    }
+
+    const suspendDeferredMapUi = () => {
+        cancelDeferredMapUiHydration()
+        areZoneActionsHydrated.value = false
+        areEditHelpersHydrated.value = false
+    }
+
+    const scheduleDeferredMapUiHydration = () => {
+        cancelDeferredMapUiHydration()
+
+        deferredMapUiActionFrame = window.requestAnimationFrame(() => {
+            deferredMapUiActionFrame = null
+            if (activeAction.value || isPostInteractionSettling.value || isWheelInteracting.value) return
+            areZoneActionsHydrated.value = true
+        })
+
+        deferredMapUiHelperTimeout = window.setTimeout(() => {
+            deferredMapUiHelperTimeout = null
+            if (activeAction.value || isPostInteractionSettling.value || isWheelInteracting.value) return
+
+            if (window.requestIdleCallback) {
+                deferredMapUiHelperIdleCallback = window.requestIdleCallback(() => {
+                    deferredMapUiHelperIdleCallback = null
+                    if (activeAction.value || isPostInteractionSettling.value || isWheelInteracting.value) return
+                    areEditHelpersHydrated.value = true
+                }, { timeout: 1000 })
+                return
+            }
+
+            window.requestAnimationFrame(() => {
+                if (activeAction.value || isPostInteractionSettling.value || isWheelInteracting.value) return
+                areEditHelpersHydrated.value = true
+            })
+        }, 220)
+    }
+
     const startPostInteractionSettling = () => {
+        suspendDeferredMapUi()
         isPostInteractionSettling.value = true
         areEditHelpersSuspended.value = true
 
@@ -1509,6 +1608,7 @@ export const useBuildingMap = (properties: BuildingMapProperties, emit: Building
 
         isPostInteractionSettling.value = false
         areEditHelpersSuspended.value = false
+        scheduleDeferredMapUiHydration()
     }
 
     const onMouseUp = () => {
@@ -1602,11 +1702,13 @@ export const useBuildingMap = (properties: BuildingMapProperties, emit: Building
     const onWheel = (event: WheelEvent) => {
         event.preventDefault()
         isWheelInteracting.value = true
+        suspendDeferredMapUi()
         clearMapHoverState()
         if (wheelInteractionTimeout !== null) window.clearTimeout(wheelInteractionTimeout)
         wheelInteractionTimeout = window.setTimeout(() => {
             isWheelInteracting.value = false
             wheelInteractionTimeout = null
+            scheduleDeferredMapUiHydration()
         }, BUILDING_MAP_VIEWPORT_CONSTANTS.VIEWPORT_SYNC_DELAY_MS)
         if (!event.ctrlKey && !event.metaKey) {
             const nextPanX = panX.value - event.deltaX
@@ -1635,12 +1737,14 @@ export const useBuildingMap = (properties: BuildingMapProperties, emit: Building
         if (properties.mode === mode) return
         cancelActiveMapAction()
         clearMapHoverState()
+        suspendDeferredMapUi()
         emit(Events.UPDATE_MODE, mode)
     }
 
     const zoomAtCenter = (direction: -1 | 1) => {
         const rect = mapRef.value?.getBoundingClientRect()
         if (!rect) return
+        suspendDeferredMapUi()
         const clientX = rect.left + rect.width / 2
         const clientY = rect.top + rect.height / 2
         const beforeZoomX = (clientX - rect.left - panX.value) / unitSize.value
@@ -1649,6 +1753,7 @@ export const useBuildingMap = (properties: BuildingMapProperties, emit: Building
         unitSize.value = clampValue(unitSize.value * zoomFactor, BUILDING_MAP_VIEWPORT_CONSTANTS.MIN_UNIT_SIZE, BUILDING_MAP_VIEWPORT_CONSTANTS.MAX_UNIT_SIZE)
         applyPan(clientX - rect.left - beforeZoomX * unitSize.value, clientY - rect.top - beforeZoomY * unitSize.value)
         scheduleViewportSync()
+        scheduleDeferredMapUiHydration()
     }
 
     const enforceMinimumZoomAfterGeometry = () => {
@@ -1675,6 +1780,7 @@ export const useBuildingMap = (properties: BuildingMapProperties, emit: Building
             || isMapInteracting.value
             || isPostInteractionSettling.value
             || areEditHelpersSuspended.value
+            || !areEditHelpersHydrated.value
             || unitSize.value < MIN_UNIT_SIZE_FOR_EDIT_HELPERS
         ) return []
 
@@ -1700,6 +1806,7 @@ export const useBuildingMap = (properties: BuildingMapProperties, emit: Building
         && !isMapInteracting.value
         && !isPostInteractionSettling.value
         && !areEditHelpersSuspended.value
+        && areEditHelpersHydrated.value
         && unitSize.value >= MIN_UNIT_SIZE_FOR_EDIT_HELPERS
     )
 
@@ -1953,6 +2060,10 @@ export const useBuildingMap = (properties: BuildingMapProperties, emit: Building
         emit(Events.ADD_DOOR, payload)
     }
 
+    const syncEditActionsVisibilityClass = () => {
+        mapRef.value?.classList.toggle('is-edit-actions-visible', areEditActionsVisible.value)
+    }
+
     const getZonesSignature = (zones: ZoneMapItem[]) => zones
         .map((zone) => [
             zone.zone_id,
@@ -1968,6 +2079,9 @@ export const useBuildingMap = (properties: BuildingMapProperties, emit: Building
     watch(
         () => getZonesSignature(properties.zones),
         () => {
+            suspendDeferredMapUi()
+            scheduleDeferredMapUiHydration()
+
             if (!optimisticZones.value) return
 
             const optimisticIds = new Set(optimisticZones.value.map((zone) => zone.zone_id))
@@ -1993,6 +2107,8 @@ export const useBuildingMap = (properties: BuildingMapProperties, emit: Building
             previewZones.value = null
             blockedGeometryPreview.value = null
             clearMapHoverState()
+            suspendDeferredMapUi()
+            scheduleDeferredMapUiHydration()
         }
     )
 
@@ -2010,6 +2126,7 @@ export const useBuildingMap = (properties: BuildingMapProperties, emit: Building
         window.addEventListener('mouseup', onMouseUp)
         window.addEventListener('resize', scheduleViewportSync)
         unsubscribeLocationListener = buildingLocationsSocketService.addListener(handleEmployeeLocationChange)
+        syncEditActionsVisibilityClass()
         syncViewport()
         if (properties.zones.length > 0 && !hasFocusedInitialMap.value) {
             hasFocusedInitialMap.value = true
@@ -2052,6 +2169,9 @@ export const useBuildingMap = (properties: BuildingMapProperties, emit: Building
     watch(
         () => `${properties.mode}:${properties.buildingId}:${properties.currentFloorId}`,
         () => {
+            suspendDeferredMapUi()
+            scheduleDeferredMapUiHydration()
+
             if (properties.mode !== BuildingMapMode.VIEW) {
                 employeeLocations.value = []
                 activeScannedDoorIds.value = []
@@ -2059,6 +2179,12 @@ export const useBuildingMap = (properties: BuildingMapProperties, emit: Building
             }
             void fetchEmployeeLocations()
         }
+    )
+
+    watch(
+        areEditActionsVisible,
+        syncEditActionsVisibilityClass,
+        {flush: 'post'}
     )
 
     watch(
@@ -2085,6 +2211,7 @@ export const useBuildingMap = (properties: BuildingMapProperties, emit: Building
         if (mapMoveFrame !== null) {
             window.cancelAnimationFrame(mapMoveFrame)
         }
+        cancelDeferredMapUiHydration()
         scannedDoorTimeouts.forEach((timeout) => window.clearTimeout(timeout))
         scannedDoorTimeouts.clear()
         unsubscribeLocationListener?.()
@@ -2113,6 +2240,7 @@ export const useBuildingMap = (properties: BuildingMapProperties, emit: Building
         zoneStyle,
         zoneActionStyle,
         zoneTitleStyle,
+        isZoneActionEligible,
         isZonePreviewed,
         zonePhotoUrl,
         startTitleEdit,
@@ -2120,7 +2248,6 @@ export const useBuildingMap = (properties: BuildingMapProperties, emit: Building
         finishTitleEdit,
         cancelTitleEdit,
         getAddZoneHandles,
-        editableActionZones,
         getAddDoorHandles,
         setHoveredAddHandle,
         pressAddZoneHandle,
