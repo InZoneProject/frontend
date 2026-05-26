@@ -7,5 +7,6 @@ export interface PositionUpsertModalProperties {
     descriptionValue: string
     loading: boolean
     canSubmit: boolean
+    errorMessage?: string
     translations: OrganizationsTranslations['page']['modals']['positionForm']
 }

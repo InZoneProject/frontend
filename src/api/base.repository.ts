@@ -23,7 +23,7 @@ export class BaseRepository {
             if (repositoryBaseUrl.includes('/global-admin')) {
                 token = authStore.globalToken
             } else if (repositoryBaseUrl.includes('/organizations') || repositoryBaseUrl.includes('/organization-admin')) {
-                token = authStore.orgToken
+                token = authStore.orgToken || authStore.tagToken
             } else if (repositoryBaseUrl.includes('/tag-admin')) {
                 token = authStore.tagToken
             } else {
@@ -45,7 +45,8 @@ export class BaseRepository {
                     authStore.clearTokens()
 
                     const isGlobalPath = window.location.pathname.includes('global-admin')
-                    const routeName = isGlobalPath ? 'LoginGlobalAdmin' : 'Login'
+                    const isTagPath = window.location.pathname.includes('tag')
+                    const routeName = isGlobalPath ? 'LoginGlobalAdmin' : isTagPath ? 'LoginTagAdmin' : 'Login'
 
                     await router.push({ name: routeName })
                 }

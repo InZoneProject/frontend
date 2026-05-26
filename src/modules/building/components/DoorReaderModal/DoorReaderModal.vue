@@ -1,13 +1,12 @@
 <script setup lang="ts">
-import { ref } from 'vue'
 import DataTable from '@/components/DataTable/DataTable.vue'
 import BaseButton from '@/components/BaseButton/BaseButton.vue'
 import CopyButton from '@/components/CopyButton/CopyButton.vue'
 import SuccessMessage from '@/components/SuccessMessage/SuccessMessage.vue'
+import ErrorMessage from '@/components/ErrorMessage/ErrorMessage.vue'
 import DeleteButton from '@/components/DeleteButton/DeleteButton.vue'
 import EditButton from '@/components/EditButton/EditButton.vue'
 import ReaderRegenerateButton from '@/modules/building/components/ReaderRegenerateButton/ReaderRegenerateButton.vue'
-import { EyeIcon, EyeSlashIcon } from '@heroicons/vue/24/outline'
 import { useDoorReaderModal } from '@/modules/building/composables/useDoorReaderModal'
 import type { DoorReaderModalEmits } from '@/modules/building/interfaces/door-reader-modal-emits.interface'
 import type { DoorReaderModalProperties } from '@/modules/building/interfaces/door-reader-modal-properties.interface'
@@ -17,13 +16,6 @@ import './DoorReaderModal.css'
 
 const properties = defineProps<DoorReaderModalProperties>()
 const emit = defineEmits<DoorReaderModalEmits>()
-const visibleReaderIds = ref<number[]>([])
-const isReaderIdVisible = (readerId: number) => visibleReaderIds.value.includes(readerId)
-const toggleReaderIdVisibility = (readerId: number) => {
-  visibleReaderIds.value = isReaderIdVisible(readerId)
-      ? visibleReaderIds.value.filter((item) => item !== readerId)
-      : [...visibleReaderIds.value, readerId]
-}
 
 const {
   isDragOverAssigned,
@@ -47,6 +39,7 @@ const {
         </div>
 
         <SuccessMessage :message="properties.copySuccessMessage" />
+        <ErrorMessage :message="properties.errorMessage || ''" />
 
         <div v-if="properties.generatedToken" class="door-reader-token">
           <span>{{ properties.translations.tokenLabel }}</span>
@@ -75,14 +68,7 @@ const {
               >
                 <td class="w-[34%]"><strong>{{ properties.selectedReader.name }}</strong></td>
                 <td class="w-[24%]">
-                  <div class="door-reader-id-cell">
-                    <span class="door-reader-muted">
-                      {{ isReaderIdVisible(properties.selectedReader.rfid_reader_id) ? properties.selectedReader.rfid_reader_id : String(properties.selectedReader.rfid_reader_id).replace(/\d/g, '*') }}
-                    </span>
-                    <button type="button" class="door-reader-id-toggle" @click="toggleReaderIdVisibility(properties.selectedReader.rfid_reader_id)">
-                      <component :is="isReaderIdVisible(properties.selectedReader.rfid_reader_id) ? EyeSlashIcon : EyeIcon" class="door-reader-id-icon" />
-                    </button>
-                  </div>
+                  <span class="door-reader-muted">{{ properties.selectedReader.rfid_reader_id }}</span>
                 </td>
                 <td class="w-[22%]"><span class="door-reader-muted">{{ new Date(properties.selectedReader.created_at).toLocaleString() }}</span></td>
                 <td class="w-[26%]">
@@ -153,14 +139,7 @@ const {
             >
               <td><strong>{{ item.name }}</strong></td>
               <td>
-                <div class="door-reader-id-cell">
-                  <span class="door-reader-muted">
-                    {{ isReaderIdVisible(item.rfid_reader_id) ? item.rfid_reader_id : String(item.rfid_reader_id).replace(/\d/g, '*') }}
-                  </span>
-                  <button type="button" class="door-reader-id-toggle" @click="toggleReaderIdVisibility(item.rfid_reader_id)">
-                    <component :is="isReaderIdVisible(item.rfid_reader_id) ? EyeSlashIcon : EyeIcon" class="door-reader-id-icon" />
-                  </button>
-                </div>
+                <span class="door-reader-muted">{{ item.rfid_reader_id }}</span>
               </td>
               <td><span class="door-reader-muted">{{ new Date(item.created_at).toLocaleString() }}</span></td>
               <td>

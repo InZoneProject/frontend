@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import BaseButton from '@/components/BaseButton/BaseButton.vue'
 import BaseInput from '@/components/BaseInput/BaseInput.vue'
+import ErrorMessage from '@/components/ErrorMessage/ErrorMessage.vue'
 import { LENGTH } from '@/constants/length.constants'
 import { useReaderUpsertModal } from '@/modules/building/composables/useReaderUpsertModal'
 import type { ReaderUpsertModalEmits } from '@/modules/building/interfaces/reader-upsert-modal-emits.interface'
@@ -39,6 +40,7 @@ const { modalTitle, confirmLabel, updateNameValueEvent, submitEvent, cancelEvent
             :disabled="properties.loading"
             @update:model-value="$emit(updateNameValueEvent, $event)"
         />
+        <ErrorMessage :message="properties.errorMessage || ''" />
 
         <div class="modal-actions">
           <BaseButton type="button" variant="secondary" :loading="false" :disabled="properties.loading" @click="$emit(cancelEvent)">

@@ -343,10 +343,10 @@
     color-mix(in srgb, var(--color-main-bg), transparent 50%);
     color: var(--color-text-main);
     white-space: nowrap;
-    overflow: hidden;
-    text-overflow: ellipsis;
+    overflow: visible;
+    text-overflow: clip;
     width: max-content;
-    max-width: var(--building-map-zone-title-max-width);
+    max-width: none;
     transition:
             opacity 180ms ease,
             background-color 180ms ease,
@@ -366,6 +366,7 @@
     white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;
+    max-width: var(--building-map-zone-title-max-width);
     line-height: 1;
     display: block;
 }

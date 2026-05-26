@@ -1,0 +1,80 @@
+@reference "../../../styles/main.css";
+
+.tag-admin-page {
+    @apply h-screen overflow-hidden relative pt-12 pb-8 px-6 flex flex-col;
+}
+
+.tag-admin-panel-content {
+    @apply max-w-7xl mx-auto flex flex-col gap-6 w-full flex-1 overflow-hidden;
+}
+
+.tag-admin-panel-card {
+    @apply border border-solid rounded-[2.5rem] p-7 flex flex-col gap-5;
+    background-color: var(--color-card-bg);
+    border-color: var(--color-card-border);
+    box-shadow: 0 22px 70px color-mix(in srgb, var(--color-main-bg), transparent 72%);
+}
+
+.tag-admin-panel-card-grow {
+    @apply flex-1 overflow-hidden;
+}
+
+.tag-admin-table-head {
+    @apply flex items-start justify-between gap-6;
+}
+
+.tag-admin-loading-line {
+    @apply h-1 rounded-full;
+    background-color: color-mix(in srgb, var(--color-brand-primary), transparent 30%);
+}
+
+.tag-admin-status-badge {
+    @apply inline-flex items-center min-h-8 px-3 py-1 rounded-xl border border-solid text-[12px] font-black;
+    white-space: normal;
+    overflow-wrap: anywhere;
+    word-break: break-word;
+    line-height: 1.15;
+}
+
+.tag-admin-status-badge.is-assigned {
+    border-color: color-mix(in srgb, var(--color-success-main), transparent 62%);
+    background-color: color-mix(in srgb, var(--color-success-main), transparent 88%);
+    color: var(--color-success-main);
+}
+
+.tag-admin-status-badge.is-missing {
+    border-color: color-mix(in srgb, var(--color-brand-primary), transparent 70%);
+    background-color: color-mix(in srgb, var(--color-brand-primary), transparent 90%);
+    color: var(--color-brand-primary);
+}
+
+.tag-admin-panel-content .table-wrapper {
+    overflow-x: auto;
+    overflow-y: auto;
+    scrollbar-width: none;
+}
+
+.tag-admin-panel-content .table-wrapper::-webkit-scrollbar {
+    width: 0;
+    height: 0;
+    display: none;
+}
+
+.tag-admin-panel-content .main-table {
+    min-width: 860px;
+}
+
+@media (max-width: 1024px) {
+    .tag-admin-page {
+        @apply px-4 pt-10;
+    }
+
+    .tag-admin-panel-card {
+        @apply p-5 rounded-3xl;
+    }
+
+    .tag-admin-table-head {
+        @apply flex-col;
+    }
+
+}

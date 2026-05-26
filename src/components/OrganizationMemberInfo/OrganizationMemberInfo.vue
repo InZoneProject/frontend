@@ -1,18 +1,23 @@
 <script setup lang="ts">
 import BaseButton from '@/components/BaseButton/BaseButton.vue'
+import ErrorMessage from '@/components/ErrorMessage/ErrorMessage.vue'
 import { useOrganizationMemberInfo } from '@/composables/useOrganizationMemberInfo'
 import { Events } from '@/enums/events.enum'
 import type { OrganizationMemberInfoEmits } from '@/interfaces/organization-member-info-emits.interface'
 import type { OrganizationMemberInfoProperties } from '@/interfaces/organization-member-info-properties.interface'
 import './OrganizationMemberInfo.css'
 
-const properties = defineProps<OrganizationMemberInfoProperties>()
+const properties = withDefaults(defineProps<OrganizationMemberInfoProperties>(), {
+  showViewPositions: true,
+  primaryActionLabel: ''
+})
 const emit = defineEmits<OrganizationMemberInfoEmits>()
 
 const {
     isEmptyState,
     isVisible,
     canViewPositions,
+    canUsePrimaryAction,
     formattedCreatedAt,
     memberRoleLabel
 } = useOrganizationMemberInfo(properties)
@@ -26,6 +31,8 @@ const {
 
         <section class="organization-member-info">
           <div v-if="properties.loading" class="organization-member-info-loader"></div>
+
+          <ErrorMessage v-else-if="properties.errorMessage" :message="properties.errorMessage" />
 
           <p v-else-if="isEmptyState" class="organization-member-info-empty">
             {{ properties.translations.empty }}
@@ -81,6 +88,18 @@ const {
                 @click="emit(Events.VIEW_POSITIONS)"
             >
               {{ properties.translations.viewPositions }}
+            </BaseButton>
+
+            <BaseButton
+                v-if="canUsePrimaryAction"
+                type="button"
+                variant="primary"
+                :loading="false"
+                :disabled="false"
+                class="organization-member-view-positions-button"
+                @click="emit(Events.ASSIGN)"
+            >
+              {{ properties.primaryActionLabel }}
             </BaseButton>
           </div>
         </section>

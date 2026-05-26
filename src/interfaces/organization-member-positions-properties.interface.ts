@@ -6,6 +6,7 @@ export interface OrganizationMemberPositionsProperties {
     isEditMode: boolean
     loadingAssigned: boolean
     loadingAvailable: boolean
+    errorMessage?: string
     assignedPositions: OrganizationPositionItem[]
     availablePositions: OrganizationPositionItem[]
     assignedSearchValue: string

@@ -5,4 +5,5 @@ export interface ConfirmationModalProperties {
     message: string;
     confirmLabel: string;
     cancelLabel: string;
+    errorMessage?: string;
 }

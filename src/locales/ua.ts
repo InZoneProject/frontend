@@ -78,6 +78,54 @@ export const ua = {
             }
         }
     },
+    tagAdminPanel: {
+        organization: {
+            title: 'Організація',
+            descriptionFallback: 'Опис відсутній',
+            nameLabel: 'Назва організації',
+            descriptionLabel: 'Опис',
+            createdAtLabel: 'Створено'
+        },
+        table: {
+            title: 'Співробітники',
+            searchPlaceholder: 'Пошук співробітників...',
+            empty: 'Співробітників не знайдено',
+            loading: 'Завантаження співробітників...',
+            headers: {
+                user: 'Користувач',
+                tagStatus: 'Призначений тег',
+                phone: 'Телефон',
+                createdAt: 'Дата створення'
+            },
+            tagAssigned: 'Тег призначено',
+            tagMissing: 'Тег не призначено',
+            employeeRole: 'Співробітник'
+        },
+        memberInfo: {
+            title: 'Інформація про співробітника',
+            empty: 'Оберіть співробітника в таблиці, щоб переглянути деталі.',
+            email: 'Електронна пошта',
+            phone: 'Телефон',
+            createdAt: 'Створено',
+            viewPositions: 'Переглянути позиції',
+            assignTag: 'Призначити тег',
+            unassignTag: 'Відвʼязати тег'
+        },
+        tagModal: {
+            title: 'RFID-тег співробітника',
+            assignedTitle: 'Призначений тег',
+            emptyAssigned: 'Перетягніть тег сюди',
+            searchPlaceholder: 'Пошук тегів...',
+            emptyAvailable: 'Доступних тегів не знайдено',
+            loading: 'Завантаження тегів...',
+            name: 'Назва',
+            tagUid: 'UID тегу',
+            createdAt: 'Створено'
+        },
+        errors: {
+            server: 'Сталася проблема на сервері. Спробуйте ще раз трохи пізніше.'
+        }
+    },
     organizationAdmin: {
         actions: {
             createOrganization: 'Створити організацію',
@@ -341,6 +389,7 @@ export const ua = {
             map: {
                 syncError: 'Не вдалося синхронізувати карту з сервером. Перевірте зʼєднання та спробуйте ще раз.'
             },
+            serverError: 'Сталася проблема на сервері. Спробуйте ще раз трохи пізніше.',
             zoneForm: {
                 title: 'Створити зону',
                 nameLabel: 'Назва зони',

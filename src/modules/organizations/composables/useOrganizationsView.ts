@@ -6,6 +6,7 @@ import { organizationsRepository } from '@/modules/organizations/repositories/or
 import type { OrganizationItem } from '@/modules/organizations/interfaces/organization-item.interface'
 import type { OrganizationsTranslations } from '@/modules/organizations/interfaces/organizations-translations.interface'
 import { LIST } from '@/constants/list.constants'
+import { DATA_TABLE_CONSTANTS } from '@/constants/data-table.constants'
 
 export const useOrganizationsView = (translations: Ref<OrganizationsTranslations>) => {
     const { formatDate } = useDateFormatter()
@@ -218,7 +219,7 @@ export const useOrganizationsView = (translations: Ref<OrganizationsTranslations
 
         searchDebounceTimeout = window.setTimeout(() => {
             runBackground(fetchOrganizations())
-        }, LIST.SEARCH_DEBOUNCE_MS)
+        }, DATA_TABLE_CONSTANTS.SEARCH_DEBOUNCE_MS)
     })
 
     watch(tableOffset, () => {

@@ -49,26 +49,33 @@ const {
   isFloorsCollapsed,
   isBuildingMapExpanded,
   isLoadingBuilding,
+  buildingErrorMessage,
   isLoadingFloors,
+  floorsErrorMessage,
   isLoadingBuildingEmployees,
+  buildingEmployeesErrorMessage,
   isExpelModalOpen,
   isExpellingMember,
+  expelMemberErrorMessage,
   employeeForMovementReport,
   movementReportDateValue,
   movementReportMinDate,
   movementReportMaxDate,
   isMovementReportModalOpen,
   isDownloadingMovementReport,
+  movementReportErrorMessage,
   canDownloadMovementReport,
   isLoadingMap,
   mapErrorMessage,
   selectedMemberProfile,
   isMemberInfoModalOpen,
   isLoadingMemberProfile,
+  memberInfoErrorMessage,
   isMemberPositionsModalOpen,
   isPositionsEditMode,
   isLoadingMemberPositions,
   isLoadingAvailablePositions,
+  memberPositionsErrorMessage,
   assignedMemberPositions,
   availableMemberPositions,
   assignedPositionsSearchValue,
@@ -79,9 +86,11 @@ const {
   positionRoleValue,
   positionDescriptionValue,
   isPositionSubmitting,
+  positionFormErrorMessage,
   canSubmitPositionForm,
   isDeletePositionModalOpen,
   isDeletingPosition,
+  deletePositionErrorMessage,
   assignedPositionsOffset,
   assignedPositionsTotal,
   availablePositionsOffset,
@@ -90,11 +99,13 @@ const {
   buildingTitleValue,
   buildingAddressValue,
   isBuildingSubmitting,
+  buildingFormErrorMessage,
   canSubmitBuilding,
   isFloorModalOpen,
   floorModalMode,
   floorNameValue,
   isFloorSubmitting,
+  floorFormErrorMessage,
   canSubmitFloor,
   isZoneCreateModalOpen,
   zoneTitleValue,
@@ -109,8 +120,10 @@ const {
   canSubmitZone,
   draggedFloorId,
   isDeleteBuildingModalOpen,
+  deleteBuildingErrorMessage,
   floorToDeleteId,
   isDeletingFloor,
+  deleteFloorErrorMessage,
   zoneToDeleteId,
   isDeletingZone,
   doorToDelete,
@@ -123,6 +136,7 @@ const {
   readersLimit,
   readersTotal,
   isLoadingReaders,
+  readerErrorMessage,
   generatedReaderToken,
   isReaderModalOpen,
   readerModalMode,
@@ -236,6 +250,8 @@ const {
           :is-floors-collapsed="isFloorsCollapsed"
           :is-loading-floors="isLoadingFloors"
           :is-loading-building-employees="isLoadingBuildingEmployees"
+          :floors-error-message="floorsErrorMessage"
+          :building-employees-error-message="buildingEmployeesErrorMessage"
           :is-employees-hidden="areSidebarTabsHidden"
           :dragged-floor-id="draggedFloorId"
           @update:floors-search="floorsSearch = $event"
@@ -265,6 +281,7 @@ const {
             @delete="openDeleteBuildingModal"
         />
         <div v-if="isLoadingBuilding" class="building-loading-line" />
+        <ErrorMessage :message="buildingErrorMessage" />
       </section>
 
       <BuildingMap
@@ -313,6 +330,7 @@ const {
         :address-value="buildingAddressValue"
         :loading="isBuildingSubmitting"
         :can-submit="canSubmitBuilding"
+        :error-message="buildingFormErrorMessage"
         :translations="translations.organizationAdmin.page.modals.buildingForm"
         @update:title-value="buildingTitleValue = $event"
         @update:address-value="buildingAddressValue = $event"
@@ -326,6 +344,7 @@ const {
         :name-value="floorNameValue"
         :loading="isFloorSubmitting"
         :can-submit="canSubmitFloor"
+        :error-message="floorFormErrorMessage"
         :translations="translations.organizationAdmin.buildingPage.floorForm"
         @update:name-value="floorNameValue = $event"
         @submit="submitFloor"
@@ -350,6 +369,7 @@ const {
     <ConfirmationModal
         :is-open="isDeleteBuildingModalOpen"
         :loading="false"
+        :error-message="deleteBuildingErrorMessage"
         :title="translations.organizationAdmin.buildingPage.deleteBuilding.title"
         :message="translations.organizationAdmin.buildingPage.deleteBuilding.message"
         :confirm-label="translations.organizationAdmin.buildingPage.deleteBuilding.confirm"
@@ -361,6 +381,7 @@ const {
     <ConfirmationModal
         :is-open="floorToDeleteId > 0"
         :loading="isDeletingFloor"
+        :error-message="deleteFloorErrorMessage"
         :title="translations.organizationAdmin.buildingPage.deleteFloor.title"
         :message="translations.organizationAdmin.buildingPage.deleteFloor.message"
         :confirm-label="translations.organizationAdmin.buildingPage.deleteFloor.confirm"
@@ -400,6 +421,7 @@ const {
         :limit="readersLimit"
         :total="readersTotal"
         :loading="isLoadingReaders"
+        :error-message="readerErrorMessage"
         :generated-token="generatedReaderToken"
         :copy-success-message="readerTokenCopySuccessMessage"
         :translations="translations.organizationAdmin.buildingPage.doorReader"
@@ -429,6 +451,7 @@ const {
         :is-open="isMemberInfoModalOpen"
         :member="selectedMemberProfile"
         :loading="isLoadingMemberProfile"
+        :error-message="memberInfoErrorMessage"
         :role-label-resolver="getRoleLabel"
         :format-date="formatDate"
         :translations="translations.organizationAdmin.page.memberInfo"
@@ -441,6 +464,7 @@ const {
         :is-edit-mode="isPositionsEditMode"
         :loading-assigned="isLoadingMemberPositions"
         :loading-available="isLoadingAvailablePositions"
+        :error-message="memberPositionsErrorMessage"
         :assigned-positions="assignedMemberPositions"
         :available-positions="availableMemberPositions"
         :assigned-search-value="assignedPositionsSearchValue"
@@ -474,6 +498,7 @@ const {
         :description-value="positionDescriptionValue"
         :loading="isPositionSubmitting"
         :can-submit="canSubmitPositionForm"
+        :error-message="positionFormErrorMessage"
         :translations="translations.organizationAdmin.page.modals.positionForm"
         @update:name-value="positionRoleValue = $event"
         @update:description-value="positionDescriptionValue = $event"
@@ -484,6 +509,7 @@ const {
     <ConfirmationModal
         :is-open="isDeletePositionModalOpen"
         :loading="isDeletingPosition"
+        :error-message="deletePositionErrorMessage"
         :title="translations.organizationAdmin.page.modals.deletePosition.title"
         :message="translations.organizationAdmin.page.modals.deletePosition.message"
         :confirm-label="translations.organizationAdmin.page.modals.deletePosition.confirm"
@@ -495,6 +521,7 @@ const {
     <ConfirmationModal
         :is-open="isExpelModalOpen"
         :loading="isExpellingMember"
+        :error-message="expelMemberErrorMessage"
         :title="translations.organizationAdmin.page.modals.expelMember.title"
         :message="expelModalMessage"
         :confirm-label="translations.organizationAdmin.page.modals.expelMember.confirm"
@@ -510,6 +537,7 @@ const {
         :max-date="movementReportMaxDate"
         :loading="isDownloadingMovementReport"
         :can-submit="canDownloadMovementReport"
+        :error-message="movementReportErrorMessage"
         :employee-name="employeeForMovementReport?.full_name || employeeForMovementReport?.email || ''"
         :locale="currentLanguage === 'en' ? 'en-US' : 'uk-UA'"
         :translations="translations.organizationAdmin.buildingPage.employeeMovementReport"
@@ -521,6 +549,7 @@ const {
     <ConfirmationModal
         :is-open="readerToRegenerate !== null"
         :loading="isRegeneratingReaderToken"
+        :error-message="readerErrorMessage"
         :title="translations.organizationAdmin.buildingPage.doorReader.regenerateTitle"
         :message="translations.organizationAdmin.buildingPage.doorReader.regenerateMessage"
         :confirm-label="translations.organizationAdmin.buildingPage.doorReader.regenerateConfirm"
@@ -532,6 +561,7 @@ const {
     <ConfirmationModal
         :is-open="readerToDelete !== null"
         :loading="isDeletingReader"
+        :error-message="readerErrorMessage"
         :title="translations.organizationAdmin.buildingPage.deleteDoor.title"
         :message="translations.organizationAdmin.buildingPage.deleteDoor.message"
         :confirm-label="translations.organizationAdmin.buildingPage.deleteDoor.confirm"
@@ -546,6 +576,7 @@ const {
         :name-value="readerNameValue"
         :loading="isReaderSubmitting"
         :can-submit="canSubmitReader"
+        :error-message="readerErrorMessage"
         :translations="translations.organizationAdmin.buildingPage.readerForm"
         @update:name-value="readerNameValue = $event"
         @submit="submitReader"

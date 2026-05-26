@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import BaseButton from '@/components/BaseButton/BaseButton.vue'
 import BaseInput from '@/components/BaseInput/BaseInput.vue'
+import ErrorMessage from '@/components/ErrorMessage/ErrorMessage.vue'
 import { useFloorUpsertModal } from '@/modules/building/composables/useFloorUpsertModal'
 import { LENGTH } from '@/constants/length.constants'
 import type { FloorUpsertModalProperties } from '@/modules/building/interfaces/floor-upsert-modal-properties.interface'
@@ -47,6 +48,7 @@ const {
               :disabled="properties.loading"
           />
         </div>
+        <ErrorMessage :message="properties.errorMessage || ''" />
 
         <div class="modal-actions">
           <BaseButton

@@ -1,5 +1,6 @@
 import { BaseRepository } from '@/api/base.repository'
 import type { VerificationStatusResponse } from '../interfaces/verification-status-response.interface'
+import type { VerifyEmailResponse } from '../interfaces/verify-email-response.interface'
 
 class VerificationRepository extends BaseRepository {
     constructor() {
@@ -15,7 +16,7 @@ class VerificationRepository extends BaseRepository {
     }
 
     verifyEmail(code: string) {
-        return this.post<void>('/verify-email', { code })
+        return this.post<VerifyEmailResponse>('/verify-email', { code })
     }
 }
 

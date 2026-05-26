@@ -2,6 +2,7 @@ import { ref, watch, onMounted, computed } from 'vue'
 import { useRouter } from 'vue-router'
 import axios from 'axios'
 import { Events } from '@/enums/events.enum'
+import { UserRole } from '@/enums/user-role.enum'
 import { DURATION } from '@/constants/duration.constants'
 import { VALIDATION } from '@/constants/validation.constants'
 import { useAuthStore } from '@/stores/auth.store'
@@ -47,7 +48,7 @@ export function useVerificationForm(
         if (authStore.orgToken) {
             void router.push({ name: 'Organizations' })
         } else if (authStore.tagToken) {
-            void router.push({ name: 'TagDashboard' })
+            void router.push({ name: 'TagAdminPanel' })
         }
     }
 
@@ -107,7 +108,13 @@ export function useVerificationForm(
             isSubmitting.value = true
             errorCode.value = null
             try {
-                await verificationRepository.verifyEmail(codeValue.value)
+                const response = await verificationRepository.verifyEmail(codeValue.value)
+                const { access_token } = response.data
+
+                if (access_token) {
+                    const role = authStore.orgToken ? UserRole.ORGANIZATION_ADMIN : UserRole.TAG_ADMIN
+                    authStore.setToken(role, access_token)
+                }
 
                 authStore.setVerified(true)
                 redirectToDashboard()

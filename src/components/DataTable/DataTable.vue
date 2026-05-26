@@ -57,30 +57,19 @@ const { tableWrapperRef, tableWrapperStyle, onScroll } = useDataTable(props, emi
           <slot name="header"></slot>
           </thead>
           <tbody>
-          <tr v-if="props.loading && props.items.length === 0">
-            <td colspan="100" class="td-status">
-              <div class="status-content">
-                <div class="loader"></div>
-                <span class="status-text">
-                    {{ props.loadingText }}
-                  </span>
-              </div>
-            </td>
-          </tr>
           <template v-if="props.items.length > 0">
             <slot v-for="(item, index) in props.items" :key="index" :item="item"></slot>
           </template>
-          <tr v-if="!props.loading && props.items.length === 0">
-            <td colspan="100" class="td-status">
-              <div class="status-content">
-                <span class="status-text">
-                  {{ props.emptyText }}
-                </span>
-              </div>
-            </td>
-          </tr>
           </tbody>
         </table>
+        <div v-if="props.items.length === 0" class="table-status-overlay">
+          <div class="status-content">
+            <div v-if="props.loading" class="loader"></div>
+            <span class="status-text">
+              {{ props.loading ? props.loadingText : props.emptyText }}
+            </span>
+          </div>
+        </div>
       </div>
     </div>
   </div>

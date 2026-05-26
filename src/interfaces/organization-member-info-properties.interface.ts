@@ -5,7 +5,10 @@ export interface OrganizationMemberInfoProperties {
     isOpen: boolean
     member: OrganizationMemberProfile | null
     loading: boolean
+    errorMessage?: string
     roleLabelResolver: (role: OrganizationMemberProfile['role']) => string
     formatDate: (value: string) => string
     translations: OrganizationsTranslations['page']['memberInfo']
+    showViewPositions?: boolean
+    primaryActionLabel?: string
 }

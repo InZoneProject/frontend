@@ -21,4 +21,6 @@ export interface BuildingViewSidebarProperties {
     isLoadingBuildingEmployees: boolean
     isEmployeesHidden: boolean
     draggedFloorId: number
+    floorsErrorMessage?: string
+    buildingEmployeesErrorMessage?: string
 }

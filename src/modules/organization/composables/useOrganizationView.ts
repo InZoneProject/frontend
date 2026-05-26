@@ -14,6 +14,7 @@ import type { OrganizationRfidTagItem } from '@/modules/organization/interfaces/
 import type { OrganizationPositionItem } from '@/modules/organization/interfaces/organization-position-item.interface'
 import type { OrganizationsTranslations } from '@/modules/organizations/interfaces/organizations-translations.interface'
 import { LIST } from '@/constants/list.constants'
+import { DATA_TABLE_CONSTANTS } from '@/constants/data-table.constants'
 
 export const useOrganizationView = (params: {
     organizationId: number
@@ -145,8 +146,6 @@ export const useOrganizationView = (params: {
     const editDescriptionValue = ref('')
     const initialEditNameValue = ref('')
     const initialEditDescriptionValue = ref('')
-
-    const revealedTagIds = ref<Set<number>>(new Set<number>())
 
     let searchDebounceTimeout: number | null = null
     let assignedPositionsSearchDebounceTimeout: number | null = null
@@ -738,7 +737,7 @@ export const useOrganizationView = (params: {
             }
 
             if (expelTarget.role === 'tag_admin') {
-                await participantsControlRepository.removeTagAdmin(params.organizationId, expelTarget.id)
+                await organizationRepository.removeTagAdmin(params.organizationId, expelTarget.id)
             } else {
                 await participantsControlRepository.removeEmployee(params.organizationId, expelTarget.id)
             }
@@ -1064,22 +1063,6 @@ export const useOrganizationView = (params: {
         clearTagAdminInviteCopySuccessMessage()
     }
 
-    const toggleTagUidVisibility = (tagId: number) => {
-        const nextSet = new Set(revealedTagIds.value)
-
-        if (nextSet.has(tagId)) {
-            nextSet.delete(tagId)
-        } else {
-            nextSet.add(tagId)
-        }
-
-        revealedTagIds.value = nextSet
-    }
-
-    const isTagUidVisible = (tagId: number): boolean => {
-        return revealedTagIds.value.has(tagId)
-    }
-
     const getRoleLabel = (role: OrganizationMemberItem['role']) => {
         if (role === 'organization_admin') {
             return params.translations.value.page.table.roleLabels.organizationAdmin
@@ -1148,7 +1131,7 @@ export const useOrganizationView = (params: {
 
         searchDebounceTimeout = window.setTimeout(() => {
             runBackground(fetchActiveTabData())
-        }, LIST.SEARCH_DEBOUNCE_MS)
+        }, DATA_TABLE_CONSTANTS.SEARCH_DEBOUNCE_MS)
     })
 
     watch(tableOffset, () => {
@@ -1167,7 +1150,7 @@ export const useOrganizationView = (params: {
 
         assignedPositionsSearchDebounceTimeout = window.setTimeout(() => {
             runBackground(fetchAssignedMemberPositions())
-        }, LIST.SEARCH_DEBOUNCE_MS)
+        }, DATA_TABLE_CONSTANTS.SEARCH_DEBOUNCE_MS)
     })
 
     watch(assignedPositionsOffset, () => {
@@ -1189,7 +1172,7 @@ export const useOrganizationView = (params: {
 
         availablePositionsSearchDebounceTimeout = window.setTimeout(() => {
             runBackground(fetchAvailableMemberPositions())
-        }, LIST.SEARCH_DEBOUNCE_MS)
+        }, DATA_TABLE_CONSTANTS.SEARCH_DEBOUNCE_MS)
     })
 
     watch(availablePositionsOffset, () => {
@@ -1355,8 +1338,6 @@ export const useOrganizationView = (params: {
         copyActiveInvite,
         clearActiveInvite,
         clearActiveInviteCopySuccessMessage,
-        toggleTagUidVisibility,
-        isTagUidVisible,
         getRoleLabel
     }
 }

@@ -11,6 +11,7 @@ export interface DoorReaderModalProperties {
     loading: boolean
     generatedToken: string
     copySuccessMessage: string
+    errorMessage?: string
     translations: {
         title: string
         assignedTitle: string

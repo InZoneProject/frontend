@@ -4,6 +4,7 @@ export interface ReaderUpsertModalProperties {
     nameValue: string
     loading: boolean
     canSubmit: boolean
+    errorMessage?: string
     translations: {
         createTitle: string
         editTitle: string

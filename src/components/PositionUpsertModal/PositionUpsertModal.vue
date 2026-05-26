@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import BaseButton from '@/components/BaseButton/BaseButton.vue'
 import BaseInput from '@/components/BaseInput/BaseInput.vue'
+import ErrorMessage from '@/components/ErrorMessage/ErrorMessage.vue'
 import { usePositionUpsertModal } from '@/composables/usePositionUpsertModal'
 import { LENGTH } from '@/constants/length.constants'
 import type { PositionUpsertModalProperties } from '@/interfaces/position-upsert-modal-properties.interface'
@@ -61,6 +62,7 @@ const {
               :disabled="properties.loading"
           />
         </div>
+        <ErrorMessage :message="properties.errorMessage || ''" />
 
         <div class="modal-actions">
           <BaseButton

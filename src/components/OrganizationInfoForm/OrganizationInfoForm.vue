@@ -41,7 +41,7 @@ const {
         <p class="organization-info-form-label">{{ properties.createdAtLabel }}</p>
         <p class="organization-info-form-date">{{ properties.createdAtValue }}</p>
       </div>
-      <div class="organization-info-form-actions">
+      <div v-if="properties.showActions" class="organization-info-form-actions">
         <EditButton @click="emit(editEvent)" />
         <DeleteButton @click="emit(deleteEvent)" />
       </div>

@@ -6,5 +6,6 @@ export interface FloorUpsertModalProperties {
     nameValue: string
     loading: boolean
     canSubmit: boolean
+    errorMessage?: string
     translations: FloorUpsertModalTranslations
 }

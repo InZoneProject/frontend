@@ -15,6 +15,7 @@ import { employeeMovementReportService } from '@/modules/building/services/emplo
 import { BUILDING_MAP_PREVIEW_CONSTANTS } from '@/modules/building/constants/building-map-preview.constants'
 import { BUILDING_MAP_VIEWPORT_CONSTANTS } from '@/modules/building/constants/building-map-viewport.constants'
 import { LIST } from '@/constants/list.constants'
+import { DATA_TABLE_CONSTANTS } from '@/constants/data-table.constants'
 import type { OrganizationMemberProfile } from '@/interfaces/organization-member-profile.interface'
 import type { OrganizationPositionItem } from '@/modules/organization/interfaces/organization-position-item.interface'
 import type { BuildingInfo } from '@/modules/building/interfaces/building-info.interface'
@@ -68,22 +69,29 @@ export const useBuildingView = () => {
     const isBuildingMapExpanded = ref(isInitiallyFloorsCollapsed)
     const buildingMapMode = ref<BuildingMapMode>(route.query.mode === BuildingMapMode.EDIT ? BuildingMapMode.EDIT : BuildingMapMode.VIEW)
     const isLoadingBuilding = ref(false)
+    const buildingErrorMessage = ref('')
     const isLoadingFloors = ref(false)
+    const floorsErrorMessage = ref('')
     const isLoadingBuildingEmployees = ref(false)
+    const buildingEmployeesErrorMessage = ref('')
     const isExpelModalOpen = ref(false)
     const isExpellingMember = ref(false)
+    const expelMemberErrorMessage = ref('')
     const employeeToExpel = ref<CurrentBuildingEmployee | null>(null)
     const employeeForMovementReport = ref<CurrentBuildingEmployee | null>(null)
     const movementReportDateValue = ref(new Date().toISOString().slice(0, 10))
     const isMovementReportModalOpen = ref(false)
     const isDownloadingMovementReport = ref(false)
+    const movementReportErrorMessage = ref('')
     const selectedMemberProfile = ref<OrganizationMemberProfile | null>(null)
     const isMemberInfoModalOpen = ref(false)
     const isLoadingMemberProfile = ref(false)
+    const memberInfoErrorMessage = ref('')
     const isMemberPositionsModalOpen = ref(false)
     const isPositionsEditMode = ref(false)
     const isLoadingMemberPositions = ref(false)
     const isLoadingAvailablePositions = ref(false)
+    const memberPositionsErrorMessage = ref('')
     const assignedMemberPositions = ref<OrganizationPositionItem[]>([])
     const availableMemberPositions = ref<OrganizationPositionItem[]>([])
     const assignedPositionsSearchValue = ref('')
@@ -101,9 +109,11 @@ export const useBuildingView = () => {
     const initialPositionRoleValue = ref('')
     const initialPositionDescriptionValue = ref('')
     const isPositionSubmitting = ref(false)
+    const positionFormErrorMessage = ref('')
     const isDeletePositionModalOpen = ref(false)
     const positionToDeleteId = ref<number | null>(null)
     const isDeletingPosition = ref(false)
+    const deletePositionErrorMessage = ref('')
 
     const isBuildingModalOpen = ref(false)
     const buildingTitleValue = ref('')
@@ -111,6 +121,7 @@ export const useBuildingView = () => {
     const initialBuildingTitleValue = ref('')
     const initialBuildingAddressValue = ref('')
     const isBuildingSubmitting = ref(false)
+    const buildingFormErrorMessage = ref('')
 
     const isFloorModalOpen = ref(false)
     const floorModalMode = ref<'create' | 'edit'>('create')
@@ -118,10 +129,13 @@ export const useBuildingView = () => {
     const floorEditingId = ref(0)
     const initialFloorNameValue = ref('')
     const isFloorSubmitting = ref(false)
+    const floorFormErrorMessage = ref('')
 
     const isDeleteBuildingModalOpen = ref(false)
+    const deleteBuildingErrorMessage = ref('')
     const floorToDeleteId = ref(0)
     const isDeletingFloor = ref(false)
+    const deleteFloorErrorMessage = ref('')
 
     let floorsSearchDebounce: number | null = null
     let floorsCollapseTimeout: number | null = null
@@ -137,6 +151,7 @@ export const useBuildingView = () => {
     const runBackground = (request: Promise<unknown>) => {
         request.catch(() => undefined)
     }
+    const serverErrorMessage = () => translations.value.organizationAdmin.buildingPage.serverError
 
     const syncFloorsStateToRoute = async (collapsed: boolean) => {
         const nextValue = collapsed ? 'collapsed' : 'expanded'
@@ -703,6 +718,7 @@ export const useBuildingView = () => {
     const readerToRegenerate = ref<RfidReaderItem | null>(null)
     const isRegeneratingReaderToken = ref(false)
     const readerTokenCopySuccessMessage = ref('')
+    const readerErrorMessage = ref('')
     const canSubmitReader = computed(() => readerNameValue.value.trim().length > 0)
     const addDoor = async (payload: { zone_from_id: number | null; zone_to_id: number; floor_id: number; entrance_door_side?: 'top' | 'bottom' | 'left' | 'right' }) => {
         let createdDoor: DoorMapItem | null = null
@@ -786,6 +802,7 @@ export const useBuildingView = () => {
     const fetchDoorReaders = async () => {
         if (readerDoorId.value === 0) return
         isLoadingReaders.value = true
+        readerErrorMessage.value = ''
         try {
             const [selectedResponse, availableResponse] = await Promise.all([
                 buildingRepository.getDoorReader(readerDoorId.value),
@@ -798,6 +815,8 @@ export const useBuildingView = () => {
             selectedDoorReader.value = selectedResponse.data
             availableReaders.value = availableResponse.data.items
             readersTotal.value = availableResponse.data.total
+        } catch {
+            readerErrorMessage.value = serverErrorMessage()
         } finally {
             isLoadingReaders.value = false
         }
@@ -806,6 +825,7 @@ export const useBuildingView = () => {
         readerDoorId.value = doorId
         readersOffset.value = 0
         generatedReaderToken.value = ''
+        readerErrorMessage.value = ''
         await fetchDoorReaders()
     }
     const closeDoorReaderModal = () => {
@@ -813,29 +833,40 @@ export const useBuildingView = () => {
         selectedDoorReader.value = null
         availableReaders.value = []
         generatedReaderToken.value = ''
+        readerErrorMessage.value = ''
     }
     const assignReaderToDoor = async (reader: RfidReaderItem) => {
         if (readerDoorId.value === 0) return
-        const previousReader = selectedDoorReader.value
-        if (previousReader) await buildingRepository.removeReaderFromDoor(readerDoorId.value)
-        await buildingRepository.assignReaderToDoor(readerDoorId.value, reader.rfid_reader_id)
-        selectedDoorReader.value = reader
-        availableReaders.value = availableReaders.value.filter((item) => item.rfid_reader_id !== reader.rfid_reader_id)
-        if (previousReader) void fetchDoorReaders()
-        doors.value = doors.value.map((door) => door.door_id === readerDoorId.value ? { ...door, rfid_reader_id: reader.rfid_reader_id } : door)
-        transitionValidationDoors.value = transitionValidationDoors.value.map((door) =>
-            door.door_id === readerDoorId.value ? { ...door, rfid_reader_id: reader.rfid_reader_id } : door
-        )
+        readerErrorMessage.value = ''
+        try {
+            const previousReader = selectedDoorReader.value
+            if (previousReader) await buildingRepository.removeReaderFromDoor(readerDoorId.value)
+            await buildingRepository.assignReaderToDoor(readerDoorId.value, reader.rfid_reader_id)
+            selectedDoorReader.value = reader
+            availableReaders.value = availableReaders.value.filter((item) => item.rfid_reader_id !== reader.rfid_reader_id)
+            if (previousReader) void fetchDoorReaders()
+            doors.value = doors.value.map((door) => door.door_id === readerDoorId.value ? { ...door, rfid_reader_id: reader.rfid_reader_id } : door)
+            transitionValidationDoors.value = transitionValidationDoors.value.map((door) =>
+                door.door_id === readerDoorId.value ? { ...door, rfid_reader_id: reader.rfid_reader_id } : door
+            )
+        } catch {
+            readerErrorMessage.value = serverErrorMessage()
+        }
     }
     const unassignReaderFromDoor = async () => {
         if (readerDoorId.value === 0 || !selectedDoorReader.value) return
-        await buildingRepository.removeReaderFromDoor(readerDoorId.value)
-        selectedDoorReader.value = null
-        void fetchDoorReaders()
-        doors.value = doors.value.map((door) => door.door_id === readerDoorId.value ? { ...door, rfid_reader_id: null } : door)
-        transitionValidationDoors.value = transitionValidationDoors.value.map((door) =>
-            door.door_id === readerDoorId.value ? { ...door, rfid_reader_id: null } : door
-        )
+        readerErrorMessage.value = ''
+        try {
+            await buildingRepository.removeReaderFromDoor(readerDoorId.value)
+            selectedDoorReader.value = null
+            void fetchDoorReaders()
+            doors.value = doors.value.map((door) => door.door_id === readerDoorId.value ? { ...door, rfid_reader_id: null } : door)
+            transitionValidationDoors.value = transitionValidationDoors.value.map((door) =>
+                door.door_id === readerDoorId.value ? { ...door, rfid_reader_id: null } : door
+            )
+        } catch {
+            readerErrorMessage.value = serverErrorMessage()
+        }
     }
     const openRegenerateReaderTokenModal = (reader: RfidReaderItem) => {
         readerToRegenerate.value = reader
@@ -847,10 +878,13 @@ export const useBuildingView = () => {
     const confirmRegenerateReaderToken = async () => {
         if (!readerToRegenerate.value) return
         isRegeneratingReaderToken.value = true
+        readerErrorMessage.value = ''
         try {
             const response = await buildingRepository.regenerateReaderToken(readerToRegenerate.value.rfid_reader_id)
             generatedReaderToken.value = response.data.new_secret_token
             readerToRegenerate.value = null
+        } catch {
+            readerErrorMessage.value = serverErrorMessage()
         } finally {
             isRegeneratingReaderToken.value = false
         }
@@ -865,6 +899,7 @@ export const useBuildingView = () => {
     const confirmDeleteReader = async () => {
         if (!readerToDelete.value) return
         isDeletingReader.value = true
+        readerErrorMessage.value = ''
         try {
             const readerId = readerToDelete.value.rfid_reader_id
             await buildingRepository.deleteReader(readerId)
@@ -872,17 +907,21 @@ export const useBuildingView = () => {
             availableReaders.value = availableReaders.value.filter((item) => item.rfid_reader_id !== readerId)
             readersTotal.value = Math.max(0, readersTotal.value - 1)
             readerToDelete.value = null
+        } catch {
+            readerErrorMessage.value = serverErrorMessage()
         } finally {
             isDeletingReader.value = false
         }
     }
     const openCreateReaderModal = () => {
+        readerErrorMessage.value = ''
         readerModalMode.value = 'create'
         readerEditingId.value = 0
         readerNameValue.value = ''
         isReaderModalOpen.value = true
     }
     const openEditReaderModal = (reader: RfidReaderItem) => {
+        readerErrorMessage.value = ''
         readerModalMode.value = 'edit'
         readerEditingId.value = reader.rfid_reader_id
         readerNameValue.value = reader.name
@@ -895,6 +934,7 @@ export const useBuildingView = () => {
     const submitReader = async () => {
         if (!canSubmitReader.value) return
         isReaderSubmitting.value = true
+        readerErrorMessage.value = ''
         try {
             const name = readerNameValue.value.trim()
             if (readerModalMode.value === 'create') {
@@ -912,6 +952,8 @@ export const useBuildingView = () => {
                 )
             }
             isReaderModalOpen.value = false
+        } catch {
+            readerErrorMessage.value = serverErrorMessage()
         } finally {
             isReaderSubmitting.value = false
         }
@@ -981,11 +1023,13 @@ export const useBuildingView = () => {
 
     const fetchBuilding = async () => {
         isLoadingBuilding.value = true
+        buildingErrorMessage.value = ''
         try {
             const response = await buildingEditDeleteRepository.getBuildingInfo(buildingId.value)
             building.value = response.data
             buildingCreatedAt.value = response.data.created_at
         } catch {
+            buildingErrorMessage.value = serverErrorMessage()
             building.value = defaultBuilding
             buildingCreatedAt.value = ''
         } finally {
@@ -997,6 +1041,7 @@ export const useBuildingView = () => {
         if (isLoadingFloors.value) return
         const requestId = ++floorsRequestId
         isLoadingFloors.value = true
+        floorsErrorMessage.value = ''
         try {
             const params: OrganizationListParams = {
                 search: floorsSearch.value,
@@ -1015,6 +1060,7 @@ export const useBuildingView = () => {
             }
         } catch {
             if (requestId !== floorsRequestId) return
+            floorsErrorMessage.value = serverErrorMessage()
             if (floorsOffset.value === 0) {
                 floors.value = []
                 floorsTotal.value = 0
@@ -1036,6 +1082,7 @@ export const useBuildingView = () => {
         if (isLoadingBuildingEmployees.value) return
         const requestId = ++buildingEmployeesRequestId
         isLoadingBuildingEmployees.value = true
+        buildingEmployeesErrorMessage.value = ''
         try {
             if (selectedFloorId.value === 0) {
                 currentBuildingEmployees.value = []
@@ -1054,6 +1101,7 @@ export const useBuildingView = () => {
             buildingEmployeesTotal.value = response.data.total
         } catch {
             if (requestId !== buildingEmployeesRequestId) return
+            buildingEmployeesErrorMessage.value = serverErrorMessage()
             if (buildingEmployeesOffset.value === 0) {
                 currentBuildingEmployees.value = []
                 buildingEmployeesTotal.value = 0
@@ -1150,6 +1198,7 @@ export const useBuildingView = () => {
         }
 
         isLoadingMemberPositions.value = true
+        memberPositionsErrorMessage.value = ''
         try {
             const response = await positionsRepository.getMemberPositions(building.value.organization_id, employeeId, {
                 search: assignedPositionsSearchValue.value,
@@ -1160,6 +1209,8 @@ export const useBuildingView = () => {
                 ? response.data.items
                 : [...assignedMemberPositions.value, ...response.data.items]
             assignedPositionsTotal.value = response.data.total
+        } catch {
+            memberPositionsErrorMessage.value = serverErrorMessage()
         } finally {
             isLoadingMemberPositions.value = false
         }
@@ -1174,6 +1225,7 @@ export const useBuildingView = () => {
         }
 
         isLoadingAvailablePositions.value = true
+        memberPositionsErrorMessage.value = ''
         try {
             const response = await positionsRepository.getUnassignedEmployeePositions(building.value.organization_id, employeeId, {
                 search: availablePositionsSearchValue.value,
@@ -1184,6 +1236,8 @@ export const useBuildingView = () => {
                 ? response.data.items
                 : [...availableMemberPositions.value, ...response.data.items]
             availablePositionsTotal.value = response.data.total
+        } catch {
+            memberPositionsErrorMessage.value = serverErrorMessage()
         } finally {
             isLoadingAvailablePositions.value = false
         }
@@ -1198,13 +1252,13 @@ export const useBuildingView = () => {
             connectLocationsSocket()
             return
         }
-        if (sidePanelTab.value === 'employees') selectSidePanelTab('floors')
         buildingLocationsSocketService.disconnect()
     }
 
     const selectSidePanelTab = (tab: 'floors' | 'employees') => {
         if (tab === 'employees' && areSidebarTabsHidden.value) {
-            tab = 'floors'
+            sidePanelTab.value = tab
+            return
         }
         sidePanelTab.value = tab
         void syncSidePanelTabToRoute(tab)
@@ -1237,6 +1291,7 @@ export const useBuildingView = () => {
             created_at: employee.last_scan_at || ''
         }
 
+        memberInfoErrorMessage.value = ''
         try {
             const response = await participantsControlRepository.getMemberProfile(
                 building.value.organization_id,
@@ -1244,6 +1299,8 @@ export const useBuildingView = () => {
                 'employee'
             )
             selectedMemberProfile.value = response.data
+        } catch {
+            memberInfoErrorMessage.value = serverErrorMessage()
         } finally {
             isLoadingMemberProfile.value = false
         }
@@ -1310,6 +1367,7 @@ export const useBuildingView = () => {
     const downloadEmployeeMovementReport = async () => {
         if (!employeeForMovementReport.value || !canDownloadMovementReport.value) return
         isDownloadingMovementReport.value = true
+        movementReportErrorMessage.value = ''
         try {
             const response = await buildingRepository.getEmployeeDailyMovements(
                 buildingId.value,
@@ -1326,6 +1384,8 @@ export const useBuildingView = () => {
                 locale: localStorage.getItem('lang') === 'en' ? 'en-US' : 'uk-UA',
                 isDark: localStorage.getItem('theme') !== 'light'
             })
+        } catch {
+            movementReportErrorMessage.value = serverErrorMessage()
         } finally {
             isDownloadingMovementReport.value = false
         }
@@ -1340,15 +1400,18 @@ export const useBuildingView = () => {
     const confirmExpelMember = async () => {
         if (!employeeToExpel.value || building.value.organization_id === 0) return
         isExpellingMember.value = true
+        expelMemberErrorMessage.value = ''
         try {
             await participantsControlRepository.removeEmployee(building.value.organization_id, employeeToExpel.value.employee_id)
             currentBuildingEmployees.value = currentBuildingEmployees.value.filter((employee) =>
                 employee.employee_id !== employeeToExpel.value?.employee_id
             )
             buildingEmployeesTotal.value = Math.max(0, buildingEmployeesTotal.value - 1)
+            closeExpelModal()
+        } catch {
+            expelMemberErrorMessage.value = serverErrorMessage()
         } finally {
             isExpellingMember.value = false
-            closeExpelModal()
         }
     }
 
@@ -1384,6 +1447,7 @@ export const useBuildingView = () => {
     }
 
     const openCreatePositionModal = () => {
+        positionFormErrorMessage.value = ''
         positionModalMode.value = 'create'
         positionToEditId.value = null
         positionRoleValue.value = ''
@@ -1398,6 +1462,7 @@ export const useBuildingView = () => {
             || availableMemberPositions.value.find((position) => position.position_id === positionId)
         if (!targetPosition) return
 
+        positionFormErrorMessage.value = ''
         positionModalMode.value = 'edit'
         positionToEditId.value = targetPosition.position_id
         positionRoleValue.value = targetPosition.role
@@ -1415,6 +1480,7 @@ export const useBuildingView = () => {
     const submitPosition = async () => {
         if (!canSubmitPositionForm.value || building.value.organization_id === 0) return
         isPositionSubmitting.value = true
+        positionFormErrorMessage.value = ''
         try {
             const normalizedDescription = positionDescriptionValue.value.trim()
             const payload = {
@@ -1440,12 +1506,15 @@ export const useBuildingView = () => {
                 )
             }
             closePositionUpsertModal()
+        } catch {
+            positionFormErrorMessage.value = serverErrorMessage()
         } finally {
             isPositionSubmitting.value = false
         }
     }
 
     const openDeletePositionModal = (positionId: number) => {
+        deletePositionErrorMessage.value = ''
         positionToDeleteId.value = positionId
         isDeletePositionModalOpen.value = true
     }
@@ -1459,6 +1528,7 @@ export const useBuildingView = () => {
     const confirmDeletePosition = async () => {
         if (positionToDeleteId.value === null) return
         isDeletingPosition.value = true
+        deletePositionErrorMessage.value = ''
         try {
             await positionsRepository.deletePosition(positionToDeleteId.value)
             assignedMemberPositions.value = assignedMemberPositions.value.filter((position) => position.position_id !== positionToDeleteId.value)
@@ -1466,6 +1536,8 @@ export const useBuildingView = () => {
             assignedPositionsTotal.value = Math.max(0, assignedPositionsTotal.value - 1)
             availablePositionsTotal.value = Math.max(0, availablePositionsTotal.value - 1)
             closeDeletePositionModal()
+        } catch {
+            deletePositionErrorMessage.value = serverErrorMessage()
         } finally {
             isDeletingPosition.value = false
         }
@@ -1476,12 +1548,15 @@ export const useBuildingView = () => {
         if (employeeId === null || !isPositionsEditMode.value) return
         isLoadingMemberPositions.value = true
         isLoadingAvailablePositions.value = true
+        memberPositionsErrorMessage.value = ''
         try {
             await positionsRepository.assignPosition(employeeId, positionId)
             availableMemberPositions.value = availableMemberPositions.value.filter((position) => position.position_id !== positionId)
             availablePositionsTotal.value = Math.max(0, availablePositionsTotal.value - 1)
             assignedPositionsOffset.value = 0
             await fetchAssignedMemberPositions()
+        } catch {
+            memberPositionsErrorMessage.value = serverErrorMessage()
         } finally {
             isLoadingMemberPositions.value = false
             isLoadingAvailablePositions.value = false
@@ -1493,6 +1568,7 @@ export const useBuildingView = () => {
         if (employeeId === null || !isPositionsEditMode.value) return
         isLoadingMemberPositions.value = true
         isLoadingAvailablePositions.value = true
+        memberPositionsErrorMessage.value = ''
         try {
             await positionsRepository.unassignPosition(employeeId, positionId)
             assignedMemberPositions.value = assignedMemberPositions.value.filter((position) => position.position_id !== positionId)
@@ -1501,6 +1577,8 @@ export const useBuildingView = () => {
                 availablePositionsOffset.value = 0
                 await fetchAvailableMemberPositions()
             }
+        } catch {
+            memberPositionsErrorMessage.value = serverErrorMessage()
         } finally {
             isLoadingMemberPositions.value = false
             isLoadingAvailablePositions.value = false
@@ -1508,6 +1586,7 @@ export const useBuildingView = () => {
     }
 
     const openEditBuildingModal = () => {
+        buildingFormErrorMessage.value = ''
         buildingTitleValue.value = building.value.title
         buildingAddressValue.value = building.value.address || ''
         initialBuildingTitleValue.value = building.value.title.trim()
@@ -1522,6 +1601,7 @@ export const useBuildingView = () => {
     const submitBuilding = async () => {
         if (!canSubmitBuilding.value) return
         isBuildingSubmitting.value = true
+        buildingFormErrorMessage.value = ''
         try {
             const address = buildingAddressValue.value.trim()
             const response = await buildingEditDeleteRepository.updateBuilding(buildingId.value, {
@@ -1530,12 +1610,15 @@ export const useBuildingView = () => {
             })
             building.value = response.data
             closeBuildingModal()
+        } catch {
+            buildingFormErrorMessage.value = serverErrorMessage()
         } finally {
             isBuildingSubmitting.value = false
         }
     }
 
     const openCreateFloorModal = () => {
+        floorFormErrorMessage.value = ''
         floorModalMode.value = 'create'
         floorEditingId.value = 0
         floorNameValue.value = ''
@@ -1544,6 +1627,7 @@ export const useBuildingView = () => {
     }
 
     const openEditFloorModal = (floor: FloorItem) => {
+        floorFormErrorMessage.value = ''
         floorModalMode.value = 'edit'
         floorEditingId.value = floor.floor_id
         floorNameValue.value = floor.floor_name
@@ -1558,6 +1642,7 @@ export const useBuildingView = () => {
     const submitFloor = async () => {
         if (!canSubmitFloor.value) return
         isFloorSubmitting.value = true
+        floorFormErrorMessage.value = ''
         try {
             if (floorModalMode.value === 'create') {
                 await buildingRepository.createFloor(buildingId.value, {
@@ -1576,6 +1661,8 @@ export const useBuildingView = () => {
                     : floor)
             }
             closeFloorModal()
+        } catch {
+            floorFormErrorMessage.value = serverErrorMessage()
         } finally {
             isFloorSubmitting.value = false
         }
@@ -1623,6 +1710,7 @@ export const useBuildingView = () => {
     }
 
     const openDeleteFloorModal = (floorId: number) => {
+        deleteFloorErrorMessage.value = ''
         floorToDeleteId.value = floorId
     }
 
@@ -1633,6 +1721,7 @@ export const useBuildingView = () => {
     const confirmDeleteFloor = async () => {
         if (floorToDeleteId.value === 0) return
         isDeletingFloor.value = true
+        deleteFloorErrorMessage.value = ''
         try {
             const deletedFloorIndex = floors.value.findIndex((floor) => floor.floor_id === floorToDeleteId.value)
             const fallbackFloorId = deletedFloorIndex > 0
@@ -1646,12 +1735,15 @@ export const useBuildingView = () => {
             }
             closeDeleteFloorModal()
             await reloadFloors()
+        } catch {
+            deleteFloorErrorMessage.value = serverErrorMessage()
         } finally {
             isDeletingFloor.value = false
         }
     }
 
     const openDeleteBuildingModal = () => {
+        deleteBuildingErrorMessage.value = ''
         isDeleteBuildingModalOpen.value = true
     }
 
@@ -1660,8 +1752,13 @@ export const useBuildingView = () => {
     }
 
     const confirmDeleteBuilding = async () => {
-        await buildingEditDeleteRepository.deleteBuilding(buildingId.value)
-        await router.push({ name: 'Organizations' })
+        deleteBuildingErrorMessage.value = ''
+        try {
+            await buildingEditDeleteRepository.deleteBuilding(buildingId.value)
+            await router.push({ name: 'Organizations' })
+        } catch {
+            deleteBuildingErrorMessage.value = serverErrorMessage()
+        }
     }
 
     const toggleFloorsCollapsed = () => {
@@ -1726,13 +1823,14 @@ export const useBuildingView = () => {
         () => route.query.tab,
         () => {
             const tab = route.query.tab === 'employees' ? 'employees' : 'floors'
-            if (sidePanelTab.value !== tab) selectSidePanelTab(tab)
+            if (sidePanelTab.value === tab) return
+            if (tab === 'employees' && areSidebarTabsHidden.value) {
+                sidePanelTab.value = tab
+                return
+            }
+            selectSidePanelTab(tab)
         }
     )
-
-    watch(areSidebarTabsHidden, (value) => {
-        if (value && sidePanelTab.value === 'employees') selectSidePanelTab('floors')
-    })
 
     watch(
         () => route.query.mode,
@@ -1759,7 +1857,7 @@ export const useBuildingView = () => {
         }
         floorsSearchDebounce = window.setTimeout(() => {
             runBackground(fetchFloors())
-        }, LIST.SEARCH_DEBOUNCE_MS)
+        }, DATA_TABLE_CONSTANTS.SEARCH_DEBOUNCE_MS)
     })
 
     watch(buildingEmployeesSearch, () => {
@@ -1770,7 +1868,7 @@ export const useBuildingView = () => {
         if (buildingEmployeesSearchDebounce !== null) window.clearTimeout(buildingEmployeesSearchDebounce)
         buildingEmployeesSearchDebounce = window.setTimeout(() => {
             runBackground(fetchCurrentBuildingEmployees())
-        }, LIST.SEARCH_DEBOUNCE_MS)
+        }, DATA_TABLE_CONSTANTS.SEARCH_DEBOUNCE_MS)
     })
 
     watch(floorsOffset, () => {
@@ -1787,7 +1885,7 @@ export const useBuildingView = () => {
         if (assignedPositionsSearchDebounce !== null) window.clearTimeout(assignedPositionsSearchDebounce)
         assignedPositionsSearchDebounce = window.setTimeout(() => {
             runBackground(fetchAssignedMemberPositions())
-        }, LIST.SEARCH_DEBOUNCE_MS)
+        }, DATA_TABLE_CONSTANTS.SEARCH_DEBOUNCE_MS)
     })
 
     watch(assignedPositionsOffset, () => {
@@ -1800,7 +1898,7 @@ export const useBuildingView = () => {
         if (availablePositionsSearchDebounce !== null) window.clearTimeout(availablePositionsSearchDebounce)
         availablePositionsSearchDebounce = window.setTimeout(() => {
             runBackground(fetchAvailableMemberPositions())
-        }, LIST.SEARCH_DEBOUNCE_MS)
+        }, DATA_TABLE_CONSTANTS.SEARCH_DEBOUNCE_MS)
     })
 
     watch(availablePositionsOffset, () => {
@@ -1815,7 +1913,7 @@ export const useBuildingView = () => {
         if (readersSearchDebounce !== null) window.clearTimeout(readersSearchDebounce)
         readersSearchDebounce = window.setTimeout(() => {
             runBackground(fetchDoorReaders())
-        }, LIST.SEARCH_DEBOUNCE_MS)
+        }, DATA_TABLE_CONSTANTS.SEARCH_DEBOUNCE_MS)
     })
 
     watch(readersOffset, () => {
@@ -1875,26 +1973,33 @@ export const useBuildingView = () => {
         isFloorsCollapsed,
         isBuildingMapExpanded,
         isLoadingBuilding,
+        buildingErrorMessage,
         isLoadingFloors,
+        floorsErrorMessage,
         isLoadingBuildingEmployees,
+        buildingEmployeesErrorMessage,
         isExpelModalOpen,
         isExpellingMember,
+        expelMemberErrorMessage,
         employeeForMovementReport,
         movementReportDateValue,
         movementReportMinDate,
         movementReportMaxDate,
         isMovementReportModalOpen,
         isDownloadingMovementReport,
+        movementReportErrorMessage,
         canDownloadMovementReport,
         isLoadingMap,
         mapErrorMessage,
         selectedMemberProfile,
         isMemberInfoModalOpen,
         isLoadingMemberProfile,
+        memberInfoErrorMessage,
         isMemberPositionsModalOpen,
         isPositionsEditMode,
         isLoadingMemberPositions,
         isLoadingAvailablePositions,
+        memberPositionsErrorMessage,
         assignedMemberPositions,
         availableMemberPositions,
         assignedPositionsSearchValue,
@@ -1909,18 +2014,22 @@ export const useBuildingView = () => {
         positionRoleValue,
         positionDescriptionValue,
         isPositionSubmitting,
+        positionFormErrorMessage,
         canSubmitPositionForm,
         isDeletePositionModalOpen,
         isDeletingPosition,
+        deletePositionErrorMessage,
         isBuildingModalOpen,
         buildingTitleValue,
         buildingAddressValue,
         isBuildingSubmitting,
+        buildingFormErrorMessage,
         canSubmitBuilding,
         isFloorModalOpen,
         floorModalMode,
         floorNameValue,
         isFloorSubmitting,
+        floorFormErrorMessage,
         canSubmitFloor,
         isZoneCreateModalOpen,
         zoneTitleValue,
@@ -1935,8 +2044,10 @@ export const useBuildingView = () => {
         canSubmitZone,
         canDeleteFloor,
         isDeleteBuildingModalOpen,
+        deleteBuildingErrorMessage,
         floorToDeleteId,
         isDeletingFloor,
+        deleteFloorErrorMessage,
         zoneToDeleteId,
         isDeletingZone,
         doorToDelete,
@@ -1949,6 +2060,7 @@ export const useBuildingView = () => {
         readersLimit,
         readersTotal,
         isLoadingReaders,
+        readerErrorMessage,
         generatedReaderToken,
         isReaderModalOpen,
         readerModalMode,

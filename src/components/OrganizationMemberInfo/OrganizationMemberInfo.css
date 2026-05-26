@@ -20,7 +20,9 @@
 }
 
 .organization-member-info-close:hover {
-    color: var(--color-text-main);
+    color: var(--color-brand-primary);
+    border-color: color-mix(in srgb, var(--color-brand-primary), transparent 35%);
+    box-shadow: 0 0 0 2px color-mix(in srgb, var(--color-brand-primary), transparent 78%);
 }
 
 .organization-member-info-loader {

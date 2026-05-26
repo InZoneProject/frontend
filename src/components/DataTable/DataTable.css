@@ -120,17 +120,19 @@
 }
 
 .td-name {
-    @apply flex items-center gap-4 py-1;
+    @apply flex items-center gap-4 py-2;
 }
 
 .user-avatar-wrapper {
-    @apply w-12 h-12 rounded-full overflow-hidden shrink-0 flex items-center justify-center transition-transform;
+    @apply w-12 h-12 rounded-full overflow-hidden shrink-0 flex items-center justify-center transition-transform border border-solid;
     background: linear-gradient(135deg, var(--color-brand-primary), color-mix(in srgb, var(--color-brand-primary), black 15%));
+    border-color: color-mix(in srgb, var(--color-text-muted), transparent 55%);
     box-shadow: 0 4px 12px var(--color-brand-shadow);
 }
 
 .user-avatar-img {
-    @apply w-full h-full object-cover;
+    @apply w-[calc(100%+2px)] h-[calc(100%+2px)] object-cover;
+    box-shadow: 0 0 0 2px var(--color-card-bg);
 }
 
 .default-avatar-icon {
@@ -139,18 +141,18 @@
 }
 
 .user-info-text {
-    @apply flex flex-col gap-1 min-w-0;
+    @apply flex flex-col gap-1 min-w-0 py-0.5;
 }
 
 .user-name {
-    @apply text-[16px] font-bold tracking-tight leading-none truncate;
+    @apply text-[16px] font-bold tracking-tight leading-tight truncate;
     color: var(--color-text-main);
 }
 
 .user-email,
 .td-phone,
 .td-date {
-    @apply text-[13px] font-medium leading-none truncate;
+    @apply text-[13px] font-medium leading-tight truncate;
     color: var(--color-text-main);
 }
 
@@ -182,16 +184,8 @@
     color: var(--color-text-main);
 }
 
-.main-table td.td-status {
-    border-bottom: none;
-    border-right: none;
-    background-color: transparent;
-    height: calc(var(--table-max-height) - 5rem);
-    text-align: center;
-}
-
 .status-content {
-    @apply flex flex-col items-center justify-center gap-6 h-full px-6 text-center;
+    @apply flex flex-col items-center justify-center gap-6 px-6 text-center;
 }
 
 .status-text {
@@ -203,6 +197,13 @@
 .loader {
     @apply w-10 h-10 border-4 border-solid rounded-full animate-spin;
     border-color: var(--color-brand-primary) transparent var(--color-brand-primary) transparent;
+}
+
+.table-status-overlay {
+    @apply absolute left-0 right-0 top-0 z-[2] pointer-events-none;
+    display: flex;
+    justify-content: center;
+    padding-top: 1.5rem;
 }
 
 .table-wrapper::-webkit-scrollbar {

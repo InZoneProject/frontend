@@ -1,6 +1,5 @@
 <script setup lang="ts">
 import { computed, type Ref } from 'vue'
-import { EyeIcon, EyeSlashIcon } from '@heroicons/vue/24/outline'
 import BaseTabs from '@/components/BaseTabs/BaseTabs.vue'
 import BaseButton from '@/components/BaseButton/BaseButton.vue'
 import DataTable from '@/components/DataTable/DataTable.vue'
@@ -146,8 +145,6 @@ const {
   copyActiveInvite,
   clearActiveInvite,
   clearActiveInviteCopySuccessMessage,
-  toggleTagUidVisibility,
-  isTagUidVisible,
   getRoleLabel
 } = useOrganizationView({
   organizationId: properties.organizationId,
@@ -368,23 +365,7 @@ const {
                     <span class="organization-page-cell-title">{{ (item as OrganizationRfidTagItem).name }}</span>
                   </td>
                   <td>
-                    <div class="organization-page-uid-cell">
-                      <span class="organization-page-cell-muted">
-                        {{ isTagUidVisible((item as OrganizationRfidTagItem).rfid_tag_id)
-                          ? (item as OrganizationRfidTagItem).tag_uid
-                          : String((item as OrganizationRfidTagItem).tag_uid).replace(/\d/g, '*') }}
-                      </span>
-                      <button
-                          type="button"
-                          class="organization-page-uid-toggle"
-                          @click="toggleTagUidVisibility((item as OrganizationRfidTagItem).rfid_tag_id)"
-                      >
-                        <component
-                            :is="isTagUidVisible((item as OrganizationRfidTagItem).rfid_tag_id) ? EyeSlashIcon : EyeIcon"
-                            class="organization-page-uid-icon"
-                        />
-                      </button>
-                    </div>
+                    <span class="organization-page-cell-muted">{{ (item as OrganizationRfidTagItem).tag_uid }}</span>
                   </td>
                   <td>
                     <span class="organization-page-cell-date">{{ formatDate((item as OrganizationRfidTagItem).created_at) }}</span>

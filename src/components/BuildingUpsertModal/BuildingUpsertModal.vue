@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import BaseButton from '@/components/BaseButton/BaseButton.vue'
 import BaseInput from '@/components/BaseInput/BaseInput.vue'
+import ErrorMessage from '@/components/ErrorMessage/ErrorMessage.vue'
 import { useBuildingUpsertModal } from '@/composables/useBuildingUpsertModal'
 import { LENGTH } from '@/constants/length.constants'
 import type { BuildingUpsertModalProperties } from '@/interfaces/building-upsert-modal-properties.interface'
@@ -60,6 +61,7 @@ const {
               :disabled="properties.loading"
           />
         </div>
+        <ErrorMessage :message="properties.errorMessage || ''" />
 
         <div class="modal-actions">
           <BaseButton

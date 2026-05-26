@@ -6,11 +6,19 @@ export function useLogoutButton() {
     const authStore = useAuthStore()
 
     const handleLogout = async () => {
+        const isGlobalSession = !!authStore.globalToken
+        const isTagAdminSession = !!authStore.tagToken
         const isGlobalPath = window.location.pathname.includes('global-admin')
+        const isTagPath = window.location.pathname.includes('tag')
 
         authStore.clearTokens()
 
-        await router.push(isGlobalPath ? '/login/global-admin' : '/login/organization-admin')
+        if (isGlobalSession || isGlobalPath) {
+            await router.push('/login/global-admin')
+            return
+        }
+
+        await router.push(isTagAdminSession || isTagPath ? '/login/tag-admin' : '/login/organization-admin')
     }
 
     return {

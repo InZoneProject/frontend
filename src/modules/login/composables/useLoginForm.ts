@@ -73,6 +73,23 @@ export function useLoginForm(
         return true
     }
 
+    const getVerificationStatusFromToken = (token: string): boolean => {
+        try {
+            const [, payload] = token.split('.')
+            if (!payload) return false
+
+            const normalizedPayload = payload
+                .replace(/-/g, '+')
+                .replace(/_/g, '/')
+                .padEnd(Math.ceil(payload.length / 4) * 4, '=')
+            const decodedPayload = JSON.parse(atob(normalizedPayload)) as { is_email_verified?: boolean }
+
+            return Boolean(decodedPayload.is_email_verified)
+        } catch {
+            return false
+        }
+    }
+
     const handleRoleChange = (newRole: UserRole): void => {
         errorKey.value = null
         serverMessage.value = ''
@@ -107,7 +124,12 @@ export function useLoginForm(
                 if (activeRole.value === UserRole.GLOBAL_ADMIN) {
                     void router.push({ name: 'GlobalAdminPanel' })
                 } else {
-                    void router.push({ name: 'Verification' })
+                    const isVerified = getVerificationStatusFromToken(access_token)
+                    authStore.setVerified(isVerified)
+                    void router.push({ name: activeRole.value === UserRole.ORGANIZATION_ADMIN
+                        ? isVerified ? 'Organizations' : 'Verification'
+                        : isVerified ? 'TagAdminPanel' : 'Verification'
+                    })
                 }
             }
 

@@ -7,5 +7,6 @@ export interface BuildingUpsertModalProperties {
     addressValue: string
     loading: boolean
     canSubmit: boolean
+    errorMessage?: string
     translations: OrganizationsTranslations['page']['modals']['buildingForm']
 }

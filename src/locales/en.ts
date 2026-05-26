@@ -78,6 +78,54 @@ export const en = {
             }
         }
     },
+    tagAdminPanel: {
+        organization: {
+            title: 'Organization',
+            descriptionFallback: 'No description',
+            nameLabel: 'Organization name',
+            descriptionLabel: 'Description',
+            createdAtLabel: 'Created at'
+        },
+        table: {
+            title: 'Employees',
+            searchPlaceholder: 'Search employees...',
+            empty: 'No employees found',
+            loading: 'Loading employees...',
+            headers: {
+                user: 'User',
+                tagStatus: 'Assigned tag',
+                phone: 'Phone',
+                createdAt: 'Created At'
+            },
+            tagAssigned: 'Tag assigned',
+            tagMissing: 'No tag assigned',
+            employeeRole: 'Employee'
+        },
+        memberInfo: {
+            title: 'Employee information',
+            empty: 'Select an employee in the table to view details.',
+            email: 'Email',
+            phone: 'Phone',
+            createdAt: 'Created at',
+            viewPositions: 'View positions',
+            assignTag: 'Assign tag',
+            unassignTag: 'Unassign tag'
+        },
+        tagModal: {
+            title: 'Employee RFID tag',
+            assignedTitle: 'Assigned tag',
+            emptyAssigned: 'Drag a tag here',
+            searchPlaceholder: 'Search tags...',
+            emptyAvailable: 'No available tags found',
+            loading: 'Loading tags...',
+            name: 'Name',
+            tagUid: 'Tag UID',
+            createdAt: 'Created'
+        },
+        errors: {
+            server: 'A server problem occurred. Please try again in a moment.'
+        }
+    },
     organizationAdmin: {
         actions: {
             createOrganization: 'Create organization',
@@ -341,6 +389,7 @@ export const en = {
             map: {
                 syncError: 'Could not sync the map with the server. Check the connection and try again.'
             },
+            serverError: 'A server problem occurred. Please try again in a moment.',
             zoneForm: {
                 title: 'Create zone',
                 nameLabel: 'Zone name',

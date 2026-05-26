@@ -100,7 +100,7 @@ export function useRegisterForm(
             const { access_token } = response.data
             if (access_token) {
                 authStore.setToken(activeRole.value, access_token)
-                void router.push({ name: 'GlobalAdminPanel' })
+                void router.push({ name: 'Verification' })
             }
             emit(Events.SUBMIT, response.data)
         } catch (error) {

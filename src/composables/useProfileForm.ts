@@ -4,6 +4,7 @@ import { useRouter } from 'vue-router'
 import { useAuthStore } from '@/stores/auth.store'
 import { isValidPhoneInputValue } from '@/composables/useBaseInput'
 import { organizationAdminProfileRepository } from '@/repositories/organization-admin-profile.repository'
+import { tagAdminPanelRepository } from '@/modules/tag-admin/repositories/tag-admin-panel.repository'
 import { Events } from '@/enums/events.enum'
 import { IMAGE_UPLOAD_CONSTANTS } from '@/constants/image-upload.constants'
 import type { ProfileFormEmits } from '@/interfaces/profile-form-emits.interface'
@@ -37,6 +38,9 @@ export function useProfileForm(
     const successMessage = ref('')
 
     const getTranslations = () => properties.translations
+    const profileRepository = computed(() =>
+        authStore.tagToken ? tagAdminPanelRepository : organizationAdminProfileRepository
+    )
 
     const isPhoneValid = computed(() => isValidPhoneInputValue(phoneValue.value))
 
@@ -80,15 +84,15 @@ export function useProfileForm(
         isSaveAttempted.value = false
     }
 
-    const setProfileData = (name: string, email: string, phone: string, photo: string): void => {
+    const setProfileData = (name: string, email: string, phone: string, photo: string | null): void => {
         initialName.value = name
         initialPhone.value = phone
-        initialPhotoUrl.value = photo
+        initialPhotoUrl.value = photo ?? ''
 
         nameValue.value = name
         emailValue.value = email
         phoneValue.value = phone
-        photoUrl.value = photo
+        photoUrl.value = photo ?? ''
     }
 
     const fetchProfile = async (): Promise<void> => {
@@ -97,12 +101,12 @@ export function useProfileForm(
         successMessage.value = ''
 
         try {
-            const response = await organizationAdminProfileRepository.getProfile()
+            const response = await profileRepository.value.getProfile()
             setProfileData(
                 response.data.full_name,
                 response.data.email,
                 response.data.phone ?? '',
-                response.data.photo ?? ''
+                response.data.photo
             )
         } catch (_error) {
             errorMessage.value = getTranslations().errors.loadFailed
@@ -132,7 +136,7 @@ export function useProfileForm(
         successMessage.value = ''
 
         try {
-            const response = await organizationAdminProfileRepository.updateProfilePhoto(formData)
+            const response = await profileRepository.value.updateProfilePhoto(formData)
             const nextPhotoUrl = response.data.photo
             photoUrl.value = nextPhotoUrl
             initialPhotoUrl.value = nextPhotoUrl
@@ -166,12 +170,12 @@ export function useProfileForm(
         successMessage.value = ''
 
         try {
-            const response = await organizationAdminProfileRepository.updateProfileInfo({
+            const response = await profileRepository.value.updateProfileInfo({
                 name: nameValue.value.trim(),
-                phone_number: phoneValue.value.trim()
+                phone: phoneValue.value.trim()
             })
 
-            const normalizedPhone = response.data.phone_number ?? ''
+            const normalizedPhone = response.data.phone ?? ''
             setProfileData(response.data.name, emailValue.value, normalizedPhone, photoUrl.value)
             isSaveAttempted.value = false
             successMessage.value = getTranslations().success.saved
@@ -203,13 +207,14 @@ export function useProfileForm(
         isDeleting.value = true
         errorMessage.value = ''
         successMessage.value = ''
+        const isTagAdminProfile = Boolean(authStore.tagToken)
 
         try {
-            await organizationAdminProfileRepository.deleteProfile()
+            await profileRepository.value.deleteProfile()
             authStore.clearTokens()
             closeDeleteModal()
             emit(Events.CLOSE)
-            await router.push({ name: 'Login' })
+            await router.push({ name: isTagAdminProfile ? 'LoginTagAdmin' : 'Login' })
         } catch (_error) {
             errorMessage.value = getTranslations().errors.deleteFailed
         } finally {

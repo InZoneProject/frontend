@@ -3,6 +3,7 @@ import BaseButton from '@/components/BaseButton/BaseButton.vue'
 import DataTable from '@/components/DataTable/DataTable.vue'
 import EditButton from '@/components/EditButton/EditButton.vue'
 import DeleteButton from '@/components/DeleteButton/DeleteButton.vue'
+import ErrorMessage from '@/components/ErrorMessage/ErrorMessage.vue'
 import { useOrganizationMemberPositions } from '@/composables/useOrganizationMemberPositions'
 import type { OrganizationMemberPositionsProperties } from '@/interfaces/organization-member-positions-properties.interface'
 import type { OrganizationMemberPositionsEmits } from '@/interfaces/organization-member-positions-emits.interface'
@@ -93,6 +94,8 @@ const {
             {{ properties.translations.addPosition }}
           </BaseButton>
         </div>
+
+        <ErrorMessage :message="properties.errorMessage || ''" />
 
         <div class="organization-member-positions-grid" :class="{ 'is-edit-mode': properties.isEditMode }">
           <section class="organization-member-positions-column">

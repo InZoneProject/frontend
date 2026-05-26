@@ -7,6 +7,7 @@ export interface EmployeeMovementReportModalProperties {
     canSubmit: boolean
     employeeName: string
     locale: string
+    errorMessage?: string
     translations: {
         title: string
         dateLabel: string

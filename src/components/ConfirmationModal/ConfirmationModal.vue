@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import BaseButton from '@/components/BaseButton/BaseButton.vue'
+import ErrorMessage from '@/components/ErrorMessage/ErrorMessage.vue'
 import { Events } from '@/enums/events.enum'
 import type { ConfirmationModalProperties } from '@/interfaces/confirmation-modal-properties.interface'
 import type { ConfirmationModalEmits } from '@/interfaces/confirmation-modal-emits.interface'
@@ -23,6 +24,7 @@ defineEmits<ConfirmationModalEmits>()
         </div>
 
         <p class="modal-message">{{ message }}</p>
+        <ErrorMessage :message="errorMessage || ''" />
 
         <div class="modal-actions">
           <BaseButton

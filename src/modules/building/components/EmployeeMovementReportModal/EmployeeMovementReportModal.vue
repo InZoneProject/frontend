@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import BaseButton from '@/components/BaseButton/BaseButton.vue'
+import ErrorMessage from '@/components/ErrorMessage/ErrorMessage.vue'
 import { Events } from '@/enums/events.enum'
 import { useEmployeeMovementReportModal } from '@/modules/building/composables/useEmployeeMovementReportModal'
 import type { EmployeeMovementReportModalEmits } from '@/modules/building/interfaces/employee-movement-report-modal-emits.interface'
@@ -67,6 +68,7 @@ const {
             </button>
           </div>
         </div>
+        <ErrorMessage :message="properties.errorMessage || ''" />
 
         <div class="modal-actions">
           <BaseButton type="button" variant="secondary" :loading="false" :disabled="properties.loading" @click="emit(Events.CANCEL)">

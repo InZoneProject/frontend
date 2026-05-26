@@ -8,6 +8,7 @@ import type { OrganizationListParams } from '@/interfaces/organization-list-para
 import type { ZoneAccessRulesModalProperties } from '@/modules/building/interfaces/zone-access-rules-modal-properties.interface'
 import { ZoneAccessRuleType } from '@/modules/building/enums/zone-access-rule-type.enum'
 import { LIST } from '@/constants/list.constants'
+import { DATA_TABLE_CONSTANTS } from '@/constants/data-table.constants'
 
 export const useZoneAccessRulesModal = (
     properties: ZoneAccessRulesModalProperties,
@@ -502,7 +503,7 @@ export const useZoneAccessRulesModal = (
             return
         }
         if (assignedSearchTimeout) window.clearTimeout(assignedSearchTimeout)
-        assignedSearchTimeout = window.setTimeout(() => void fetchAssigned(), LIST.SEARCH_DEBOUNCE_MS)
+        assignedSearchTimeout = window.setTimeout(() => void fetchAssigned(), DATA_TABLE_CONSTANTS.SEARCH_DEBOUNCE_MS)
     })
     watch(availableSearch, () => {
         if (availableOffset.value !== 0) {
@@ -510,7 +511,7 @@ export const useZoneAccessRulesModal = (
             return
         }
         if (availableSearchTimeout) window.clearTimeout(availableSearchTimeout)
-        availableSearchTimeout = window.setTimeout(() => void fetchAvailable(), LIST.SEARCH_DEBOUNCE_MS)
+        availableSearchTimeout = window.setTimeout(() => void fetchAvailable(), DATA_TABLE_CONSTANTS.SEARCH_DEBOUNCE_MS)
     })
     watch(assignedOffset, () => void fetchAssigned())
     watch(availableOffset, () => void fetchAvailable())
