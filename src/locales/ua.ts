@@ -182,7 +182,7 @@ export const ua = {
         page: {
             backToList: 'Повернутися до списку організацій',
             infoTitle: 'Інформація про організацію',
-            infoDescriptionFallback: 'Опис відсутній',
+            infoDescriptionFallback: '—',
             listsTitle: 'Дані організації',
             tabs: {
                 employeesInvite: 'Запрошення співробітника',
@@ -337,10 +337,11 @@ export const ua = {
             employees: {
                 title: 'Співробітники',
                 searchPlaceholder: 'Пошук співробітників...',
-                empty: 'На цьому поверсі зараз немає співробітників',
+                empty: 'Співробітників не знайдено',
                 loading: 'Завантаження даних...',
                 headers: {
                     user: 'Користувач',
+                    floor: 'Поверх',
                     actions: 'Дії'
                 }
             },

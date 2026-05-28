@@ -3,8 +3,9 @@ export interface CurrentBuildingEmployee {
     full_name: string
     email: string
     photo: string | null
-    zone_id: number
+    zone_id: number | null
     zone_title: string
     floor_id: number | null
+    floor_number: number | null
     last_scan_at: string | null
 }

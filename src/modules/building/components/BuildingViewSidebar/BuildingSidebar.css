@@ -170,6 +170,11 @@
     @apply w-4 h-4;
 }
 
+.building-employee-floor {
+    @apply text-sm font-black;
+    color: var(--color-text-main);
+}
+
 .building-employee-row {
     @apply cursor-pointer;
 }

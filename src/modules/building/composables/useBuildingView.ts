@@ -1112,26 +1112,22 @@ export const useBuildingView = () => {
     }
 
     const matchesBuildingEmployeesSearch = (
-        employee: Pick<CurrentBuildingEmployee, 'full_name' | 'email' | 'zone_title'>
+        employee: Pick<CurrentBuildingEmployee, 'full_name' | 'email' | 'zone_title' | 'floor_number'>
     ) => {
         const query = buildingEmployeesSearch.value.trim().toLowerCase()
         if (!query) return true
 
-        return [employee.full_name, employee.email, employee.zone_title]
+        return [
+            employee.full_name,
+            employee.email,
+            employee.zone_title,
+            employee.floor_number === null ? '' : String(employee.floor_number)
+        ]
             .some((value) => value.toLowerCase().includes(query))
     }
 
     const updateCurrentBuildingEmployeesFromLocation = (payload: EmployeeLocationSocketPayload) => {
         const existingIndex = currentBuildingEmployees.value.findIndex((item) => item.employee_id === payload.employee_id)
-        const isOnSelectedFloor = payload.floor_id === selectedFloorId.value
-
-        if (!isOnSelectedFloor || payload.zone_id === null) {
-            if (existingIndex >= 0) {
-                currentBuildingEmployees.value = currentBuildingEmployees.value.filter((item) => item.employee_id !== payload.employee_id)
-                buildingEmployeesTotal.value = Math.max(0, buildingEmployeesTotal.value - 1)
-            }
-            return
-        }
 
         const zone = zones.value.find((item) => item.zone_id === payload.zone_id)
         const nextEmployee: CurrentBuildingEmployee = {
@@ -1142,6 +1138,7 @@ export const useBuildingView = () => {
             zone_id: payload.zone_id,
             zone_title: zone?.title || '',
             floor_id: payload.floor_id,
+            floor_number: payload.floor_number,
             last_scan_at: payload.timestamp
         }
 
@@ -1316,6 +1313,7 @@ export const useBuildingView = () => {
             zone_id: employee.zone_id,
             zone_title: zone?.title || '',
             floor_id: selectedFloorId.value,
+            floor_number: floors.value.find((floor) => floor.floor_id === selectedFloorId.value)?.floor_number ?? null,
             last_scan_at: null
         })
     }
@@ -1407,7 +1405,8 @@ export const useBuildingView = () => {
                 employee.employee_id !== employeeToExpel.value?.employee_id
             )
             buildingEmployeesTotal.value = Math.max(0, buildingEmployeesTotal.value - 1)
-            closeExpelModal()
+            employeeToExpel.value = null
+            isExpelModalOpen.value = false
         } catch {
             expelMemberErrorMessage.value = serverErrorMessage()
         } finally {

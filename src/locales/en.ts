@@ -182,7 +182,7 @@ export const en = {
         page: {
             backToList: 'Back to organizations',
             infoTitle: 'Organization information',
-            infoDescriptionFallback: 'No description',
+            infoDescriptionFallback: '—',
             listsTitle: 'Organization data',
             tabs: {
                 employeesInvite: 'Employee invite',
@@ -337,10 +337,11 @@ export const en = {
             employees: {
                 title: 'Employees',
                 searchPlaceholder: 'Search employees...',
-                empty: 'There are no employees on this floor right now',
+                empty: 'No employees found',
                 loading: 'Loading data...',
                 headers: {
                     user: 'User',
+                    floor: 'Floor',
                     actions: 'Actions'
                 }
             },

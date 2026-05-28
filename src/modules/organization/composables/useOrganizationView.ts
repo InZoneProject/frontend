@@ -744,7 +744,8 @@ export const useOrganizationView = (params: {
 
             members.value = members.value.filter((member) => member.id !== expelTarget.id)
             tableTotal.value = Math.max(0, tableTotal.value - 1)
-            closeExpelModal()
+            memberToExpel.value = null
+            isExpelModalOpen.value = false
         } finally {
             isExpellingMember.value = false
         }

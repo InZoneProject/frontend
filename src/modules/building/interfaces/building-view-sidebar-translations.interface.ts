@@ -21,6 +21,7 @@ export interface BuildingViewSidebarTranslations {
         loading: string
         headers: {
             user: string
+            floor: string
             actions: string
         }
     }

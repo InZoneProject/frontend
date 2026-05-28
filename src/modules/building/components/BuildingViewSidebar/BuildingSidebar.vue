@@ -150,12 +150,13 @@ const {
             @update:search-query="updateBuildingEmployeesSearch"
             @update:offset="updateBuildingEmployeesOffset"
         >
-          <template #header>
-            <tr>
-              <th class="w-[76%]">{{ translations.employees.headers.user }}</th>
-              <th class="w-[24%] building-employee-actions-header">{{ translations.employees.headers.actions }}</th>
-            </tr>
-          </template>
+	          <template #header>
+	            <tr>
+	              <th class="w-[56%]">{{ translations.employees.headers.user }}</th>
+	              <th class="w-[20%]">{{ translations.employees.headers.floor }}</th>
+	              <th class="w-[24%] building-employee-actions-header">{{ translations.employees.headers.actions }}</th>
+	            </tr>
+	          </template>
           <template #default="{ item }: { item: CurrentBuildingEmployee }">
             <tr class="building-employee-row" @click="openBuildingEmployeeInfo(item)">
               <td>
@@ -166,9 +167,14 @@ const {
                     <span class="building-employee-name">{{ item.full_name || item.email }}</span>
                     <span class="building-employee-email">{{ item.email || '—' }}</span>
                   </span>
-                </div>
-              </td>
-              <td class="building-employee-actions-cell" @click.stop>
+	                </div>
+	              </td>
+	              <td>
+	                <span class="building-employee-floor">
+	                  {{ item.floor_number ?? '—' }}
+	                </span>
+	              </td>
+	              <td class="building-employee-actions-cell" @click.stop>
                 <div class="building-employee-actions">
                   <EmployeeMovementReportButton @click="openEmployeeMovementReport(item)" />
                   <ExpelButton @click="openExpelModal(item)" />
