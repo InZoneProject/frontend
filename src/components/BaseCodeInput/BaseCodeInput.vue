@@ -9,15 +9,17 @@ const properties = defineProps<BaseCodeInputProperties>()
 const emit = defineEmits<BaseCodeInputEmits>()
 
 const {
+  digitValues,
   setInputReference,
   handleInput,
   handleKeyDown,
+  handleFocus,
   handlePaste
 } = useBaseCodeInput(properties, emit)
 </script>
 
 <template>
-  <div class="code-input-container" @paste="handlePaste">
+  <div class="code-input-container" @paste="handlePaste($event, 0)">
     <input
         v-for="index in VALIDATION.VERIFICATION_CODE_LENGTH"
         :key="index"
@@ -27,9 +29,11 @@ const {
         maxlength="1"
         :disabled="disabled"
         class="code-digit-input"
-        :value="modelValue[index - 1] || ''"
+        :value="digitValues[index - 1] || ''"
         @input="handleInput($event, index - 1)"
         @keydown="handleKeyDown($event, index - 1)"
+        @focus="handleFocus"
+        @paste="handlePaste($event, index - 1)"
     />
   </div>
 </template>

@@ -26,7 +26,6 @@ const {
   photoUrl,
   errorMessage,
   successMessage,
-  phoneErrorMessage,
   isLoadingProfile,
   isSaving,
   isUploadingPhoto,
@@ -89,10 +88,6 @@ const {
             <SuccessMessage :message="successMessage" />
           </div>
 
-          <div v-if="phoneErrorMessage !== ''" class="profile-phone-error">
-            <ErrorMessage :message="phoneErrorMessage" />
-          </div>
-
           <BaseInput
               v-model="nameValue"
               :label="properties.translations.nameLabel"
@@ -123,7 +118,7 @@ const {
               :label="properties.translations.phoneLabel"
               type="tel"
               :placeholder="properties.translations.phonePlaceholder"
-              :max-length="LENGTH.MAX_PHONE_LENGTH"
+              :max-length="LENGTH.MAX_PHONE_INPUT_LENGTH"
               :min-value="null"
               :max-value="null"
               :is-expandable="false"

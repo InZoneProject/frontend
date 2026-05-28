@@ -67,6 +67,11 @@ const routes: RouteRecordRaw[] = [
         meta: { requiresAuth: true }
     },
     {
+        path: '/join',
+        name: 'JoinOrganization',
+        component: () => import('@/modules/join/views/JoinOrganizationView.vue')
+    },
+    {
         path: '/global-admin-panel',
         name: 'GlobalAdminPanel',
         component: () => import('@/modules/global-admin/views/GlobalAdminPanelView.vue'),
@@ -118,37 +123,15 @@ export const router = createRouter({
     routes
 })
 
-const getVerificationStatusFromToken = (token: string | null): boolean | null => {
-    if (!token) return null
-
-    try {
-        const [, payload] = token.split('.')
-        if (!payload) return null
-
-        const normalizedPayload = payload
-            .replace(/-/g, '+')
-            .replace(/_/g, '/')
-            .padEnd(Math.ceil(payload.length / 4) * 4, '=')
-        const decodedPayload = JSON.parse(atob(normalizedPayload)) as { is_email_verified?: boolean }
-
-        return Boolean(decodedPayload.is_email_verified)
-    } catch {
-        return null
-    }
-}
-
 router.beforeEach((to, _from, next) => {
     const authStore = useAuthStore(pinia)
 
     const hasGlobalToken = !!authStore.globalToken
     const hasOrgToken = !!authStore.orgToken
     const hasTagToken = !!authStore.tagToken
-    const isAuthenticated = hasGlobalToken || hasOrgToken || hasTagToken
-    const tokenVerificationStatus = getVerificationStatusFromToken(authStore.orgToken || authStore.tagToken)
-    if (tokenVerificationStatus !== null && tokenVerificationStatus !== authStore.isVerified) {
-        authStore.setVerified(tokenVerificationStatus)
-    }
-    const isVerified = tokenVerificationStatus ?? authStore.isVerified
+    const hasEmployeeToken = !!authStore.employeeToken
+    const isAuthenticated = hasGlobalToken || hasOrgToken || hasTagToken || hasEmployeeToken
+    const isVerified = authStore.isVerified
 
     if (to.path === '/') {
         if (hasGlobalToken) return next({ name: 'GlobalAdminPanel' })
@@ -157,9 +140,20 @@ router.beforeEach((to, _from, next) => {
         return next('/login/organization-admin')
     }
 
+    if (to.name === 'JoinOrganization') {
+        return next()
+    }
+
     if (hasGlobalToken) {
         if (to.name !== 'GlobalAdminPanel' && to.name !== 'NotFound') {
             return next({ name: 'GlobalAdminPanel' })
+        }
+        return next()
+    }
+
+    if (hasEmployeeToken) {
+        if (to.name !== 'JoinOrganization' && to.name !== 'NotFound') {
+            return next({ name: 'JoinOrganization' })
         }
         return next()
     }

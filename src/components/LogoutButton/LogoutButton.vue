@@ -1,15 +1,22 @@
 <script setup lang="ts">
+import ConfirmationModal from '@/components/ConfirmationModal/ConfirmationModal.vue'
 import { useLogoutButton } from '@/composables/useLogoutButton'
 import './LogoutButton.css'
 
-const { handleLogout } = useLogoutButton()
+const {
+  commonTranslations,
+  isConfirmOpen,
+  openConfirm,
+  closeConfirm,
+  confirmLogout
+} = useLogoutButton()
 </script>
 
 <template>
   <button
       class="logout-switcher"
       type="button"
-      @click="handleLogout"
+      @click="openConfirm"
   >
     <svg
         class="logout-icon"
@@ -25,4 +32,15 @@ const { handleLogout } = useLogoutButton()
       />
     </svg>
   </button>
+
+  <ConfirmationModal
+      :is-open="isConfirmOpen"
+      :loading="false"
+      :title="commonTranslations.logoutConfirmTitle"
+      :message="commonTranslations.logoutConfirmMessage"
+      :confirm-label="commonTranslations.logoutConfirm"
+      :cancel-label="commonTranslations.logoutCancel"
+      @confirm="confirmLogout"
+      @cancel="closeConfirm"
+  />
 </template>

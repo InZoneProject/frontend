@@ -23,6 +23,7 @@ export enum Events {
     UPDATE_FLOORS_OFFSET = 'update:floorsOffset',
     UPDATE_BUILDING_EMPLOYEES_OFFSET = 'update:buildingEmployeesOffset',
     UPDATE_SELECTED_FLOOR_ID = 'update:selectedFloorId',
+    UPDATE_CONSENT = 'update:consent',
     SELECT = 'select',
     SELECT_SIDE_PANEL_TAB = 'selectSidePanelTab',
     REORDER = 'reorder',

@@ -33,7 +33,6 @@ export function useProfileForm(
     const isUploadingPhoto = ref(false)
     const isDeleting = ref(false)
     const isDeleteModalOpen = ref(false)
-    const isSaveAttempted = ref(false)
     const errorMessage = ref('')
     const successMessage = ref('')
 
@@ -68,20 +67,12 @@ export function useProfileForm(
         return isLoadingProfile.value || isSaving.value || isUploadingPhoto.value || isDeleting.value
     })
 
-    const phoneErrorMessage = computed(() => {
-        if (!isSaveAttempted.value || isPhoneValid.value || phoneValue.value.trim().length === 0) {
-            return ''
-        }
-        return getTranslations().errors.invalidPhone
-    })
-
     const resetDraft = (): void => {
         nameValue.value = initialName.value
         phoneValue.value = initialPhone.value
         photoUrl.value = initialPhotoUrl.value
         errorMessage.value = ''
         successMessage.value = ''
-        isSaveAttempted.value = false
     }
 
     const setProfileData = (name: string, email: string, phone: string, photo: string | null): void => {
@@ -155,8 +146,6 @@ export function useProfileForm(
     }
 
     const handleSave = async (): Promise<void> => {
-        isSaveAttempted.value = true
-
         if (!isPhoneValid.value) {
             return
         }
@@ -177,7 +166,6 @@ export function useProfileForm(
 
             const normalizedPhone = response.data.phone ?? ''
             setProfileData(response.data.name, emailValue.value, normalizedPhone, photoUrl.value)
-            isSaveAttempted.value = false
             successMessage.value = getTranslations().success.saved
         } catch (error) {
             if (isAxiosError(error)) {
@@ -277,7 +265,6 @@ export function useProfileForm(
         photoUrl,
         errorMessage,
         successMessage,
-        phoneErrorMessage,
         isLoadingProfile,
         isSaving,
         isUploadingPhoto,

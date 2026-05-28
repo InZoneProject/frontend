@@ -2,6 +2,10 @@ export const ua = {
     common: {
         title: 'InZone',
         forgotPassword: 'Забули пароль?',
+        logoutConfirmTitle: 'Вийти з акаунту',
+        logoutConfirmMessage: 'Ви впевнені, що хочете вийти з акаунту?',
+        logoutConfirm: 'Вийти',
+        logoutCancel: 'Скасувати',
         userNameLabel: 'Користувач',
         userNamePlaceholder: "Введіть ваше ім'я",
         emailLabel: 'Електронна пошта',
@@ -10,12 +14,14 @@ export const ua = {
         passwordPlaceholder: 'Введіть ваш пароль',
         roles: {
             'organization-admin': 'Адмін організації',
-            'tag-admin': 'Адмін тегів'
+            'tag-admin': 'Адмін тегів',
+            employee: 'Співробітник'
         },
         rolesDescription: {
             'organization-admin': 'Створюйте власні організації та керуйте ними',
             'tag-admin': 'Призначайте та відзначайте теги співробітникам',
-            'global-admin': 'Повний контроль над системою'
+            'global-admin': 'Повний контроль над системою',
+            employee: 'Приєднуйтесь до організацій як співробітник'
         },
         errors: {
             invalidEmail: 'Некоректний формат пошти',
@@ -34,6 +40,17 @@ export const ua = {
     },
     register: {
         submitRole: 'Реєстрація'
+    },
+    joinOrganization: {
+        title: 'Приєднання до організації',
+        description: 'Це запрошення призначене для співробітника в Android застосунку InZone. Якщо посилання відкрито застосунком, ви зможете підтвердити згоду та приєднатися до організації.',
+        consent: 'Я погоджуюсь, що InZone може обробляти мої дані та використовувати відстеження у межах організацій, до яких я приєднуюсь.',
+        confirm: 'Приєднатися',
+        success: 'Згоду надано. Організацію додано до вашого акаунту. Можете повернутися до Android застосунку.',
+        missingToken: 'Посилання запрошення некоректне або без токена.',
+        androidRequired: 'Відкрийте це запрошення саме на телефоні через Android застосунок InZone. Так застосунок передасть токен співробітника і безпечно приєднає вас до організації.',
+        loadFailed: 'Не вдалося перевірити статус згоди.',
+        joinFailed: 'Не вдалося приєднатися до організації.'
     },
     globalAdmin: {
         inviteSection: {

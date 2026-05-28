@@ -2,6 +2,10 @@ export const en = {
     common: {
         title: 'InZone',
         forgotPassword: 'Forgot password?',
+        logoutConfirmTitle: 'Log out',
+        logoutConfirmMessage: 'Are you sure you want to log out?',
+        logoutConfirm: 'Log out',
+        logoutCancel: 'Cancel',
         userNameLabel: 'User',
         userNamePlaceholder: 'Enter your name',
         emailLabel: 'Email Address',
@@ -10,12 +14,14 @@ export const en = {
         passwordPlaceholder: 'Enter your password',
         roles: {
             'organization-admin': 'Organization Admin',
-            'tag-admin': 'Tag Admin'
+            'tag-admin': 'Tag Admin',
+            employee: 'Employee'
         },
         rolesDescription: {
             'organization-admin': 'Create and manage your own organizations',
             'tag-admin': 'Assign and manage employee tags',
-            'global-admin': 'Full system control'
+            'global-admin': 'Full system control',
+            employee: 'Join organizations as an employee'
         },
         errors: {
             invalidEmail: 'Invalid email format',
@@ -34,6 +40,17 @@ export const en = {
     },
     register: {
         submitRole: 'Registration'
+    },
+    joinOrganization: {
+        title: 'Join organization',
+        description: 'This invitation is intended for an employee in the InZone Android app. When the app opens the link, you can confirm consent and join the organization.',
+        consent: 'I agree that InZone may process my data and use tracking within organizations I join.',
+        confirm: 'Join',
+        success: 'Consent has been granted. The organization was added to your account. You can return to the Android app.',
+        missingToken: 'The invitation link is invalid or missing a token.',
+        androidRequired: 'Open this invitation on your phone through the InZone Android app. The app will provide the employee token and securely join you to the organization.',
+        loadFailed: 'Failed to check consent status.',
+        joinFailed: 'Failed to join organization.'
     },
     globalAdmin: {
         inviteSection: {

@@ -26,8 +26,10 @@ export class BaseRepository {
                 token = authStore.orgToken || authStore.tagToken
             } else if (repositoryBaseUrl.includes('/tag-admin')) {
                 token = authStore.tagToken
+            } else if (repositoryBaseUrl.includes('/employees')) {
+                token = authStore.employeeToken
             } else {
-                token = authStore.orgToken || authStore.tagToken || authStore.globalToken
+                token = authStore.orgToken || authStore.tagToken || authStore.globalToken || authStore.employeeToken
             }
 
             if (token) {
@@ -46,6 +48,10 @@ export class BaseRepository {
 
                     const isGlobalPath = window.location.pathname.includes('global-admin')
                     const isTagPath = window.location.pathname.includes('tag')
+                    if (window.location.pathname.includes('/join')) {
+                        return Promise.reject(error)
+                    }
+
                     const routeName = isGlobalPath ? 'LoginGlobalAdmin' : isTagPath ? 'LoginTagAdmin' : 'Login'
 
                     await router.push({ name: routeName })

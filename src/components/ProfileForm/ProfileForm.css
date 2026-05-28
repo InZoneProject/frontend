@@ -67,10 +67,6 @@
     @apply mb-1;
 }
 
-.profile-phone-error {
-    @apply mb-1;
-}
-
 .profile-modal-actions {
     @apply mt-8 flex flex-col gap-3;
 }
