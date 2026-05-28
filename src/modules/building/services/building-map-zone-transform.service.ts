@@ -3,6 +3,7 @@ import {BUILDING_MAP_GEOMETRY_CONSTANTS} from '@/modules/building/constants/buil
 import {BUILDING_MAP_ZONE_UI_CONSTANTS} from '@/modules/building/constants/building-map-zone-ui.constants'
 import {buildingMapEntranceDoorPlacementContextService} from '@/modules/building/services/building-map-entrance-door-placement-context.service'
 import {buildingMapGeometryService} from '@/modules/building/services/building-map-geometry.service'
+import {mediaUrlService} from '@/services/media-url.service'
 import {BuildingMapActionType} from '@/modules/building/enums/building-map-action-type.enum'
 import {BuildingMapResizeEdge} from '@/modules/building/enums/building-map-resize-edge.enum'
 import type {BlockedGeometryPreview} from '@/modules/building/interfaces/blocked-geometry-preview.interface'
@@ -27,14 +28,7 @@ class BuildingMapZoneTransformService {
     }
 
     public resolvePhotoUrl(photo: string | null) {
-        if (!photo) return null
-        if (/^https?:\/\//.test(photo)) return photo
-
-        const apiBase = String(import.meta.env.VITE_API_BASE_URL || '')
-            .replace(/\/api\/?$/, '')
-            .replace(/\/$/, '')
-
-        return `${apiBase}${photo.startsWith('/') ? photo : `/${photo}`}`
+        return mediaUrlService.resolveUrl(photo)
     }
 
     public getZoneStyle(zone: ZoneMapItem, unitSize: number) {

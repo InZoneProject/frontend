@@ -6,6 +6,7 @@ import axios, {
 } from 'axios'
 import { useAuthStore } from '@/stores/auth.store'
 import { router } from '@/router/router'
+import { mediaUrlService } from '@/services/media-url.service'
 
 export class BaseRepository {
     protected axiosInstance: AxiosInstance
@@ -40,7 +41,10 @@ export class BaseRepository {
         })
 
         this.axiosInstance.interceptors.response.use(
-            (response) => response,
+            (response) => {
+                response.data = normalizeMediaFields(response.data)
+                return response
+            },
             async (error: unknown) => {
                 if (isAxiosError(error) && error.response?.status === 401) {
                     const authStore = useAuthStore()
@@ -80,4 +84,24 @@ export class BaseRepository {
     protected async delete<T>(url: string, config?: AxiosRequestConfig): Promise<AxiosResponse<T>> {
         return this.axiosInstance.delete<T>(url, config)
     }
+}
+
+function normalizeMediaFields(value: unknown): unknown {
+    if (Array.isArray(value)) {
+        return value.map((item) => normalizeMediaFields(item))
+    }
+
+    if (!value || typeof value !== 'object') {
+        return value
+    }
+
+    return Object.fromEntries(
+        Object.entries(value).map(([key, entryValue]) => {
+            if (key === 'photo' && (typeof entryValue === 'string' || entryValue === null)) {
+                return [key, mediaUrlService.resolveUrl(entryValue)]
+            }
+
+            return [key, normalizeMediaFields(entryValue)]
+        })
+    )
 }
