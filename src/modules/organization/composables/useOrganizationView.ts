@@ -380,7 +380,10 @@ export const useOrganizationView = (params: {
 
                 if (
                     selectedMemberProfile.value &&
-                    !nextMembers.some((member) => member.id === selectedMemberProfile.value?.id)
+                    !nextMembers.some((member) =>
+                        member.id === selectedMemberProfile.value?.id &&
+                        member.role === selectedMemberProfile.value?.role
+                    )
                 ) {
                     selectedMemberProfile.value = null
                     isMemberInfoModalOpen.value = false
@@ -742,7 +745,9 @@ export const useOrganizationView = (params: {
                 await participantsControlRepository.removeEmployee(params.organizationId, expelTarget.id)
             }
 
-            members.value = members.value.filter((member) => member.id !== expelTarget.id)
+            members.value = members.value.filter((member) =>
+                member.id !== expelTarget.id || member.role !== expelTarget.role
+            )
             tableTotal.value = Math.max(0, tableTotal.value - 1)
             memberToExpel.value = null
             isExpelModalOpen.value = false

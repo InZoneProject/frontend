@@ -1130,11 +1130,16 @@ export const useBuildingView = () => {
         const existingIndex = currentBuildingEmployees.value.findIndex((item) => item.employee_id === payload.employee_id)
 
         const zone = zones.value.find((item) => item.zone_id === payload.zone_id)
+        const existingEmployee = existingIndex >= 0
+            ? currentBuildingEmployees.value[existingIndex]
+            : null
         const nextEmployee: CurrentBuildingEmployee = {
             employee_id: payload.employee_id,
             full_name: payload.full_name,
             email: payload.email,
-            photo: buildingEmployeePhotoService.resolveEmployeePhotoUrl(payload.photo),
+            photo: payload.photo
+                ? buildingEmployeePhotoService.resolveEmployeePhotoUrl(payload.photo)
+                : existingEmployee?.photo ?? null,
             zone_id: payload.zone_id,
             zone_title: zone?.title || '',
             floor_id: payload.floor_id,
