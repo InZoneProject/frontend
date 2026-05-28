@@ -9,6 +9,7 @@ import { Events } from '@/enums/events.enum'
 import { IMAGE_UPLOAD_CONSTANTS } from '@/constants/image-upload.constants'
 import type { ProfileFormEmits } from '@/interfaces/profile-form-emits.interface'
 import type { ProfileFormProperties } from '@/interfaces/profile-form-properties.interface'
+import type { ProfilePhotoUpdatedEventDetail } from '@/interfaces/profile-photo-updated-event-detail.interface'
 
 export function useProfileForm(
     properties: ProfileFormProperties,
@@ -39,6 +40,9 @@ export function useProfileForm(
     const getTranslations = () => properties.translations
     const profileRepository = computed(() =>
         authStore.tagToken ? tagAdminPanelRepository : organizationAdminProfileRepository
+    )
+    const profileRole = computed<ProfilePhotoUpdatedEventDetail['role']>(() =>
+        authStore.tagToken ? 'tag_admin' : 'organization_admin'
     )
 
     const isPhoneValid = computed(() => isValidPhoneInputValue(phoneValue.value))
@@ -131,9 +135,10 @@ export function useProfileForm(
             const nextPhotoUrl = response.data.photo
             photoUrl.value = nextPhotoUrl
             initialPhotoUrl.value = nextPhotoUrl
-            window.dispatchEvent(new CustomEvent('profile-photo-updated', {
+            window.dispatchEvent(new CustomEvent<ProfilePhotoUpdatedEventDetail>('profile-photo-updated', {
                 detail: {
                     email: emailValue.value,
+                    role: profileRole.value,
                     photo: nextPhotoUrl
                 }
             }))

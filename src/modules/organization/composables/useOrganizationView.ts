@@ -13,6 +13,7 @@ import type { OrganizationMemberItem } from '@/modules/organization/interfaces/o
 import type { OrganizationRfidTagItem } from '@/modules/organization/interfaces/organization-rfid-tag-item.interface'
 import type { OrganizationPositionItem } from '@/modules/organization/interfaces/organization-position-item.interface'
 import type { OrganizationsTranslations } from '@/modules/organizations/interfaces/organizations-translations.interface'
+import type { ProfilePhotoUpdatedEventDetail } from '@/interfaces/profile-photo-updated-event-detail.interface'
 import { LIST } from '@/constants/list.constants'
 import { DATA_TABLE_CONSTANTS } from '@/constants/data-table.constants'
 
@@ -159,16 +160,19 @@ export const useOrganizationView = (params: {
     }
 
     const handleProfilePhotoUpdated = (event: Event) => {
-        const detail = (event as CustomEvent<{ email?: string; photo?: string }>).detail
-        if (!detail?.email) return
+        const detail = (event as CustomEvent<ProfilePhotoUpdatedEventDetail>).detail
+        if (!detail?.email || !detail.role) return
 
         members.value = members.value.map((member) =>
-            member.email === detail.email
+            member.email === detail.email && member.role === detail.role
                 ? { ...member, photo: detail.photo || null }
                 : member
         )
 
-        if (selectedMemberProfile.value?.email === detail.email) {
+        if (
+            selectedMemberProfile.value?.email === detail.email &&
+            selectedMemberProfile.value.role === detail.role
+        ) {
             selectedMemberProfile.value = {
                 ...selectedMemberProfile.value,
                 photo: detail.photo || null
