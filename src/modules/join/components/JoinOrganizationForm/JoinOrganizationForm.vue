@@ -8,22 +8,17 @@ import './JoinOrganizationForm.css'
 const properties = defineProps<JoinOrganizationFormProperties>()
 
 const {
-  isConsentChecked,
-  isConsentGiven,
-  isLoading,
-  isSubmitting,
-  isSuccess,
   canSubmit,
   infoMessage,
   errorMessage,
-  handleFormSubmit
+  handleOpenApplication
 } = useJoinOrganizationForm(
     () => properties.translations
 )
 </script>
 
 <template>
-  <form class="join-form" @submit.prevent="handleFormSubmit">
+  <div class="join-form">
     <div class="join-icon">
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor">
         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 21h18M5 21V7l7-4 7 4v14M9 9h.01M15 9h.01M9 13h.01M15 13h.01M9 17h6" />
@@ -40,36 +35,16 @@ const {
       <span>{{ infoMessage }}</span>
     </div>
 
-    <div v-if="isSuccess" class="join-success-message">
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor">
-        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
-      </svg>
-      <span>{{ properties.translations.success }}</span>
-    </div>
-
     <ErrorMessage :message="errorMessage" />
 
-    <label
-        v-if="!isSuccess"
-        class="join-consent"
-        :class="{ 'is-disabled': isConsentGiven || isLoading || isSubmitting }"
-    >
-      <input
-          v-model="isConsentChecked"
-          type="checkbox"
-          :disabled="isConsentGiven || isLoading || isSubmitting"
-      />
-      <span>{{ properties.translations.consent }}</span>
-    </label>
-
     <BaseButton
-        v-if="!isSuccess"
-        type="submit"
+        type="button"
         variant="primary"
         :disabled="!canSubmit"
-        :loading="isSubmitting"
+        :loading="false"
+        @click="handleOpenApplication"
     >
-      {{ infoMessage ? properties.translations.openInApp : properties.translations.confirm }}
+      {{ properties.translations.openInApp }}
     </BaseButton>
-  </form>
+  </div>
 </template>

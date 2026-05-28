@@ -43,15 +43,10 @@ export const en = {
     },
     joinOrganization: {
         title: 'Join organization',
-        description: 'Confirm consent for data processing. Then we will open the InZone Android app and join you to the organization without extra actions.',
-        consent: 'I agree that InZone may process my data and use tracking within organizations I join.',
+        description: 'Open this invitation in the InZone Android app. There we will check your employee account and consent status.',
         openInApp: 'Open in app',
-        confirm: 'Join',
-        success: 'Consent has been granted. The organization was added to your account. You can return to the Android app.',
         missingToken: 'The invitation link is invalid or missing a token.',
-        androidRequired: 'After consent is confirmed, the InZone Android app will open. It will provide the employee token and securely join you to the organization.',
-        loadFailed: 'Failed to check consent status.',
-        joinFailed: 'Failed to join organization.'
+        androidRequired: 'Data processing consent is confirmed in the Android app once your employee account is known.'
     },
     globalAdmin: {
         inviteSection: {

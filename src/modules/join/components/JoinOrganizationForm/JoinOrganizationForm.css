@@ -32,38 +32,11 @@
 }
 
 .join-info-message svg,
-.join-success-message svg {
+.join-info-message svg {
     @apply w-5 h-5 shrink-0;
 }
 
 .join-info-message span,
-.join-success-message span {
+.join-info-message span {
     @apply text-sm font-bold leading-relaxed;
-}
-
-.join-consent {
-    @apply w-full flex items-start gap-3 text-left rounded-2xl border p-4 mb-6 cursor-pointer;
-    background-color: color-mix(in srgb, var(--color-card-bg), transparent 35%);
-    border-color: color-mix(in srgb, var(--color-card-border), transparent 15%);
-}
-
-.join-consent.is-disabled {
-    @apply cursor-default opacity-70;
-}
-
-.join-consent input {
-    @apply mt-1 h-5 w-5 accent-current;
-    color: var(--color-brand-primary);
-}
-
-.join-consent span {
-    @apply text-sm font-semibold leading-relaxed;
-    color: var(--color-text-muted);
-}
-
-.join-success-message {
-    @apply w-full flex items-center gap-3 text-left rounded-2xl border px-4 py-3 mb-6;
-    color: var(--success-main);
-    background-color: var(--success-bg);
-    border-color: var(--success-border);
 }
