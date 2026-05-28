@@ -24,22 +24,16 @@ export function useJoinOrganizationForm(
 
     const canSubmit = computed(() =>
         inviteToken.value.length > 0 &&
-        !!authStore.employeeToken &&
         !isLoading.value &&
         !isSubmitting.value &&
         !isSuccess.value &&
-        (isConsentGiven.value || isConsentChecked.value)
+        isConsentChecked.value
     )
 
     const applicationLink = computed(() => {
         if (!inviteToken.value) return JOIN_ORGANIZATION.DEEP_LINK_SCHEME
         return `${JOIN_ORGANIZATION.DEEP_LINK_SCHEME}?token=${encodeURIComponent(inviteToken.value)}`
     })
-
-    const canOpenApplication = computed(() =>
-        inviteToken.value.length > 0 &&
-        !authStore.employeeToken
-    )
 
     const infoMessage = computed(() => {
         if (inviteToken.value && !authStore.employeeToken) {
@@ -57,6 +51,11 @@ export function useJoinOrganizationForm(
 
     const handleFormSubmit = async () => {
         if (!canSubmit.value) return
+
+        if (!authStore.employeeToken) {
+            handleOpenApplication()
+            return
+        }
 
         isSubmitting.value = true
         errorMessage.value = ''
@@ -76,7 +75,7 @@ export function useJoinOrganizationForm(
     }
 
     const handleOpenApplication = () => {
-        if (!canOpenApplication.value) return
+        if (!inviteToken.value || !isConsentChecked.value) return
         window.location.href = applicationLink.value
     }
 
@@ -115,7 +114,6 @@ export function useJoinOrganizationForm(
         isSubmitting,
         isSuccess,
         canSubmit,
-        canOpenApplication,
         infoMessage,
         errorMessage: visibleErrorMessage,
         handleOpenApplication,

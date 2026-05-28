@@ -14,10 +14,8 @@ const {
   isSubmitting,
   isSuccess,
   canSubmit,
-  canOpenApplication,
   infoMessage,
   errorMessage,
-  handleOpenApplication,
   handleFormSubmit
 } = useJoinOrganizationForm(
     () => properties.translations
@@ -42,17 +40,6 @@ const {
       <span>{{ infoMessage }}</span>
     </div>
 
-    <BaseButton
-        v-if="infoMessage"
-        type="button"
-        variant="secondary"
-        :disabled="!canOpenApplication"
-        :loading="false"
-        @click="handleOpenApplication"
-    >
-      {{ properties.translations.openInApp }}
-    </BaseButton>
-
     <div v-if="isSuccess" class="join-success-message">
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor">
         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
@@ -63,7 +50,7 @@ const {
     <ErrorMessage :message="errorMessage" />
 
     <label
-        v-if="!infoMessage && !isSuccess"
+        v-if="!isSuccess"
         class="join-consent"
         :class="{ 'is-disabled': isConsentGiven || isLoading || isSubmitting }"
     >
@@ -76,13 +63,13 @@ const {
     </label>
 
     <BaseButton
-        v-if="!infoMessage && !isSuccess"
+        v-if="!isSuccess"
         type="submit"
         variant="primary"
         :disabled="!canSubmit"
         :loading="isSubmitting"
     >
-      {{ properties.translations.confirm }}
+      {{ infoMessage ? properties.translations.openInApp : properties.translations.confirm }}
     </BaseButton>
   </form>
 </template>
