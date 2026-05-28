@@ -14,8 +14,10 @@ const {
   isSubmitting,
   isSuccess,
   canSubmit,
+  canOpenApplication,
   infoMessage,
   errorMessage,
+  handleOpenApplication,
   handleFormSubmit
 } = useJoinOrganizationForm(
     () => properties.translations
@@ -39,6 +41,17 @@ const {
       </svg>
       <span>{{ infoMessage }}</span>
     </div>
+
+    <BaseButton
+        v-if="infoMessage"
+        type="button"
+        variant="secondary"
+        :disabled="!canOpenApplication"
+        :loading="false"
+        @click="handleOpenApplication"
+    >
+      {{ properties.translations.openInApp }}
+    </BaseButton>
 
     <div v-if="isSuccess" class="join-success-message">
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor">

@@ -45,6 +45,7 @@ export const en = {
         title: 'Join organization',
         description: 'This invitation is intended for an employee in the InZone Android app. When the app opens the link, you can confirm consent and join the organization.',
         consent: 'I agree that InZone may process my data and use tracking within organizations I join.',
+        openInApp: 'Open in app',
         confirm: 'Join',
         success: 'Consent has been granted. The organization was added to your account. You can return to the Android app.',
         missingToken: 'The invitation link is invalid or missing a token.',

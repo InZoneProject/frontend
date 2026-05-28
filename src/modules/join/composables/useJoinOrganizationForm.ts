@@ -1,5 +1,6 @@
 import { computed, onMounted, ref } from 'vue'
 import { useRoute } from 'vue-router'
+import { JOIN_ORGANIZATION } from '@/modules/join/constants/join-organization.constants'
 import { joinOrganizationRepository } from '@/modules/join/repositories/join-organization.repository'
 import { useAuthStore } from '@/stores/auth.store'
 import type { JoinOrganizationTranslations } from '@/modules/join/interfaces/join-organization-translations.interface'
@@ -28,6 +29,16 @@ export function useJoinOrganizationForm(
         !isSubmitting.value &&
         !isSuccess.value &&
         (isConsentGiven.value || isConsentChecked.value)
+    )
+
+    const applicationLink = computed(() => {
+        if (!inviteToken.value) return JOIN_ORGANIZATION.DEEP_LINK_SCHEME
+        return `${JOIN_ORGANIZATION.DEEP_LINK_SCHEME}?token=${encodeURIComponent(inviteToken.value)}`
+    })
+
+    const canOpenApplication = computed(() =>
+        inviteToken.value.length > 0 &&
+        !authStore.employeeToken
     )
 
     const infoMessage = computed(() => {
@@ -62,6 +73,11 @@ export function useJoinOrganizationForm(
         } finally {
             isSubmitting.value = false
         }
+    }
+
+    const handleOpenApplication = () => {
+        if (!canOpenApplication.value) return
+        window.location.href = applicationLink.value
     }
 
     const loadConsentStatus = async () => {
@@ -99,8 +115,10 @@ export function useJoinOrganizationForm(
         isSubmitting,
         isSuccess,
         canSubmit,
+        canOpenApplication,
         infoMessage,
         errorMessage: visibleErrorMessage,
+        handleOpenApplication,
         handleFormSubmit
     }
 }
