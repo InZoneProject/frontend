@@ -7,6 +7,7 @@ import { useAuthStore } from '@/stores/auth.store'
 import { buildingEditDeleteRepository } from '@/repositories/building-edit-delete.repository'
 import { positionsRepository } from '@/repositories/positions.repository'
 import { participantsControlRepository } from '@/repositories/participants-control.repository'
+import { notificationsSocketService } from '@/services/notifications-socket.service'
 import { buildingRepository } from '@/modules/building/repositories/building.repository'
 import { buildingLocationsSocketService } from '@/modules/building/services/building-locations-socket.service'
 import { buildingMapCacheService } from '@/modules/building/services/building-map-cache.service'
@@ -30,6 +31,8 @@ import type { ViewportBounds } from '@/modules/building/interfaces/viewport-boun
 import type { ViewportPageParams } from '@/modules/building/interfaces/viewport-page-params.interface'
 import type { ZoneMapItem } from '@/modules/building/interfaces/zone-map-item.interface'
 import type { OrganizationListParams } from '@/interfaces/organization-list-params.interface'
+import type { OrganizationMemberJoinedSocketPayload } from '@/interfaces/organization-member-joined-socket-payload.interface'
+import type { OrganizationMemberRemovedSocketPayload } from '@/interfaces/organization-member-removed-socket-payload.interface'
 import { BuildingMapMode } from '@/modules/building/enums/building-map-mode.enum'
 
 export const useBuildingView = () => {
@@ -144,6 +147,8 @@ export const useBuildingView = () => {
     let assignedPositionsSearchDebounce: number | null = null
     let availablePositionsSearchDebounce: number | null = null
     let unsubscribeLocationListener: (() => void) | null = null
+    let unsubscribeMemberJoinedSocket: (() => void) | null = null
+    let unsubscribeMemberRemovedSocket: (() => void) | null = null
     let floorsRequestId = 0
     let buildingEmployeesRequestId = 0
     const getFloorsStateFromQuery = () => route.query.floors === 'collapsed'
@@ -1169,6 +1174,32 @@ export const useBuildingView = () => {
         }
     }
 
+    const refreshLoadedBuildingEmployeesWindow = async () => {
+        if (selectedFloorId.value === 0) return
+        const loadedLimit = Math.max(currentBuildingEmployees.value.length, buildingEmployeesLimit.value)
+        const response = await buildingRepository.getCurrentFloorEmployees(selectedFloorId.value, {
+            search: buildingEmployeesSearch.value,
+            offset: 0,
+            limit: loadedLimit
+        })
+        currentBuildingEmployees.value = response.data.items
+        buildingEmployeesTotal.value = response.data.total
+    }
+
+    const handleOrganizationMemberJoined = (payload: OrganizationMemberJoinedSocketPayload) => {
+        if (payload.organization_id !== building.value.organization_id) return
+        runBackground(refreshLoadedBuildingEmployeesWindow())
+    }
+
+    const handleOrganizationMemberRemoved = (payload: OrganizationMemberRemovedSocketPayload) => {
+        if (payload.organization_id !== building.value.organization_id || payload.role !== 'employee') return
+        currentBuildingEmployees.value = currentBuildingEmployees.value.filter((employee) =>
+            employee.employee_id !== payload.member_id
+        )
+        buildingEmployeesTotal.value = Math.max(0, buildingEmployeesTotal.value - 1)
+        runBackground(refreshLoadedBuildingEmployeesWindow())
+    }
+
     const connectLocationsSocket = () => {
         if (
             buildingMapMode.value !== BuildingMapMode.VIEW ||
@@ -1788,6 +1819,11 @@ export const useBuildingView = () => {
 
     onMounted(() => {
         unsubscribeLocationListener = buildingLocationsSocketService.addListener(updateCurrentBuildingEmployeesFromLocation)
+        if (authStore.orgToken) {
+            unsubscribeMemberJoinedSocket = notificationsSocketService.onOrganizationMemberJoined(handleOrganizationMemberJoined)
+            unsubscribeMemberRemovedSocket = notificationsSocketService.onOrganizationMemberRemoved(handleOrganizationMemberRemoved)
+            notificationsSocketService.connect(authStore.orgToken)
+        }
         applyFloorsStateImmediately(getFloorsStateFromQuery())
         if (route.query.floors !== 'collapsed' && route.query.floors !== 'expanded') {
             void syncFloorsStateToRoute(false)
@@ -1942,6 +1978,10 @@ export const useBuildingView = () => {
         }
         unsubscribeLocationListener?.()
         unsubscribeLocationListener = null
+        unsubscribeMemberJoinedSocket?.()
+        unsubscribeMemberRemovedSocket?.()
+        unsubscribeMemberJoinedSocket = null
+        unsubscribeMemberRemovedSocket = null
         buildingLocationsSocketService.disconnect()
     })
 

@@ -20,14 +20,6 @@ export function useJoinOrganizationForm(
         return `${JOIN_ORGANIZATION.DEEP_LINK_SCHEME}?token=${encodeURIComponent(inviteToken.value)}`
     })
 
-    const infoMessage = computed(() => {
-        if (inviteToken.value) {
-            return getJoinOrganizationTranslations().androidRequired
-        }
-
-        return ''
-    })
-
     const visibleErrorMessage = computed(() => {
         if (!inviteToken.value) return getJoinOrganizationTranslations().missingToken
         return ''
@@ -40,7 +32,6 @@ export function useJoinOrganizationForm(
 
     return {
         canSubmit,
-        infoMessage,
         errorMessage: visibleErrorMessage,
         handleOpenApplication
     }

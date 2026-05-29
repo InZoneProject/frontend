@@ -1,8 +1,12 @@
 import { computed, onBeforeUnmount, onMounted, ref, watch, type Ref } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import { useDateFormatter } from '@/composables/useDateFormatter'
+import { useAuthStore } from '@/stores/auth.store'
+import { notificationsSocketService } from '@/services/notifications-socket.service'
 import type { OrganizationListParams } from '@/interfaces/organization-list-params.interface'
 import type { OrganizationMemberProfile } from '@/interfaces/organization-member-profile.interface'
+import type { OrganizationMemberJoinedSocketPayload } from '@/interfaces/organization-member-joined-socket-payload.interface'
+import type { OrganizationMemberRemovedSocketPayload } from '@/interfaces/organization-member-removed-socket-payload.interface'
 import { organizationEditDeleteRepository } from '@/repositories/organization-edit-delete.repository'
 import { participantsControlRepository } from '@/repositories/participants-control.repository'
 import { organizationRepository } from '@/modules/organization/repositories/organization.repository'
@@ -23,8 +27,11 @@ export const useOrganizationView = (params: {
     onDeleted: () => void
 }) => {
     const { formatDate } = useDateFormatter()
+    const authStore = useAuthStore()
     const router = useRouter()
     const route = useRoute()
+    let unsubscribeMemberJoinedSocket: (() => void) | null = null
+    let unsubscribeMemberRemovedSocket: (() => void) | null = null
 
     const resolveQueryValue = (value: string | string[] | null | undefined) => {
         if (Array.isArray(value)) {
@@ -178,6 +185,42 @@ export const useOrganizationView = (params: {
                 photo: detail.photo || null
             }
         }
+    }
+
+    const refreshLoadedMembersWindow = async () => {
+        if (activeListTab.value !== 'members') return
+        const loadedLimit = Math.max(members.value.length, tableLimit.value)
+        const requestParams: OrganizationListParams = {
+            search: searchQuery.value,
+            offset: 0,
+            limit: loadedLimit
+        }
+
+        const response = await organizationRepository.getMembers(params.organizationId, requestParams)
+        members.value = response.data.items
+        tableTotal.value = response.data.total
+    }
+
+    const handleOrganizationMemberJoined = (payload: OrganizationMemberJoinedSocketPayload) => {
+        if (payload.organization_id !== params.organizationId) return
+        runBackground(refreshLoadedMembersWindow())
+    }
+
+    const handleOrganizationMemberRemoved = (payload: OrganizationMemberRemovedSocketPayload) => {
+        if (payload.organization_id !== params.organizationId) return
+        members.value = members.value.filter((member) =>
+            member.id !== payload.member_id || member.role !== payload.role
+        )
+        tableTotal.value = Math.max(0, tableTotal.value - 1)
+        if (
+            selectedMemberProfile.value?.id === payload.member_id &&
+            selectedMemberProfile.value.role === payload.role
+        ) {
+            selectedMemberProfile.value = null
+            isMemberInfoModalOpen.value = false
+            isMemberPositionsModalOpen.value = false
+        }
+        runBackground(refreshLoadedMembersWindow())
     }
 
     const clearEmployeeInviteCopySuccessMessage = () => {
@@ -1108,6 +1151,11 @@ export const useOrganizationView = (params: {
 
     onMounted(() => {
         window.addEventListener('profile-photo-updated', handleProfilePhotoUpdated)
+        if (authStore.orgToken) {
+            unsubscribeMemberJoinedSocket = notificationsSocketService.onOrganizationMemberJoined(handleOrganizationMemberJoined)
+            unsubscribeMemberRemovedSocket = notificationsSocketService.onOrganizationMemberRemoved(handleOrganizationMemberRemoved)
+            notificationsSocketService.connect(authStore.orgToken)
+        }
         runBackground(fetchOrganizationInfo())
         runBackground(fetchInviteStatuses())
         runBackground(fetchActiveTabData())
@@ -1219,6 +1267,8 @@ export const useOrganizationView = (params: {
 
     onBeforeUnmount(() => {
         window.removeEventListener('profile-photo-updated', handleProfilePhotoUpdated)
+        unsubscribeMemberJoinedSocket?.()
+        unsubscribeMemberRemovedSocket?.()
         if (searchDebounceTimeout !== null) {
             window.clearTimeout(searchDebounceTimeout)
         }

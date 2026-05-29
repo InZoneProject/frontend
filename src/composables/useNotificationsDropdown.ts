@@ -17,6 +17,7 @@ export function useNotificationsDropdown(show: Ref<boolean>) {
     const isDropdownOpen = ref(false)
     const isLoadingNotifications = ref(false)
     const isMarkingAsRead = ref(false)
+    let unsubscribeNotificationsSocket: (() => void) | null = null
 
     const hasUnread = computed(() => unreadCount.value > 0)
 
@@ -130,11 +131,15 @@ export function useNotificationsDropdown(show: Ref<boolean>) {
             return
         }
 
-        notificationsSocketService.connect(token, handleIncomingNotification)
+        if (!unsubscribeNotificationsSocket) {
+            unsubscribeNotificationsSocket = notificationsSocketService.onNotificationReceived(handleIncomingNotification)
+        }
+        notificationsSocketService.connect(token)
     }
 
     const disconnectSocket = (): void => {
-        notificationsSocketService.disconnect()
+        unsubscribeNotificationsSocket?.()
+        unsubscribeNotificationsSocket = null
     }
 
     const openDropdown = async (): Promise<void> => {

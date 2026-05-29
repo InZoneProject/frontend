@@ -9,7 +9,6 @@ const properties = defineProps<JoinOrganizationFormProperties>()
 
 const {
   canSubmit,
-  infoMessage,
   errorMessage,
   handleOpenApplication
 } = useJoinOrganizationForm(
@@ -27,13 +26,6 @@ const {
 
     <h1 class="join-title">{{ properties.translations.title }}</h1>
     <p class="join-description">{{ properties.translations.description }}</p>
-
-    <div v-if="infoMessage" class="join-info-message">
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor">
-        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
-      </svg>
-      <span>{{ infoMessage }}</span>
-    </div>
 
     <ErrorMessage :message="errorMessage" />
 
