@@ -1200,6 +1200,14 @@ export const useBuildingView = () => {
         runBackground(refreshLoadedBuildingEmployeesWindow())
     }
 
+    const connectOrganizationMemberSocket = () => {
+        if (!authStore.orgToken || unsubscribeMemberJoinedSocket || unsubscribeMemberRemovedSocket) return
+
+        unsubscribeMemberJoinedSocket = notificationsSocketService.onOrganizationMemberJoined(handleOrganizationMemberJoined)
+        unsubscribeMemberRemovedSocket = notificationsSocketService.onOrganizationMemberRemoved(handleOrganizationMemberRemoved)
+        notificationsSocketService.connect(authStore.orgToken)
+    }
+
     const connectLocationsSocket = () => {
         if (
             buildingMapMode.value !== BuildingMapMode.VIEW ||
@@ -1819,11 +1827,7 @@ export const useBuildingView = () => {
 
     onMounted(() => {
         unsubscribeLocationListener = buildingLocationsSocketService.addListener(updateCurrentBuildingEmployeesFromLocation)
-        if (authStore.orgToken) {
-            unsubscribeMemberJoinedSocket = notificationsSocketService.onOrganizationMemberJoined(handleOrganizationMemberJoined)
-            unsubscribeMemberRemovedSocket = notificationsSocketService.onOrganizationMemberRemoved(handleOrganizationMemberRemoved)
-            notificationsSocketService.connect(authStore.orgToken)
-        }
+        connectOrganizationMemberSocket()
         applyFloorsStateImmediately(getFloorsStateFromQuery())
         if (route.query.floors !== 'collapsed' && route.query.floors !== 'expanded') {
             void syncFloorsStateToRoute(false)
@@ -1831,6 +1835,13 @@ export const useBuildingView = () => {
         runBackground(fetchBuilding())
         runBackground(fetchFloors())
     })
+
+    watch(
+        () => authStore.orgToken,
+        () => {
+            connectOrganizationMemberSocket()
+        }
+    )
 
     watch(
         () => route.query.floors,

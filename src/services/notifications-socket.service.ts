@@ -36,7 +36,7 @@ class NotificationsSocketService {
             return
         }
 
-        this.disconnect()
+        this.closeSocket()
         this.activeToken = token
 
         this.notificationsSocket = io(this.resolveSocketBaseUrl(), {
@@ -88,11 +88,15 @@ class NotificationsSocketService {
     }
 
     disconnect(): void {
+        this.closeSocket()
+        this.notificationHandlers.clear()
+        this.organizationMemberJoinedHandlers.clear()
+        this.organizationMemberRemovedHandlers.clear()
+    }
+
+    private closeSocket(): void {
         if (!this.notificationsSocket) {
             this.activeToken = ''
-            this.notificationHandlers.clear()
-            this.organizationMemberJoinedHandlers.clear()
-            this.organizationMemberRemovedHandlers.clear()
             return
         }
 
@@ -100,9 +104,6 @@ class NotificationsSocketService {
         this.notificationsSocket.disconnect()
         this.notificationsSocket = null
         this.activeToken = ''
-        this.notificationHandlers.clear()
-        this.organizationMemberJoinedHandlers.clear()
-        this.organizationMemberRemovedHandlers.clear()
     }
 
     private disconnectIfIdle(): void {

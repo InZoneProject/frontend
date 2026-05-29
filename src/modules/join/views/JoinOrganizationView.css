@@ -1,11 +1,32 @@
 @reference "../../../styles/main.css";
 
 .join-page {
-    @apply relative z-10 min-h-screen flex items-center justify-center px-6 py-16;
+    @apply relative z-10 flex items-center justify-center px-6 py-4 overflow-hidden;
+    min-height: 100svh;
+    height: 100dvh;
+}
+
+.join-page .control-panel {
+    @apply fixed top-6 right-6;
 }
 
 .join-card {
     @apply w-full max-w-[34rem] rounded-[2.5rem] border p-8 md:p-10 flex flex-col items-center text-center shadow-2xl;
     background-color: color-mix(in srgb, var(--color-card-bg), transparent 8%);
     border-color: var(--color-card-border);
+    max-height: calc(100dvh - 2rem);
+}
+
+@media (max-width: 640px) {
+    .join-page {
+        @apply px-5 py-3;
+    }
+
+    .join-page .control-panel {
+        @apply top-5 right-5;
+    }
+
+    .join-card {
+        @apply p-8 rounded-[2rem];
+    }
 }

@@ -8,7 +8,8 @@
     @apply grid gap-5 items-stretch;
     --building-info-panel-height: 9.75rem;
     --building-map-panel-height: 720px;
-    grid-template-columns: 420px minmax(0, 1fr);
+    --building-sidebar-width: 480px;
+    grid-template-columns: var(--building-sidebar-width) minmax(0, 1fr);
     grid-template-rows: var(--building-info-panel-height) var(--building-map-panel-height);
     grid-template-areas:
         "floors info"
@@ -40,8 +41,8 @@
 }
 
 .building-layout-grid.is-map-expanded .building-map {
-    width: calc(100% + 420px + 1.25rem);
-    margin-left: calc(-420px - 1.25rem);
+    width: calc(100% + var(--building-sidebar-width) + 1.25rem);
+    margin-left: calc((var(--building-sidebar-width) + 1.25rem) * -1);
 }
 
 .building-loading-line {

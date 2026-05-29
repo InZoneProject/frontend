@@ -203,6 +203,7 @@ export const useOrganizationView = (params: {
 
     const handleOrganizationMemberJoined = (payload: OrganizationMemberJoinedSocketPayload) => {
         if (payload.organization_id !== params.organizationId) return
+        runBackground(fetchInviteStatuses())
         runBackground(refreshLoadedMembersWindow())
     }
 
@@ -221,6 +222,14 @@ export const useOrganizationView = (params: {
             isMemberPositionsModalOpen.value = false
         }
         runBackground(refreshLoadedMembersWindow())
+    }
+
+    const connectOrganizationMemberSocket = () => {
+        if (!authStore.orgToken || unsubscribeMemberJoinedSocket || unsubscribeMemberRemovedSocket) return
+
+        unsubscribeMemberJoinedSocket = notificationsSocketService.onOrganizationMemberJoined(handleOrganizationMemberJoined)
+        unsubscribeMemberRemovedSocket = notificationsSocketService.onOrganizationMemberRemoved(handleOrganizationMemberRemoved)
+        notificationsSocketService.connect(authStore.orgToken)
     }
 
     const clearEmployeeInviteCopySuccessMessage = () => {
@@ -1151,16 +1160,19 @@ export const useOrganizationView = (params: {
 
     onMounted(() => {
         window.addEventListener('profile-photo-updated', handleProfilePhotoUpdated)
-        if (authStore.orgToken) {
-            unsubscribeMemberJoinedSocket = notificationsSocketService.onOrganizationMemberJoined(handleOrganizationMemberJoined)
-            unsubscribeMemberRemovedSocket = notificationsSocketService.onOrganizationMemberRemoved(handleOrganizationMemberRemoved)
-            notificationsSocketService.connect(authStore.orgToken)
-        }
+        connectOrganizationMemberSocket()
         runBackground(fetchOrganizationInfo())
         runBackground(fetchInviteStatuses())
         runBackground(fetchActiveTabData())
         void syncTabsToRoute()
     })
+
+    watch(
+        () => authStore.orgToken,
+        () => {
+            connectOrganizationMemberSocket()
+        }
+    )
 
     watch(activeListTab, () => {
         tableOffset.value = 0
