@@ -43,7 +43,7 @@ class TagAdminPanelRepository extends BaseRepository {
     }
 
     getEmployeeProfile(organizationId: number, employeeId: number) {
-        return this.axiosInstance.get<OrganizationMemberProfile>(
+        return this.get<OrganizationMemberProfile>(
             `${import.meta.env.VITE_API_BASE_URL}/organizations/${organizationId}/members/${employeeId}/employee`
         )
     }

@@ -94,7 +94,7 @@ export const ua = {
     tagAdminPanel: {
         organization: {
             title: 'Організація',
-            descriptionFallback: 'Опис відсутній',
+            descriptionFallback: '—',
             nameLabel: 'Назва організації',
             descriptionLabel: 'Опис',
             createdAtLabel: 'Створено'
@@ -379,7 +379,7 @@ export const ua = {
             },
             info: {
                 label: 'Будівля',
-                emptyAddress: 'Адресу не вказано',
+                emptyAddress: '—',
                 createdAt: 'Створено'
             },
             floorForm: {

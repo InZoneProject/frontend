@@ -94,7 +94,7 @@ export const en = {
     tagAdminPanel: {
         organization: {
             title: 'Organization',
-            descriptionFallback: 'No description',
+            descriptionFallback: '—',
             nameLabel: 'Organization name',
             descriptionLabel: 'Description',
             createdAtLabel: 'Created at'
@@ -379,7 +379,7 @@ export const en = {
             },
             info: {
                 label: 'Building',
-                emptyAddress: 'No address specified',
+                emptyAddress: '—',
                 createdAt: 'Created'
             },
             floorForm: {
