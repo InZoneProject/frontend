@@ -5,6 +5,7 @@ export interface EmployeeLocationSocketPayload {
     previous_zone_id: number | null
     floor_id: number | null
     floor_number: number | null
+    is_transition_between_floors: boolean
     previous_floor_id: number | null
     full_name: string
     email: string

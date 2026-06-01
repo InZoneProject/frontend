@@ -171,7 +171,7 @@ const {
 	              </td>
 	              <td>
 	                <span class="building-employee-floor">
-	                  {{ item.floor_number ?? '—' }}
+	                  {{ item.is_transition_between_floors ? 'М' : (item.floor_number ?? '—') }}
 	                </span>
 	              </td>
 	              <td class="building-employee-actions-cell" @click.stop>

@@ -88,18 +88,6 @@
     background-color: var(--color-error-main);
 }
 
-.building-map.is-view-mode .building-map-door:hover {
-    filter: saturate(1.18);
-    box-shadow:
-            0 0 0 2px color-mix(in srgb, var(--color-brand-primary), transparent 35%),
-            0 0 0.9rem color-mix(in srgb, var(--color-brand-primary), transparent 62%);
-}
-
-.building-map.is-view-mode .building-map-door:hover .building-map-door-reader {
-    background-color: var(--color-brand-primary);
-    box-shadow: 0 0 0 0.35rem color-mix(in srgb, var(--color-brand-primary), transparent 82%);
-}
-
 .building-map-door.is-horizontal {
     z-index: 8;
 }

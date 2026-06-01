@@ -1117,7 +1117,7 @@ export const useBuildingView = () => {
     }
 
     const matchesBuildingEmployeesSearch = (
-        employee: Pick<CurrentBuildingEmployee, 'full_name' | 'email' | 'zone_title' | 'floor_number'>
+        employee: Pick<CurrentBuildingEmployee, 'full_name' | 'email' | 'zone_title' | 'floor_number' | 'is_transition_between_floors'>
     ) => {
         const query = buildingEmployeesSearch.value.trim().toLowerCase()
         if (!query) return true
@@ -1126,6 +1126,7 @@ export const useBuildingView = () => {
             employee.full_name,
             employee.email,
             employee.zone_title,
+            employee.is_transition_between_floors ? 'м' : '',
             employee.floor_number === null ? '' : String(employee.floor_number)
         ]
             .some((value) => value.toLowerCase().includes(query))
@@ -1149,6 +1150,7 @@ export const useBuildingView = () => {
             zone_title: zone?.title || '',
             floor_id: payload.floor_id,
             floor_number: payload.floor_number,
+            is_transition_between_floors: payload.is_transition_between_floors,
             last_scan_at: payload.timestamp
         }
 
@@ -1358,6 +1360,7 @@ export const useBuildingView = () => {
             zone_title: zone?.title || '',
             floor_id: selectedFloorId.value,
             floor_number: floors.value.find((floor) => floor.floor_id === selectedFloorId.value)?.floor_number ?? null,
+            is_transition_between_floors: zone?.is_transition_between_floors ?? false,
             last_scan_at: null
         })
     }

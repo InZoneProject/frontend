@@ -6,5 +6,5 @@ export interface OrganizationInfoFormProperties {
     nameLabel: string
     descriptionLabel: string
     createdAtLabel: string
-    showActions?: boolean
+    showActions: boolean
 }

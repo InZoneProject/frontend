@@ -7,5 +7,6 @@ export interface CurrentBuildingEmployee {
     zone_title: string
     floor_id: number | null
     floor_number: number | null
+    is_transition_between_floors: boolean
     last_scan_at: string | null
 }

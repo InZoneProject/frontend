@@ -166,6 +166,7 @@ const {
               :name-label="properties.translations.page.infoForm.nameLabel"
               :description-label="properties.translations.page.infoForm.descriptionLabel"
               :created-at-label="properties.translations.page.infoForm.createdAtLabel"
+              :show-actions="true"
               @edit="openEditModal"
               @delete="openDeleteModal"
           />
