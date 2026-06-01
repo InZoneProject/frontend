@@ -723,6 +723,7 @@ export const useBuildingView = () => {
     const readerToRegenerate = ref<RfidReaderItem | null>(null)
     const isRegeneratingReaderToken = ref(false)
     const readerTokenCopySuccessMessage = ref('')
+    let readerTokenCopySuccessTimeout: number | undefined
     const readerErrorMessage = ref('')
     const canSubmitReader = computed(() => readerNameValue.value.trim().length > 0)
     const addDoor = async (payload: { zone_from_id: number | null; zone_to_id: number; floor_id: number; entrance_door_side?: 'top' | 'bottom' | 'left' | 'right' }) => {
@@ -827,6 +828,7 @@ export const useBuildingView = () => {
         }
     }
     const openDoorReaderModal = async (doorId: number) => {
+        clearReaderTokenCopySuccessMessage()
         readerDoorId.value = doorId
         readersOffset.value = 0
         generatedReaderToken.value = ''
@@ -834,6 +836,7 @@ export const useBuildingView = () => {
         await fetchDoorReaders()
     }
     const closeDoorReaderModal = () => {
+        clearReaderTokenCopySuccessMessage()
         readerDoorId.value = 0
         selectedDoorReader.value = null
         availableReaders.value = []
@@ -886,6 +889,7 @@ export const useBuildingView = () => {
         readerErrorMessage.value = ''
         try {
             const response = await buildingRepository.regenerateReaderToken(readerToRegenerate.value.rfid_reader_id)
+            clearReaderTokenCopySuccessMessage()
             generatedReaderToken.value = response.data.new_secret_token
             readerToRegenerate.value = null
         } catch {
@@ -946,6 +950,7 @@ export const useBuildingView = () => {
                 const response = await buildingRepository.createReaderForDoor(readerDoorId.value, name)
                 availableReaders.value = [response.data, ...availableReaders.value]
                 readersTotal.value += 1
+                clearReaderTokenCopySuccessMessage()
                 generatedReaderToken.value = response.data.secret_token
             } else if (readerEditingId.value > 0) {
                 await buildingRepository.updateReaderName(readerEditingId.value, name)
@@ -966,10 +971,19 @@ export const useBuildingView = () => {
     const copyGeneratedReaderToken = async () => {
         if (!generatedReaderToken.value) return
         await navigator.clipboard.writeText(generatedReaderToken.value)
+        clearReaderTokenCopySuccessMessage()
+        readerTokenCopySuccessMessage.value = translations.value.organizationAdmin.buildingPage.doorReader.copySuccess
+        readerTokenCopySuccessTimeout = window.setTimeout(() => {
+            readerTokenCopySuccessTimeout = undefined
+            readerTokenCopySuccessMessage.value = ''
+        }, READER_TOKEN_COPY_SUCCESS_VISIBLE_MS)
+    }
+    const clearReaderTokenCopySuccessMessage = () => {
+        if (readerTokenCopySuccessTimeout !== undefined) {
+            window.clearTimeout(readerTokenCopySuccessTimeout)
+            readerTokenCopySuccessTimeout = undefined
+        }
         readerTokenCopySuccessMessage.value = ''
-        window.setTimeout(() => {
-            readerTokenCopySuccessMessage.value = translations.value.organizationAdmin.buildingPage.doorReader.copySuccess
-        }, 0)
     }
 
     const formattedCreatedAt = computed(() => buildingCreatedAt.value ? formatDate(buildingCreatedAt.value) : '-')
@@ -1975,6 +1989,7 @@ export const useBuildingView = () => {
     })
 
     onBeforeUnmount(() => {
+        clearReaderTokenCopySuccessMessage()
         if (floorsSearchDebounce !== null) {
             window.clearTimeout(floorsSearchDebounce)
         }
@@ -2210,3 +2225,5 @@ export const useBuildingView = () => {
         copyGeneratedReaderToken
     }
 }
+
+const READER_TOKEN_COPY_SUCCESS_VISIBLE_MS = 2000

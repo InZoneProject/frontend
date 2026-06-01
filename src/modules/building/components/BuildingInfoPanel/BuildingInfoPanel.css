@@ -8,7 +8,7 @@
 }
 
 .building-info-main {
-    @apply min-w-0 flex flex-col gap-2;
+    @apply min-w-0 flex-1 overflow-hidden flex flex-col gap-2;
 }
 
 .building-info-label {
@@ -17,13 +17,12 @@
 }
 
 .building-info-title {
-    @apply text-2xl font-black min-w-0;
+    @apply text-2xl font-black min-w-0 truncate;
     color: var(--color-text-main);
-    overflow-wrap: anywhere;
 }
 
 .building-info-address {
-    @apply text-sm font-semibold;
+    @apply text-sm font-semibold truncate;
     color: var(--color-text-muted);
 }
 
